@@ -1,0 +1,74 @@
+language: ko-KR
+
+early_access: true
+enable_free_tier: true
+reviews:
+  profile: chill
+  request_changes_workflow: true
+  high_level_summary: true
+  high_level_summary_placeholder: '@coderabbitai summary'
+  auto_title_placeholder: '@coderabbitai'
+  review_status: true
+  commit_status: true
+  poem: false
+  collapse_walkthrough: true
+  changed_files_summary: true
+  labeling_instructions: [ ]
+
+  path_instructions:
+    # 1. JPA Entity Rules (Performance & Data Types)
+    - path: "**/entity/**/*.java"
+      instructions: >
+        Strictly follow these team conventions for JPA Entity design:
+        
+        ### Data Types & PK/FK Mapping
+        - All fields used as Primary Keys (PK) or Foreign Keys (FK) must be of type 'Long' (to map correctly to DB bigint).
+        - If a field name ends with "id" or "Id" (e.g., productId) but the type is not 'Long', issue a 🚨🚨🚨 warning.
+        
+        ### Association & Fetch Strategy (JPA)
+        - All association annotations ending in '~ToOne' (@ManyToOne, @OneToOne) MUST explicitly include 'fetch = FetchType.LAZY'.
+        - If the fetch setting is missing (defaulting to EAGER) or explicitly set to 'FetchType.EAGER', issue a 🚨🚨🚨 warning regarding potential performance degradation and recommend changing it to 'LAZY'.
+
+    # 2. API Controller Rules (REST API Design Guidelines)
+    - path: "**/*Controller.java"
+      instructions: >
+        Review the API endpoints based on these guidelines:
+        
+        ### Richardson Maturity Model (RMM)
+        1. Level 0: Single URI with POST requests for all actions.
+        2. Level 1: Separate URIs for individual resources.
+        3. Level 2: Use of HTTP methods (GET, POST, PUT, DELETE) to define operations on resources.
+        4. Level 3: Hypermedia (HATEOAS) for advanced RESTful APIs.
+        
+        ### API Conventions
+        - URI Rules:
+          - Should be intuitive and self-explanatory.
+          - Should not map 1:1 to database tables.
+          - Must be stateless, with no session state between requests.
+          - Include "api" and version in the URI (/api/{version}/resource).
+          - Use kebab-case for URIs and camelCase for parameters and body contents.
+          - Resource identifiers should be unique and only one per URI path.
+        
+        - Design Principles:
+          - APIs should be designed around resources, which are abstractions rather than direct database tables.
+          - Stateless APIs facilitate scalability and flexibility.
+          - Clear separation of frontend and backend via URI structure.
+          - Versioning in URI paths is preferred for clarity and ease of caching.
+          - Maintain consistent naming conventions across the API.
+          - Use plural forms for resource names (/users instead of /user).
+          - Complex actions can include verbs in the URI (/orders/{orderId}/cancel).
+        
+        - Implementation Details:
+          - Avoid deeply nested resource paths to ensure maintainability.
+          - Ensure URIs reflect the data they provide, not the permissions or roles required to access them.
+          - Keep URIs simple and predictable, aiding both developers and automated systems.
+
+  tools:
+    shellcheck:
+      enabled: true
+    github-checks:
+      enabled: true
+    biome: { enabled: false }
+    swiftlint: { enabled: false }
+    phpstan: { enabled: false }
+    golangci-lint: { enabled: false }
