@@ -2,7 +2,7 @@
 name: "❌ Bug Report Template"
 about: 버그가 발생한 상황과 수정 내역을 적습니다
 title: "[BUG] 제목"   
-labels: '🐞 BugFix' <- label 정해서 수정
+labels: '🐞 BugFix'
 assignees: ''
 
 ---
