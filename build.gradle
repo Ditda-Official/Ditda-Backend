@@ -36,6 +36,9 @@ dependencies {
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+	// swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
+
 	// devtools
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 

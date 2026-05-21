@@ -19,3 +19,13 @@ spring:
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+  api-docs:
+    path: /v3/api-docs
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
