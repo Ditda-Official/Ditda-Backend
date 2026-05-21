@@ -21,5 +21,26 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
+  redis:
+    image: redis:8.6-alpine
+    container_name: ditda-redis
+    ports:
+      - "127.0.0.1:6379:6379"
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD}
+      - --appendonly
+      - "yes"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - redis-data:/data
+
 volumes:
   mysql-data:
+  redis-data:
