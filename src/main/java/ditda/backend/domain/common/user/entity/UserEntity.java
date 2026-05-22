@@ -50,7 +50,7 @@ public class UserEntity extends BaseEntity {
 	@Column(name = "role", nullable = false)
 	private UserRole role;
 
-	@Column(name = "address", nullable = false)
+	@Column(name = "address")
 	private String address;
 
 	@Column(name = "email_verified_at", nullable = true)
