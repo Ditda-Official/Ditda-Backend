@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ditda.backend.domain.common.auth.dto.request.EmailCodeVerificationRequest;
 import ditda.backend.domain.common.auth.dto.request.EmailVerificationRequest;
 import ditda.backend.domain.common.auth.facade.AuthFacade;
 import ditda.backend.global.apipayload.response.ApiResponse;
@@ -31,5 +32,14 @@ public class AuthController {
 		authFacade.requestEmailVerification(request.email());
 
 		return ApiResponse.onSuccess("인증번호가 발송되었습니다.");
+	}
+
+	@Operation(summary = "이메일 인증번호 검증", description = "이메일 인증번호를 검증합니다.")
+	@PostMapping("/emails/verification")
+	public ApiResponse<Void> verifyEmailCode(
+		@Valid @RequestBody EmailCodeVerificationRequest request
+	) {
+		authFacade.verifyEmailCode(request.email(), request.code());
+		return ApiResponse.onSuccess("이메일 인증이 완료되었습니다.");
 	}
 }
