@@ -1,7 +1,6 @@
 package ditda.backend.domain.instructor.auth.controller;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +27,7 @@ public class InstructorAuthController {
 	private final InstructorAuthFacade instructorAuthFacade;
 
 	@Operation(summary = "강사 아이디 중복 확인", description = "**[회원가입]** 사용 가능한 아이디인지 확인합니다.")
-	@GetMapping("/check-username")
+	@PostMapping("/check-username")
 	public ApiResponse<Void> checkUsername(
 		@Valid @RequestBody CheckUsernameRequest request
 	) {
