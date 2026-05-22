@@ -38,6 +38,10 @@ jwt:
   cookie-secure: ${JWT_COOKIE_SECURE}
   refresh-cookie-path: ${JWT_REFRESH_COOKIE_PATH}
 
+encrypt:
+  secret-key: ${ENCRYPT_SECRET_KEY}
+  hash-key: ${ENCRYPT_HASH_KEY}
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
