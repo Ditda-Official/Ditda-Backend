@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.common.auth.entity.RefreshToken;
 import ditda.backend.domain.common.auth.repository.RefreshTokenRepository;
-import ditda.backend.domain.common.auth.service.EmailVerificationService;
 import ditda.backend.domain.common.term.entity.UserTerm;
 import ditda.backend.domain.common.term.entity.enums.TermType;
 import ditda.backend.domain.common.term.repository.UserTermRepository;
@@ -86,11 +85,9 @@ public class InstructorAuthService {
 
 		userTermRepository.saveAll(terms);
 
-		Instructor instructor = instructorRepository.save(
-			Instructor.createInstructor(user)
-		);
+		instructorRepository.save(Instructor.createInstructor(user));
 
-		return issueTokens(instructor.getId());
+		return issueTokens(user.getId());
 	}
 
 	private void validateEmailAvailable(InstructorSignupRequest request) {
