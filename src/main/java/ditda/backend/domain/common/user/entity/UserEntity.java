@@ -53,9 +53,6 @@ public class UserEntity extends BaseEntity {
 	@Column(name = "role", nullable = false)
 	private UserRole role;
 
-	@Column(name = "address")
-	private String address;
-
 	@Column(name = "email_verified_at")
 	private LocalDateTime emailVerifiedAt;
 
@@ -66,8 +63,7 @@ public class UserEntity extends BaseEntity {
 		String email,
 		String profileImage,
 		String phone,
-		UserRole role,
-		String address
+		UserRole role
 	) {
 		return UserEntity.builder()
 			.username(username)
@@ -77,7 +73,6 @@ public class UserEntity extends BaseEntity {
 			.profileImage(profileImage)
 			.phone(phone)
 			.role(role)
-			.address(address)
 			.build();
 	}
 }

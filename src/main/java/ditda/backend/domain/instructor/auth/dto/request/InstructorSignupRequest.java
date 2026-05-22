@@ -61,9 +61,6 @@ public record InstructorSignupRequest(
 	)
 	String phone,
 
-	@Schema(description = "주소", example = "서울시 마포구 홍익대학교")
-	String address,
-
 	@Schema(description = "아이디 (6 ~ 20자 이내)", example = "testid123")
 	@NotBlank(message = "아이디는 필수입니다.")
 	@Size(min = 6, max = 20, message = "아이디는 6자 이상 20자 이하여야 합니다.")
