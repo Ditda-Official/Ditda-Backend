@@ -10,7 +10,7 @@ import ditda.backend.domain.instructor.auth.dto.InstructorAuthResult;
 import ditda.backend.domain.instructor.auth.dto.request.CheckUsernameRequest;
 import ditda.backend.domain.instructor.auth.dto.request.InstructorSignupRequest;
 import ditda.backend.domain.instructor.auth.dto.response.InstructorSignupResponse;
-import ditda.backend.domain.instructor.auth.service.InstructorAuthService;
+import ditda.backend.domain.instructor.auth.facade.InstructorAuthFacade;
 import ditda.backend.global.apipayload.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Instructor Auth", description = "강사 회원가입 API")
 public class InstructorAuthController {
 
-	private final InstructorAuthService instructorAuthService;
+	private final InstructorAuthFacade instructorAuthFacade;
 
 	@Operation(summary = "강사 아이디 중복 확인", description = "**[회원가입]** 사용 가능한 아이디인지 확인합니다.")
 	@PostMapping("/check-username")
@@ -32,7 +32,7 @@ public class InstructorAuthController {
 		@Valid @RequestBody CheckUsernameRequest request
 	) {
 
-		instructorAuthService.validateUsernameAvailable(request.username());
+		instructorAuthFacade.validateUsernameAvailable(request.username());
 		return ApiResponse.onSuccess("아이디 사용 가능 여부 조회 성공");
 	}
 
@@ -43,11 +43,11 @@ public class InstructorAuthController {
 		HttpServletResponse response
 	) {
 
-		InstructorAuthResult result = instructorAuthService.signup(request);
+		InstructorAuthResult result = instructorAuthFacade.signup(request);
+
 		response.addHeader(HttpHeaders.SET_COOKIE, result.refreshTokenCookie().toString());
 
 		return ApiResponse.onSuccess("강사 회원가입 성공",
 			new InstructorSignupResponse(result.userId(), result.accessToken()));
 	}
-
 }
