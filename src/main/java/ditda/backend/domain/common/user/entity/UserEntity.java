@@ -6,6 +6,8 @@ import ditda.backend.domain.common.user.entity.enums.UserRole;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -47,6 +49,7 @@ public class UserEntity extends BaseEntity {
 	@Column(name = "phone", nullable = false, length = 20)
 	private String phone;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "role", nullable = false)
 	private UserRole role;
 
