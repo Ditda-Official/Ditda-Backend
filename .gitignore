@@ -35,3 +35,13 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Spring Boot ###
+*.pid
+*.log.*
+logs/
+
+### Environment ###
+.env
+.env.*
+!.env.example

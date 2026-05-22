@@ -1,0 +1,29 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+    show-sql: true
+    open-in-view: false
+
+  cloud:
+    aws:
+      credentials:
+        access-key: ${S3_ACCESS_KEY}
+        secret-key: ${S3_SECRET_KEY}
+      region:
+        static: ${S3_REGION}
+      s3:
+        endpoint: ${S3_ENDPOINT}
+        path-style-access-enabled: true
+
+app:
+  s3:
+    bucket: ${S3_BUCKET}
+
+swagger:
+  server-url: http://localhost:8080
+  server-description: Local Server
