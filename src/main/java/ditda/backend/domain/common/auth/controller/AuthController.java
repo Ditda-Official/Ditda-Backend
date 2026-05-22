@@ -25,7 +25,7 @@ public class AuthController {
 	private final AuthFacade authFacade;
 
 	@Operation(summary = "이메일 인증번호 요청", description = "이메일 인증번호를 요청합니다.")
-	@PostMapping("/emails/verification-request")
+	@PostMapping("/emails/verification-requests")
 	public ApiResponse<Void> requestEmailVerification(
 		@Valid @RequestBody EmailVerificationRequest request
 	) {
@@ -35,7 +35,7 @@ public class AuthController {
 	}
 
 	@Operation(summary = "이메일 인증번호 검증", description = "이메일 인증번호를 검증합니다.")
-	@PostMapping("/emails/verification")
+	@PostMapping("/emails/verifications")
 	public ApiResponse<Void> verifyEmailCode(
 		@Valid @RequestBody EmailCodeVerificationRequest request
 	) {
