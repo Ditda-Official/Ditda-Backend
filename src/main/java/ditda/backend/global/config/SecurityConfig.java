@@ -57,7 +57,10 @@ public class SecurityConfig {
 			// api 접근 권한 설정
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-				.requestMatchers(HttpMethod.POST, "/api/v1/auth/reissue").authenticated()
+				.requestMatchers(HttpMethod.POST,
+					"/api/v1/instructor/check-username",
+					"/api/v1/instructor/signup"
+				).permitAll()
 				.requestMatchers("/api/v1/auth/**").permitAll()
 				.anyRequest().authenticated()
 			)
@@ -79,4 +82,3 @@ public class SecurityConfig {
 		return source;
 	}
 }
-
