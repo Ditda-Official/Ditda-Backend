@@ -1,0 +1,58 @@
+package ditda.backend.domain.common.user.entity;
+
+import java.time.LocalDateTime;
+
+import ditda.backend.domain.common.user.entity.enums.UserRole;
+import ditda.backend.global.entity.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "users")
+@Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class UserEntity extends BaseEntity {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "user_id")
+	private Long id;
+
+	@Column(name = "username", nullable = false, unique = true, length = 20)
+	private String username;
+
+	@Column(name = "password", nullable = false)
+	private String password;
+
+	@Column(name = "name", nullable = false, length = 50)
+	private String name;
+
+	@Column(name = "email", nullable = false, unique = true, length = 100)
+	private String email;
+
+	@Column(name = "profile_image_url", nullable = false)
+	private String profileImage;
+
+	@Column(name = "phone", nullable = false, length = 20)
+	private String phone;
+
+	@Column(name = "role", nullable = false)
+	private UserRole role;
+
+	@Column(name = "address", nullable = false)
+	private String address;
+
+	@Column(name = "email_verified_at", nullable = true)
+	private LocalDateTime emailVerifiedAt;
+}
