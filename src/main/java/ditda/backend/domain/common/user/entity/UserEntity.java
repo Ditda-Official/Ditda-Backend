@@ -56,6 +56,28 @@ public class UserEntity extends BaseEntity {
 	@Column(name = "address")
 	private String address;
 
-	@Column(name = "email_verified_at", nullable = true)
+	@Column(name = "email_verified_at")
 	private LocalDateTime emailVerifiedAt;
+
+	public static UserEntity createUser(
+		String username,
+		String password,
+		String name,
+		String email,
+		String profileImage,
+		String phone,
+		UserRole role,
+		String address
+	) {
+		return UserEntity.builder()
+			.username(username)
+			.password(password)
+			.name(name)
+			.email(email)
+			.profileImage(profileImage)
+			.phone(phone)
+			.role(role)
+			.address(address)
+			.build();
+	}
 }
