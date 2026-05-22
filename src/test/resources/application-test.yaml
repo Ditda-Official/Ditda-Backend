@@ -27,11 +27,11 @@ spring:
         path-style-access-enabled: true
 
 jwt:
-  secret: ${JWT_SECRET_KEY}
-  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
-  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
-  cookie-secure: ${JWT_COOKIE_SECURE}
-  refresh-cookie-path: ${JWT_REFRESH_COOKIE_PATH}
+  secret: application-test-jwt-secret-key-only-for-ci
+  access-token-expiration: 3600000
+  refresh-token-expiration: 86400000
+  cookie-secure: false
+  refresh-cookie-path: /api/v1/auth
 
 app:
   s3:
