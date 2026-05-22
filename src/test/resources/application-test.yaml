@@ -15,17 +15,17 @@ spring:
       port: 6370
       password:
 
-    mail:
-      host: 127.0.0.1
-      port: 3025
-      username: test
-      password: test
-      properties:
-        mail:
-          smtp:
-            auth: true
-            starttls:
-              enable: false
+  mail:
+    host: 127.0.0.1
+    port: 3025
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: false
 
   cloud:
     aws:
