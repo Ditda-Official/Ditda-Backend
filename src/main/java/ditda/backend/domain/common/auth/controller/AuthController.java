@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ditda.backend.domain.common.auth.dto.request.CheckUsernameRequest;
 import ditda.backend.domain.common.auth.dto.request.EmailCodeVerificationRequest;
 import ditda.backend.domain.common.auth.dto.request.EmailVerificationRequest;
 import ditda.backend.domain.common.auth.facade.AuthFacade;
@@ -24,7 +25,17 @@ public class AuthController {
 
 	private final AuthFacade authFacade;
 
-	@Operation(summary = "이메일 인증번호 요청", description = "이메일 인증번호를 요청합니다.")
+	@Operation(summary = "아이디 중복 확인", description = "**[회원가입]** 사용 가능한 아이디인지 확인합니다.")
+	@PostMapping("/check-username")
+	public ApiResponse<Void> checkUsername(
+		@Valid @RequestBody CheckUsernameRequest request
+	) {
+
+		authFacade.validateUsernameAvailable(request.username());
+		return ApiResponse.onSuccess("아이디 사용 가능 여부 조회 성공");
+	}
+
+	@Operation(summary = "이메일 인증번호 요청", description = "**[회원가입]** 이메일 인증번호를 요청합니다.")
 	@PostMapping("/emails/verification-requests")
 	public ApiResponse<Void> requestEmailVerification(
 		@Valid @RequestBody EmailVerificationRequest request
@@ -34,7 +45,7 @@ public class AuthController {
 		return ApiResponse.onSuccess("인증번호가 발송되었습니다.");
 	}
 
-	@Operation(summary = "이메일 인증번호 검증", description = "이메일 인증번호를 검증합니다.")
+	@Operation(summary = "이메일 인증번호 검증", description = "**[회원가입]** 이메일 인증번호를 검증합니다.")
 	@PostMapping("/emails/verifications")
 	public ApiResponse<Void> verifyEmailCode(
 		@Valid @RequestBody EmailCodeVerificationRequest request

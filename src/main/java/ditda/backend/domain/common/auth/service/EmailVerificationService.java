@@ -59,8 +59,11 @@ public class EmailVerificationService {
 		redisTemplate.opsForValue().set(verifiedKey(email), "true", VERIFIED_TTL);
 	}
 
-	public boolean isVerified(String email) {
-		return "true".equals(redisTemplate.opsForValue().get(verifiedKey(email)));
+	public void validateVerified(String email) {
+		String verified = redisTemplate.opsForValue().get(verifiedKey(email));
+		if (!"true".equals(verified)) {
+			throw new GeneralException(AuthErrorCode.EMAIL_NOT_VERIFIED);
+		}
 	}
 
 	public void deleteVerified(String email) {

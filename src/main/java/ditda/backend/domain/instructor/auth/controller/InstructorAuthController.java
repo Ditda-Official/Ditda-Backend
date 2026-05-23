@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ditda.backend.domain.instructor.auth.dto.InstructorAuthResult;
-import ditda.backend.domain.instructor.auth.dto.request.CheckUsernameRequest;
 import ditda.backend.domain.instructor.auth.dto.request.InstructorSignupRequest;
 import ditda.backend.domain.instructor.auth.dto.response.InstructorSignupResponse;
 import ditda.backend.domain.instructor.auth.facade.InstructorAuthFacade;
@@ -25,16 +24,6 @@ import lombok.RequiredArgsConstructor;
 public class InstructorAuthController {
 
 	private final InstructorAuthFacade instructorAuthFacade;
-
-	@Operation(summary = "강사 아이디 중복 확인", description = "**[회원가입]** 사용 가능한 아이디인지 확인합니다.")
-	@PostMapping("/check-username")
-	public ApiResponse<Void> checkUsername(
-		@Valid @RequestBody CheckUsernameRequest request
-	) {
-
-		instructorAuthFacade.validateUsernameAvailable(request.username());
-		return ApiResponse.onSuccess("아이디 사용 가능 여부 조회 성공");
-	}
 
 	@Operation(summary = "강사 회원가입", description = "**[회원가입]** 회원가입 후 자동 로그인 처리됩니다.")
 	@PostMapping("/signup")
