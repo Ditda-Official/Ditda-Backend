@@ -11,7 +11,7 @@ import ditda.backend.domain.common.term.entity.UserTerm;
 import ditda.backend.domain.common.term.entity.enums.TermType;
 import ditda.backend.domain.common.term.exception.TermErrorCode;
 import ditda.backend.domain.common.term.repository.UserTermRepository;
-import ditda.backend.domain.common.user.entity.UserEntity;
+import ditda.backend.domain.common.user.entity.User;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +28,7 @@ public class TermService {
 	private final UserTermRepository userTermRepository;
 
 	@Transactional
-	public void saveTerms(UserEntity user, List<TermAgreement> agreements) {
+	public void saveTerms(User user, List<TermAgreement> agreements) {
 		validateRequiredAgreements(agreements);
 
 		List<UserTerm> terms = agreements.stream()

@@ -10,7 +10,7 @@ import ditda.backend.domain.common.auth.dto.TokenPair;
 import ditda.backend.domain.common.auth.service.TokenService;
 import ditda.backend.domain.common.term.dto.TermAgreement;
 import ditda.backend.domain.common.term.service.TermService;
-import ditda.backend.domain.common.user.entity.UserEntity;
+import ditda.backend.domain.common.user.entity.User;
 import ditda.backend.domain.common.user.entity.enums.UserRole;
 import ditda.backend.domain.common.user.service.UserService;
 import ditda.backend.domain.instructor.auth.dto.InstructorAuthResult;
@@ -37,7 +37,7 @@ public class InstructorAuthService {
 		userService.validateUsernameAvailable(request.username());
 		userService.validateEmailAvailable(request.email());
 
-		UserEntity user = userService.createUser(
+		User user = userService.createUser(
 			request.username(),
 			passwordEncoder.encode(request.password()),
 			request.name(),

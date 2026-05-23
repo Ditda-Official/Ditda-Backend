@@ -2,7 +2,7 @@ package ditda.backend.domain.common.auth.entity;
 
 import java.time.LocalDateTime;
 
-import ditda.backend.domain.common.user.entity.UserEntity;
+import ditda.backend.domain.common.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,7 +31,7 @@ public class RefreshToken {
 	@OneToOne(fetch = FetchType.LAZY)
 	@MapsId
 	@JoinColumn(name = "user_id")
-	private UserEntity user;
+	private User user;
 
 	@Column(name = "refresh_token", nullable = false, length = 512)
 	private String token;
@@ -39,7 +39,7 @@ public class RefreshToken {
 	@Column(name = "expires_at", nullable = false)
 	private LocalDateTime expiresAt;
 
-	public static RefreshToken createRefreshToken(UserEntity user, String token, LocalDateTime expiresAt) {
+	public static RefreshToken createRefreshToken(User user, String token, LocalDateTime expiresAt) {
 		return RefreshToken.builder()
 			.user(user)
 			.token(token)

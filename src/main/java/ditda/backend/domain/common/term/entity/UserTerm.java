@@ -1,7 +1,7 @@
 package ditda.backend.domain.common.term.entity;
 
 import ditda.backend.domain.common.term.entity.enums.TermType;
-import ditda.backend.domain.common.user.entity.UserEntity;
+import ditda.backend.domain.common.user.entity.User;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,7 +35,7 @@ public class UserTerm extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
-	private UserEntity user;
+	private User user;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "term_type", nullable = false, length = 50)
@@ -47,7 +47,7 @@ public class UserTerm extends BaseEntity {
 	@Column(name = "is_agreed", nullable = false)
 	private boolean isAgreed;
 
-	public static UserTerm createTerm(UserEntity user, TermType type, String version, boolean isAgreed) {
+	public static UserTerm createTerm(User user, TermType type, String version, boolean isAgreed) {
 		return UserTerm.builder()
 			.user(user)
 			.termType(type)

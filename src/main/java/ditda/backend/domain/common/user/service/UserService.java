@@ -3,7 +3,7 @@ package ditda.backend.domain.common.user.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import ditda.backend.domain.common.user.entity.UserEntity;
+import ditda.backend.domain.common.user.entity.User;
 import ditda.backend.domain.common.user.entity.enums.UserRole;
 import ditda.backend.domain.common.user.exception.UserErrorCode;
 import ditda.backend.domain.common.user.repository.UserRepository;
@@ -17,7 +17,7 @@ public class UserService {
 
 	private final UserRepository userRepository;
 
-	public UserEntity getReferenceById(Long userId) {
+	public User getReferenceById(Long userId) {
 		return userRepository.getReferenceById(userId);
 	}
 
@@ -43,11 +43,11 @@ public class UserService {
 
 	// 유저 생성
 	@Transactional
-	public UserEntity createUser(
+	public User createUser(
 		String username, String encodedPassword, String name,
 		String email, String profileImage, String phone, UserRole role
 	) {
-		UserEntity user = UserEntity.createUser(
+		User user = User.createUser(
 			username, encodedPassword, name, email, profileImage, phone, role
 		);
 		return userRepository.save(user);

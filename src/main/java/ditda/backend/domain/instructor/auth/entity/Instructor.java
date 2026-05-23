@@ -1,6 +1,6 @@
 package ditda.backend.domain.instructor.auth.entity;
 
-import ditda.backend.domain.common.user.entity.UserEntity;
+import ditda.backend.domain.common.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,9 +30,9 @@ public class Instructor {
 	@OneToOne(fetch = FetchType.LAZY)
 	@MapsId
 	@JoinColumn(name = "instructor_id")
-	private UserEntity user;
+	private User user;
 
-	public static Instructor createInstructor(UserEntity user) {
+	public static Instructor createInstructor(User user) {
 		return Instructor.builder()
 			.user(user)
 			.build();
