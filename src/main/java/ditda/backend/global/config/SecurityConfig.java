@@ -58,12 +58,13 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 				.requestMatchers(HttpMethod.POST,
-					"/api/v1/instructor/check-username",
-					"/api/v1/instructor/signup",
+					"/api/v1/instructors/check-username",
+					"/api/v1/instructors/signup",
+					"/api/v1/auth/emails/verification-requests",
+					"/api/v1/auth/emails/verifications",
 					"/api/v1/auth/login",
 					"/api/v1/auth/reissue"
 				).permitAll()
-				.requestMatchers("/api/v1/auth/**").permitAll()
 				.anyRequest().authenticated()
 			)
 			.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
