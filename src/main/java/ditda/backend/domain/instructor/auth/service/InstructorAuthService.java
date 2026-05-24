@@ -3,6 +3,7 @@ package ditda.backend.domain.instructor.auth.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.common.auth.entity.RefreshToken;
 import ditda.backend.domain.common.auth.repository.RefreshTokenRepository;
+import ditda.backend.domain.common.auth.service.RefreshTokenHasher;
 import ditda.backend.domain.common.term.entity.UserTerm;
 import ditda.backend.domain.common.term.entity.enums.TermType;
 import ditda.backend.domain.common.term.repository.UserTermRepository;
@@ -43,6 +45,7 @@ public class InstructorAuthService {
 	private final InstructorRepository instructorRepository;
 	private final UserTermRepository userTermRepository;
 	private final RefreshTokenRepository refreshTokenRepository;
+	private final RefreshTokenHasher refreshTokenHasher;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final CookieUtils cookieUtils;
@@ -69,7 +72,8 @@ public class InstructorAuthService {
 			request.email(),
 			DEFAULT_PROFILE_IMAGE,
 			request.phone(),
-			UserRole.INSTRUCTOR
+			UserRole.INSTRUCTOR,
+			LocalDateTime.now()
 		);
 
 		userEntityRepository.save(user);
@@ -111,20 +115,24 @@ public class InstructorAuthService {
 
 	private InstructorAuthResult issueTokens(Long userId) {
 
+		refreshTokenRepository.deleteExpiredByUserId(userId, LocalDateTime.now());
+
+		String sessionId = UUID.randomUUID().toString();
+
 		String accessToken = jwtTokenProvider.generateAccessToken(userId);
-		String refreshToken = jwtTokenProvider.generateRefreshToken(userId);
+		String refreshToken = jwtTokenProvider.generateRefreshToken(userId, sessionId);
+		String refreshTokenHash = refreshTokenHasher.hash(refreshToken);
 
 		LocalDateTime expiresAt = jwtTokenProvider.getExpiration(refreshToken);
 
-		refreshTokenRepository.findByUserId(userId)
-			.ifPresentOrElse(
-				rt -> rt.rotate((refreshToken), expiresAt),
-				() -> refreshTokenRepository.save(
-					RefreshToken.createRefreshToken(
-						userEntityRepository.getReferenceById(userId),
-						refreshToken,
-						expiresAt
-					)));
+		refreshTokenRepository.save(
+			RefreshToken.createRefreshToken(
+				userEntityRepository.getReferenceById(userId),
+				sessionId,
+				refreshTokenHash,
+				expiresAt
+			)
+		);
 
 		ResponseCookie cookie = cookieUtils.createRefreshTokenCookie(refreshToken);
 
