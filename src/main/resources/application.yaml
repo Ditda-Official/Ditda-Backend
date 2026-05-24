@@ -31,6 +31,12 @@ spring:
           starttls:
             enable: true
 
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 100MB
+      enabled: true
+
 jwt:
   secret: ${JWT_SECRET_KEY}
   access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
