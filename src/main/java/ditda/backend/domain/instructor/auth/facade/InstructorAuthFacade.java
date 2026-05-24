@@ -19,6 +19,7 @@ public class InstructorAuthFacade {
 
 	public InstructorAuthResult signup(InstructorSignupRequest request) {
 
+		// 이메일 검증 여부 확인
 		if (!emailVerificationService.isVerified(request.email())) {
 			throw new GeneralException(AuthErrorCode.EMAIL_NOT_VERIFIED);
 		}

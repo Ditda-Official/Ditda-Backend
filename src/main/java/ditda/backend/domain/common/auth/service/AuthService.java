@@ -36,13 +36,16 @@ public class AuthService {
 	@Transactional
 	public AuthResult login(LoginRequest request) {
 
+		// 1. 유저 조회
 		UserEntity user = userEntityRepository.findByUsername(request.username())
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.INVALID_LOGIN));
 
+		// 2. 비밀번호 검증
 		if (!passwordEncoder.matches(request.password(), user.getPassword())) {
 			throw new GeneralException(GeneralErrorCode.INVALID_LOGIN);
 		}
 
+		// 3. Access / Refresh 토큰 발급
 		return issueTokens(user.getId());
 	}
 
@@ -51,15 +54,17 @@ public class AuthService {
 
 		if (refreshToken != null && !refreshToken.isBlank()) {
 			try {
+				// 1. JWT 검증 후 Claim에서 userId, sessionId 추출
 				Claims claims = jwtTokenProvider.validateRefreshToken(refreshToken);
 				Long tokenUserId = Long.parseLong(claims.getSubject());
 				String sessionId = jwtTokenProvider.getSessionId(claims);
 
+				// 2. 인증된 유저와 토큰의 유저가 일치할 때만 삭제
 				if (userId.equals(tokenUserId)) {
 					refreshTokenRepository.deleteBySessionId(sessionId);
 				}
 			} catch (JwtException | IllegalArgumentException exception) {
-				// 쿠키 삭제는 진행.
+				// 토큰이 만료 또는 위조여도 쿠키는 제거
 			}
 		}
 
@@ -69,10 +74,12 @@ public class AuthService {
 	@Transactional
 	public AuthResult reissue(String refreshToken) {
 
+		// 1. 쿠키 존재 여부 확인
 		if (refreshToken == null || refreshToken.isBlank()) {
 			throw new GeneralException(GeneralErrorCode.INVALID_TOKEN);
 		}
 
+		// 2. JWT 서명/만료 검증 후 userId, sessionId 추출
 		Long userId;
 		String sessionId;
 		try {
@@ -83,15 +90,18 @@ public class AuthService {
 			throw new GeneralException(GeneralErrorCode.INVALID_TOKEN);
 		}
 
+		// 3. sessionId로 DB의 토큰 조회
 		RefreshToken stored = refreshTokenRepository.findBySessionId(sessionId)
 			.orElseThrow(() -> new GeneralException(GeneralErrorCode.INVALID_TOKEN));
 
+		// 4. 소유자 일치 + 해시 일치 검증
 		String refreshTokenHash = refreshTokenHasher.hash(refreshToken);
 
 		if (!stored.belongsTo(userId) || !stored.matchesHash(refreshTokenHash)) {
 			throw new GeneralException(GeneralErrorCode.INVALID_TOKEN);
 		}
 
+		// 5. 새 Access / Refresh 토큰 발급. (sessionId는 유지)
 		String newAccessToken = jwtTokenProvider.generateAccessToken(userId);
 		String newRefreshToken = jwtTokenProvider.generateRefreshToken(userId, sessionId);
 		String newRefreshTokenHash = refreshTokenHasher.hash(newRefreshToken);
@@ -106,15 +116,16 @@ public class AuthService {
 
 	private AuthResult issueTokens(Long userId) {
 
-		// 만료된 토큰 삭제
+		// 1. 만료된 토큰 삭제
 		refreshTokenRepository.deleteExpiredByUserId(userId, LocalDateTime.now());
 
+		// 2. sessionId(로그인 기기 식별) 및 JWT 토큰 발급
 		String sessionId = UUID.randomUUID().toString();
-
 		String accessToken = jwtTokenProvider.generateAccessToken(userId);
 		String refreshToken = jwtTokenProvider.generateRefreshToken(userId, sessionId);
-		String refreshTokenHash = refreshTokenHasher.hash(refreshToken);
 
+		// 3. DB에는 해시 값으로 저장
+		String refreshTokenHash = refreshTokenHasher.hash(refreshToken);
 		LocalDateTime expiresAt = jwtTokenProvider.getExpiration(refreshToken);
 
 		refreshTokenRepository.save(
