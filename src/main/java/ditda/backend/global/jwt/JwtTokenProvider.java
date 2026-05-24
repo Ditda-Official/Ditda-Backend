@@ -36,17 +36,20 @@ public class JwtTokenProvider {
 
 	private SecretKey key;
 
+	private static final String SESSION_ID_CLAIM = "sid";
 	private static final String TOKEN_TYPE_CLAIM = "type";
 	private static final String ACCESS_TOKEN_TYPE = "access_token";
 	private static final String REFRESH_TOKEN_TYPE = "refresh_token";
 
 	@PostConstruct
 	public void init() {
+
 		byte[] keyBytes = Decoders.BASE64URL.decode(secret);
 		key = Keys.hmacShaKeyFor(keyBytes);
 	}
 
 	public String generateAccessToken(Long userId) {
+
 		Date now = new Date();
 		Date expiryTime = new Date(now.getTime() + accessTokenExpiration);
 
@@ -59,17 +62,30 @@ public class JwtTokenProvider {
 			.compact();
 	}
 
-	public String generateRefreshToken(Long userId) {
+	public String generateRefreshToken(Long userId, String sessionId) {
+
 		Date now = new Date();
 		Date expiryTime = new Date(now.getTime() + refreshTokenExpiration);
 
 		return Jwts.builder()
 			.subject(userId.toString())
 			.claim(TOKEN_TYPE_CLAIM, REFRESH_TOKEN_TYPE)
+			.claim(SESSION_ID_CLAIM, sessionId)
 			.issuedAt(now)
 			.expiration(expiryTime)
 			.signWith(key, Jwts.SIG.HS256)
 			.compact();
+	}
+
+	public String getSessionId(Claims claims) {
+
+		String sessionId = claims.get(SESSION_ID_CLAIM, String.class);
+
+		if (sessionId == null || sessionId.isBlank()) {
+			throw new JwtException("Refresh Token에 세션 정보가 없습니다.");
+		}
+
+		return sessionId;
 	}
 
 	public Claims validateAccessToken(String token) {
@@ -93,6 +109,7 @@ public class JwtTokenProvider {
 	}
 
 	public LocalDateTime getExpiration(String token) {
+
 		return getClaims(token).getExpiration()
 			.toInstant()
 			.atZone(ZoneId.systemDefault())
@@ -100,6 +117,7 @@ public class JwtTokenProvider {
 	}
 
 	private Claims getClaims(String token) {
+
 		return Jwts.parser()
 			.verifyWith(key)
 			.build()
@@ -108,6 +126,7 @@ public class JwtTokenProvider {
 	}
 
 	private Claims validateToken(String token) {
+
 		try {
 			return getClaims(token);
 		} catch (ExpiredJwtException e) {

@@ -35,8 +35,8 @@ public class AuthFacade {
 	}
 
 	// 유저 로그아웃
-	public ResponseCookie logout(Long userId) {
-		return authService.logout(userId);
+	public ResponseCookie logout(Long userId, String refreshToken) {
+		return authService.logout(userId, refreshToken);
 	}
 
 	// 토큰 재발급

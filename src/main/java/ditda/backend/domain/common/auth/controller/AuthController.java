@@ -72,10 +72,11 @@ public class AuthController {
 	@PostMapping("/logout")
 	public ApiResponse<Void> logout(
 		@AuthenticationPrincipal Long userId,
+		@CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) String refreshToken,
 		HttpServletResponse response
 	) {
 
-		ResponseCookie deleted = authFacade.logout(userId);
+		ResponseCookie deleted = authFacade.logout(userId, refreshToken);
 		response.addHeader(HttpHeaders.SET_COOKIE, deleted.toString());
 
 		return ApiResponse.onSuccess("로그아웃 성공");
