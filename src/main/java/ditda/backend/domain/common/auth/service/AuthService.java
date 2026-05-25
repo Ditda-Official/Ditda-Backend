@@ -16,6 +16,7 @@ import ditda.backend.domain.common.user.entity.UserEntity;
 import ditda.backend.domain.common.user.repository.UserEntityRepository;
 import ditda.backend.global.apipayload.code.GeneralErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
+import ditda.backend.global.hash.RefreshTokenHasher;
 import ditda.backend.global.jwt.JwtTokenProvider;
 import ditda.backend.global.jwt.dto.RefreshTokenPayload;
 import ditda.backend.global.jwt.utils.CookieUtils;
@@ -107,6 +108,10 @@ public class AuthService {
 		ResponseCookie cookie = cookieUtils.createRefreshTokenCookie(newRefreshToken);
 
 		return new AuthResult(userId, newAccessToken, cookie);
+	}
+	@Transactional
+	public int deleteExpiredRefreshTokens() {
+		return refreshTokenRepository.deleteExpired(LocalDateTime.now());
 	}
 
 	private AuthResult issueTokens(Long userId) {
