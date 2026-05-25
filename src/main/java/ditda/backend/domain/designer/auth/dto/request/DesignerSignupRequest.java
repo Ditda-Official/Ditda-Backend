@@ -100,7 +100,7 @@ public record DesignerSignupRequest(
 		@Schema(description = "약관 동의 여부", example = "true")
 		@NotNull(message = "약관 동의 여부는 필수입니다.")
 		@JsonProperty("isAgreed")
-		boolean isAgreed
+		Boolean isAgreed
 	) {
 	}
 
