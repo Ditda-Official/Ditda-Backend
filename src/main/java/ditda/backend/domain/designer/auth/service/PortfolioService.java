@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import ditda.backend.domain.common.user.entity.User;
@@ -39,6 +40,9 @@ public class PortfolioService {
 	@Value("${app.s3.bucket}")
 	private String bucket;
 
+	@Value("${spring.servlet.multipart.max-file-size}")
+	private DataSize maxFileSize;
+
 	public void validateFiles(List<MultipartFile> files) {
 		if (files == null || files.isEmpty()) {
 			return;
@@ -50,10 +54,14 @@ public class PortfolioService {
 			throw new GeneralException(DesignerErrorCode.PORTFOLIO_FILE_LIMIT_EXCEEDED);
 		}
 
-		// 파일 타입 검증
+		// 파일 사이즈 및 타입 검증
 		for (MultipartFile file : files) {
 			if (file.isEmpty()) {
 				continue;
+			}
+
+			if (file.getSize() > maxFileSize.toBytes()) {
+				throw new GeneralException(DesignerErrorCode.PORTFOLIO_FILE_LIMIT_EXCEEDED);
 			}
 			if (!ALLOWED_CONTENT_TYPES.contains(file.getContentType())) {
 				throw new GeneralException(DesignerErrorCode.INVALID_PORTFOLIO_FILE);
