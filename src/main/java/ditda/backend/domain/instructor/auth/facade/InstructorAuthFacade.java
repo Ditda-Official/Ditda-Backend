@@ -2,12 +2,10 @@ package ditda.backend.domain.instructor.auth.facade;
 
 import org.springframework.stereotype.Component;
 
-import ditda.backend.domain.common.auth.exception.AuthErrorCode;
 import ditda.backend.domain.common.auth.service.EmailVerificationService;
 import ditda.backend.domain.instructor.auth.dto.InstructorAuthResult;
 import ditda.backend.domain.instructor.auth.dto.request.InstructorSignupRequest;
 import ditda.backend.domain.instructor.auth.service.InstructorAuthService;
-import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -19,10 +17,7 @@ public class InstructorAuthFacade {
 
 	public InstructorAuthResult signup(InstructorSignupRequest request) {
 
-		// 이메일 검증 여부 확인
-		if (!emailVerificationService.isVerified(request.email())) {
-			throw new GeneralException(AuthErrorCode.EMAIL_NOT_VERIFIED);
-		}
+		emailVerificationService.isVerified(request.email());
 
 		InstructorAuthResult result = instructorAuthService.signup(request);
 
