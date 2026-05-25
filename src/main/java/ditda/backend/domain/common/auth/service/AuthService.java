@@ -17,8 +17,8 @@ import ditda.backend.domain.common.user.repository.UserEntityRepository;
 import ditda.backend.global.apipayload.code.GeneralErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.jwt.JwtTokenProvider;
+import ditda.backend.global.jwt.dto.RefreshTokenPayload;
 import ditda.backend.global.jwt.utils.CookieUtils;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 
@@ -50,19 +50,14 @@ public class AuthService {
 	}
 
 	@Transactional
-	public ResponseCookie logout(Long userId, String refreshToken) {
+	public ResponseCookie logout(String refreshToken) {
 
 		if (refreshToken != null && !refreshToken.isBlank()) {
 			try {
-				// 1. JWT 검증 후 Claim에서 userId, sessionId 추출
-				Claims claims = jwtTokenProvider.validateRefreshToken(refreshToken);
-				Long tokenUserId = Long.parseLong(claims.getSubject());
-				String sessionId = jwtTokenProvider.getSessionId(claims);
+				// 1. JWT 토큰 payload
+				RefreshTokenPayload payload = jwtTokenProvider.getRefreshTokenPayload(refreshToken);
 
-				// 2. 인증된 유저와 토큰의 유저가 일치할 때만 삭제
-				if (userId.equals(tokenUserId)) {
-					refreshTokenRepository.deleteBySessionId(sessionId);
-				}
+				refreshTokenRepository.deleteBySessionId(payload.sessionId());
 			} catch (JwtException | IllegalArgumentException exception) {
 				// 토큰이 만료 또는 위조여도 쿠키는 제거
 			}
@@ -83,9 +78,9 @@ public class AuthService {
 		Long userId;
 		String sessionId;
 		try {
-			Claims claims = jwtTokenProvider.validateRefreshToken(refreshToken);
-			userId = Long.parseLong(claims.getSubject());
-			sessionId = jwtTokenProvider.getSessionId(claims);
+			RefreshTokenPayload payload = jwtTokenProvider.getRefreshTokenPayload(refreshToken);
+			userId = payload.userId();
+			sessionId = payload.sessionId();
 		} catch (JwtException | IllegalArgumentException exception) {
 			throw new GeneralException(GeneralErrorCode.INVALID_TOKEN);
 		}

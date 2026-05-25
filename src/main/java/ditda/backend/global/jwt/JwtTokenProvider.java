@@ -9,6 +9,7 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import ditda.backend.global.jwt.dto.RefreshTokenPayload;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -123,6 +124,16 @@ public class JwtTokenProvider {
 			.build()
 			.parseSignedClaims(token)
 			.getPayload();
+	}
+
+	public RefreshTokenPayload getRefreshTokenPayload(String token) {
+
+		Claims claims = validateRefreshToken(token);
+
+		Long userId = Long.parseLong(claims.getSubject());
+		String sessionId = getSessionId(claims);
+
+		return new RefreshTokenPayload(userId, sessionId);
 	}
 
 	private Claims validateToken(String token) {
