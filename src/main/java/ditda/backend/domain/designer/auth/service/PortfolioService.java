@@ -1,6 +1,7 @@
 package ditda.backend.domain.designer.auth.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -75,10 +76,21 @@ public class PortfolioService {
 		}
 
 		// 파일을 S3에 업로드
-		return files.stream()
-			.filter(f -> !f.isEmpty())
-			.map(this::uploadToS3)
-			.toList();
+		List<String> uploadedKeys = new ArrayList<>();
+		try {
+			for (MultipartFile file : files) {
+				if (file.isEmpty()) {
+					continue;
+				}
+				uploadedKeys.add(uploadToS3(file));
+			}
+
+			return uploadedKeys;
+		} catch (Exception e) {
+			// 부분 업로드된 파일 보상 삭제
+			deleteFiles(uploadedKeys);
+			throw e;
+		}
 	}
 
 	@Transactional
