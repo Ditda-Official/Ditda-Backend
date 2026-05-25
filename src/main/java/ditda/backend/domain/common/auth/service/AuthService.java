@@ -55,10 +55,16 @@ public class AuthService {
 
 		if (refreshToken != null && !refreshToken.isBlank()) {
 			try {
-				// 1. JWT 토큰 payload
+				// 1. Refresh Token 검증 후 payload 추출
 				RefreshTokenPayload payload = jwtTokenProvider.getRefreshTokenPayload(refreshToken);
 
-				refreshTokenRepository.deleteBySessionId(payload.sessionId());
+				// 2. 전달받은 Refresh Token을 저장 형식과 동일하게 해싱
+				String refreshTokenHash = refreshTokenHasher.hash(refreshToken);
+
+				// 3. sessionId로 저장된 토큰을 조회하고, 해시가 일치하는 경우에만 삭제
+				refreshTokenRepository.findBySessionId(payload.sessionId())
+					.filter(stored -> stored.matchesHash(refreshTokenHash))
+					.ifPresent(refreshTokenRepository::delete);
 			} catch (JwtException | IllegalArgumentException exception) {
 				// 토큰이 만료 또는 위조여도 쿠키는 제거
 			}
