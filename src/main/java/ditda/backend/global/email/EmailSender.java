@@ -1,6 +1,6 @@
 package ditda.backend.global.email;
 
-import java.util.List;
+import java.util.Map;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -19,12 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EmailSender {
 
-	private static final String VERIFICATION_SUBJECT = "[DITDA] 이메일 인증 코드";
-	private static final String VERIFICATION_TEMPLATE = "email/verification-code";
-
-	private static final String DESIGNER_SIGNUP_SUBJECT = "[DITDA] 새 디자이너 가입 검토 요청";
-	private static final String DESIGNER_SIGNUP_TEMPLATE = "email/designer-signup-notification";
-
 	private static final String LOGO_CID = "logoImage";
 	private static final String LOGO_PATH = "email-images/logo.png";
 
@@ -32,63 +26,28 @@ public class EmailSender {
 	private final SpringTemplateEngine templateEngine;
 
 	@Async
-	public void sendVerificationEmail(String email, String code) {
+	public void send(String to, String subject, String templateName, Map<String, Object> variables) {
 		try {
 			MimeMessage mimeMessage = mailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
-			helper.setTo(email);
-			helper.setSubject(VERIFICATION_SUBJECT);
-			helper.setText(buildHtml(code), true);
+			helper.setTo(to);
+			helper.setSubject(subject);
+			helper.setText(renderTemplate(templateName, variables), true);
 
 			helper.addInline(LOGO_CID, new ClassPathResource(LOGO_PATH));
 
 			mailSender.send(mimeMessage);
 
-			log.info("Verification email sent. to={}", email);
+			log.info("Email sent. to={}, template={}", to, templateName);
 		} catch (Exception e) {
-			log.error("Verification email send failed. to={}", email, e);
+			log.error("Email send failed. to={}, template={}", to, templateName, e);
 		}
 	}
 
-	@Async
-	public void sendDesignerSignupNotification(
-		String toEmail,
-		Long userId,
-		String designerName,
-		String designerEmail,
-		List<String> portfolioUrls
-	) {
-		try {
-			MimeMessage mimeMessage = mailSender.createMimeMessage();
-			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-
-			helper.setTo(toEmail);
-			helper.setSubject(DESIGNER_SIGNUP_SUBJECT);
-			helper.setText(buildDesignerSignupHtml(userId, designerName, designerEmail, portfolioUrls), true);
-
-			helper.addInline(LOGO_CID, new ClassPathResource(LOGO_PATH));
-
-			mailSender.send(mimeMessage);
-
-			log.info("Designer signup notification email sent. designerEmail={}", designerEmail);
-		} catch (Exception e) {
-			log.error("Designer signup notification email send failed. designerEmail={}", designerEmail, e);
-		}
-	}
-
-	private String buildHtml(String code) {
+	private String renderTemplate(String templateName, Map<String, Object> variables) {
 		Context context = new Context();
-		context.setVariable("code", code);
-		return templateEngine.process(VERIFICATION_TEMPLATE, context);
-	}
-
-	private String buildDesignerSignupHtml(Long userId, String name, String email, List<String> portfolioUrls) {
-		Context context = new Context();
-		context.setVariable("userId", userId);
-		context.setVariable("name", name);
-		context.setVariable("email", email);
-		context.setVariable("portfolioUrls", portfolioUrls);
-		return templateEngine.process(DESIGNER_SIGNUP_TEMPLATE, context);
+		variables.forEach(context::setVariable);
+		return templateEngine.process(templateName, context);
 	}
 }
