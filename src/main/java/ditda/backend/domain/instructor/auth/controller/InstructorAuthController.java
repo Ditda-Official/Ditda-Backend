@@ -18,7 +18,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/instructors")
+@RequestMapping("/api/v1/instructors/auth")
 @RequiredArgsConstructor
 @Tag(name = "Instructor Auth", description = "강사 회원가입 API")
 public class InstructorAuthController {
