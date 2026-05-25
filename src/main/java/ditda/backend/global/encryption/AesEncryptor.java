@@ -6,7 +6,6 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
-import javax.crypto.Mac;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -107,30 +106,6 @@ public class AesEncryptor {
 		} catch (Exception e) {
 			log.error("Failed to decrypt data", e);
 			throw new GeneralException(GeneralErrorCode.DECRYPTION_FAILED);
-		}
-	}
-
-	public String hash(String plainText) {
-		if (plainText == null || plainText.isEmpty()) {
-			return null;
-		}
-
-		try {
-			// HMAC-SHA256 초기화 및 해싱
-			Mac mac = Mac.getInstance("HmacSHA256");
-			mac.init(hmacKeySpec);
-			byte[] hashBytes = mac.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
-
-			// 16진수 문자열로 변환
-			StringBuilder sb = new StringBuilder();
-			for (byte b : hashBytes) {
-				sb.append(String.format("%02x", b));
-			}
-
-			return sb.toString();
-		} catch (Exception e) {
-			log.error("Failed to hash data", e);
-			throw new GeneralException(GeneralErrorCode.HASHING_FAILED);
 		}
 	}
 }
