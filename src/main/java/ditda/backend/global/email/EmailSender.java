@@ -41,6 +41,8 @@ public class EmailSender {
 			helper.setSubject(VERIFICATION_SUBJECT);
 			helper.setText(buildHtml(code), true);
 
+			helper.addInline(LOGO_CID, new ClassPathResource(LOGO_PATH));
+
 			mailSender.send(mimeMessage);
 
 			log.info("Verification email sent. to={}", email);
