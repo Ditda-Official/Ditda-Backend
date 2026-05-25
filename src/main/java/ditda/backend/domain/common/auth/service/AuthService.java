@@ -109,6 +109,7 @@ public class AuthService {
 
 		return new AuthResult(userId, newAccessToken, cookie);
 	}
+
 	@Transactional
 	public int deleteExpiredRefreshTokens() {
 		return refreshTokenRepository.deleteExpired(LocalDateTime.now());

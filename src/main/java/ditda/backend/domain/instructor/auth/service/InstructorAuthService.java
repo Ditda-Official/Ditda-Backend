@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.common.auth.entity.RefreshToken;
 import ditda.backend.domain.common.auth.repository.RefreshTokenRepository;
-import ditda.backend.global.hash.RefreshTokenHasher;
 import ditda.backend.domain.common.term.entity.UserTerm;
 import ditda.backend.domain.common.term.entity.enums.TermType;
 import ditda.backend.domain.common.term.repository.UserTermRepository;
@@ -25,6 +24,7 @@ import ditda.backend.domain.instructor.auth.dto.request.InstructorSignupRequest;
 import ditda.backend.domain.instructor.auth.entity.Instructor;
 import ditda.backend.domain.instructor.auth.repository.InstructorRepository;
 import ditda.backend.global.apipayload.exception.GeneralException;
+import ditda.backend.global.hash.RefreshTokenHasher;
 import ditda.backend.global.jwt.JwtTokenProvider;
 import ditda.backend.global.jwt.utils.CookieUtils;
 import lombok.RequiredArgsConstructor;
