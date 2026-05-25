@@ -37,13 +37,9 @@ spring:
       s3:
         endpoint: http://localhost:9000
         path-style-access-enabled: true
-app:
-  s3:
-    bucket: test-bucket
-    public-base-url: http://localhost:9000/test-bucket
 
 admin:
-  notification-email: admin-test@exmaple.com
+  notification-email: admin-test@example.com
 
 jwt:
   secret: application-test-jwt-secret-key-only-for-ci
