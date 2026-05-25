@@ -1,10 +1,7 @@
 package ditda.backend.domain.designer.auth.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,13 +14,10 @@ import ditda.backend.domain.designer.auth.entity.Portfolio;
 import ditda.backend.domain.designer.auth.exception.DesignerErrorCode;
 import ditda.backend.domain.designer.auth.repository.PortfolioRepository;
 import ditda.backend.global.apipayload.exception.GeneralException;
+import ditda.backend.global.s3.S3FileUploader;
+import ditda.backend.global.s3.exception.S3UploadException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.core.exception.SdkException;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.services.s3.S3Client;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PortfolioService {
@@ -35,11 +29,8 @@ public class PortfolioService {
 		"image/png"
 	);
 
-	private final S3Client s3Client;
+	private final S3FileUploader s3FileUploader;
 	private final PortfolioRepository portfolioRepository;
-
-	@Value("${app.s3.bucket}")
-	private String bucket;
 
 	@Value("${spring.servlet.multipart.max-file-size}")
 	private DataSize maxFileSize;
@@ -71,25 +62,10 @@ public class PortfolioService {
 	}
 
 	public List<String> uploadFiles(List<MultipartFile> files) {
-		if (files == null || files.isEmpty()) {
-			return List.of();
-		}
-
-		// 파일을 S3에 업로드
-		List<String> uploadedKeys = new ArrayList<>();
 		try {
-			for (MultipartFile file : files) {
-				if (file.isEmpty()) {
-					continue;
-				}
-				uploadedKeys.add(uploadToS3(file));
-			}
-
-			return uploadedKeys;
-		} catch (Exception e) {
-			// 부분 업로드된 파일 보상 삭제
-			deleteFiles(uploadedKeys);
-			throw e;
+			return s3FileUploader.uploadAll(S3_KEY_PREFIX, files);
+		} catch (S3UploadException e) {
+			throw new GeneralException(DesignerErrorCode.PORTFOLIO_UPLOAD_FAILED);
 		}
 	}
 
@@ -107,43 +83,6 @@ public class PortfolioService {
 	}
 
 	public void deleteFiles(List<String> portfolioKeys) {
-		if (portfolioKeys == null || portfolioKeys.isEmpty()) {
-			return;
-		}
-
-		for (String key : portfolioKeys) {
-			try {
-				s3Client.deleteObject(req -> req.bucket(bucket).key(key));
-			} catch (Exception e) {
-				log.warn("Failed to delete S3 portfolio file. key={}", key, e);
-			}
-		}
-	}
-
-	private String uploadToS3(MultipartFile file) {
-		String key = generateKey(file);
-		try {
-			s3Client.putObject(
-				req -> req.bucket(bucket).key(key).contentType(file.getContentType()),
-				RequestBody.fromInputStream(file.getInputStream(), file.getSize())
-			);
-			return key;
-		} catch (IOException | SdkException e) {
-			log.error("Failed to upload portfolio file. originalName={}", file.getOriginalFilename(), e);
-			throw new GeneralException(DesignerErrorCode.PORTFOLIO_UPLOAD_FAILED);
-		}
-	}
-
-	private String generateKey(MultipartFile file) {
-		String extension = extractExtension(file.getOriginalFilename());
-		return "%s/%s%s".formatted(S3_KEY_PREFIX, UUID.randomUUID(), extension);
-	}
-
-	// 파일명에 확장자 추출
-	private String extractExtension(String filename) {
-		if (filename == null || !filename.contains(".")) {
-			return "";
-		}
-		return filename.substring(filename.lastIndexOf('.'));
+		s3FileUploader.deleteAll(portfolioKeys);
 	}
 }
