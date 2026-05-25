@@ -1,5 +1,7 @@
 package ditda.backend.domain.common.user.service;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,11 @@ public class UserService {
 		return userRepository.existsByUsername(username);
 	}
 
+	public User findByUsername(String username) {
+		return userRepository.findByUsername(username)
+			.orElseThrow(() -> new GeneralException(UserErrorCode.USER_NOT_FOUND));
+	}
+
 	public boolean existsByEmail(String email) {
 		return userRepository.existsByEmail(email);
 	}
@@ -44,12 +51,26 @@ public class UserService {
 	// 유저 생성
 	@Transactional
 	public User createUser(
-		String username, String encodedPassword, String name,
-		String email, String profileImage, String phone, UserRole role
+		String username,
+		String encodedPassword,
+		String name,
+		String email,
+		String profileImage,
+		String phone,
+		UserRole role,
+		LocalDateTime emailVerifiedAt
 	) {
 		User user = User.createUser(
-			username, encodedPassword, name, email, profileImage, phone, role
+			username,
+			encodedPassword,
+			name,
+			email,
+			profileImage,
+			phone,
+			role,
+			emailVerifiedAt
 		);
+
 		return userRepository.save(user);
 	}
 

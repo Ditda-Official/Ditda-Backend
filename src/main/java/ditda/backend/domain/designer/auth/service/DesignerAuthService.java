@@ -1,13 +1,14 @@
 package ditda.backend.domain.designer.auth.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import ditda.backend.domain.common.auth.dto.TokenPair;
-import ditda.backend.domain.common.auth.service.TokenService;
+import ditda.backend.domain.common.auth.dto.AuthResult;
+import ditda.backend.domain.common.auth.service.AuthService;
 import ditda.backend.domain.common.term.dto.TermAgreement;
 import ditda.backend.domain.common.term.service.TermService;
 import ditda.backend.domain.common.user.entity.User;
@@ -28,7 +29,7 @@ public class DesignerAuthService {
 	private final DesignerRepository designerRepository;
 	private final UserService userService;
 	private final TermService termService;
-	private final TokenService tokenService;
+	private final AuthService authService;
 	private final PortfolioService portfolioService;
 	private final PasswordEncoder passwordEncoder;
 
@@ -47,8 +48,12 @@ public class DesignerAuthService {
 			request.email(),
 			DEFAULT_PROFILE_IMAGE,
 			request.phone(),
-			UserRole.DESIGNER
+			UserRole.DESIGNER,
+			LocalDateTime.now()
 		);
+
+		// 약관 동의 여부 DB 저장
+		termService.saveTerms(user, toAgreements(request.terms()));
 
 		// Designer 생성 및 DB 저장
 		Designer designer = Designer.createDesigner(
@@ -58,16 +63,13 @@ public class DesignerAuthService {
 			request.bankAccount().accountHolder());
 		designerRepository.save(designer);
 
-		// 약관 동의 여부 DB 저장
-		termService.saveTerms(user, toAgreements(request.terms()));
-
 		// 포트폴리오 S3 key를 DB에 일괄 저장
 		portfolioService.savePortfolios(user, portfolioKeys);
 
 		// accessToken&refreshToken 발급
-		TokenPair tokens = tokenService.issueTokens(user.getId());
+		AuthResult tokens = authService.issueTokens(user.getId());
 
-		return new DesignerAuthResult(user.getId(), tokens.accessToken(), tokens.refreshCookie());
+		return new DesignerAuthResult(user.getId(), tokens.accessToken(), tokens.refreshTokenCookie());
 	}
 
 	private List<TermAgreement> toAgreements(List<DesignerSignupRequest.TermRequest> terms) {

@@ -63,7 +63,8 @@ public class User extends BaseEntity {
 		String email,
 		String profileImage,
 		String phone,
-		UserRole role
+		UserRole role,
+		LocalDateTime emailVerifiedAt
 	) {
 		return User.builder()
 			.username(username)
@@ -73,6 +74,7 @@ public class User extends BaseEntity {
 			.profileImage(profileImage)
 			.phone(phone)
 			.role(role)
+			.emailVerifiedAt(emailVerifiedAt)
 			.build();
 	}
 }
