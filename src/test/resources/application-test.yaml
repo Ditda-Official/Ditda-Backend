@@ -42,6 +42,7 @@ jwt:
   secret: application-test-jwt-secret-key-only-for-ci
   access-token-expiration: 3600000
   refresh-token-expiration: 86400000
+  refresh-token-hash-secret: test-refresh-token-hash-secret
   cookie-secure: false
   refresh-cookie-path: /api/v1/auth
 
