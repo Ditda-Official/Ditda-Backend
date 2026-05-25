@@ -1,4 +1,4 @@
-package ditda.backend.domain.common.auth.service;
+package ditda.backend.global.hash;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;

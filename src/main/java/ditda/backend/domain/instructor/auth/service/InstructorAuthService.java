@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.common.auth.entity.RefreshToken;
 import ditda.backend.domain.common.auth.repository.RefreshTokenRepository;
-import ditda.backend.domain.common.auth.service.RefreshTokenHasher;
+import ditda.backend.global.hash.RefreshTokenHasher;
 import ditda.backend.domain.common.term.entity.UserTerm;
 import ditda.backend.domain.common.term.entity.enums.TermType;
 import ditda.backend.domain.common.term.repository.UserTermRepository;
