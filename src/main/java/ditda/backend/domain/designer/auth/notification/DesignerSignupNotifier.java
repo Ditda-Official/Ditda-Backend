@@ -24,6 +24,11 @@ public class DesignerSignupNotifier {
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void onDesignerSignedUp(DesignerSignedUpEvent event) {
 
+		// 포트폴리오가 없으면 메일 전송 X
+		if (event.portfolioKeys().isEmpty()) {
+			return;
+		}
+
 		try {
 			List<String> portfolioUrls = event.portfolioKeys().stream()
 				.map(s3UrlResolver::toPublicS3Url)
