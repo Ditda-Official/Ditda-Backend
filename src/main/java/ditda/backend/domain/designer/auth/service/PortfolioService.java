@@ -53,7 +53,7 @@ public class PortfolioService {
 			}
 
 			if (file.getSize() > maxFileSize.toBytes()) {
-				throw new GeneralException(DesignerErrorCode.PORTFOLIO_FILE_LIMIT_EXCEEDED);
+				throw new GeneralException(DesignerErrorCode.PORTFOLIO_FILE_SIZE_EXCEEDED);
 			}
 			if (!ALLOWED_CONTENT_TYPES.contains(file.getContentType())) {
 				throw new GeneralException(DesignerErrorCode.INVALID_PORTFOLIO_FILE);
