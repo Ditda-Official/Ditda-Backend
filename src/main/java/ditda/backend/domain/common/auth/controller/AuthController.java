@@ -2,7 +2,6 @@ package ditda.backend.domain.common.auth.controller;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +34,7 @@ public class AuthController {
 
 	private final AuthFacade authFacade;
 
-	@Operation(summary = "이메일 인증번호 요청", description = "이메일 인증번호를 요청합니다.")
+	@Operation(summary = "이메일 인증번호 요청", description = "**[회원가입]** 이메일 인증번호를 요청합니다.")
 	@PostMapping("/emails/verification-requests")
 	public ApiResponse<Void> requestEmailVerification(
 		@Valid @RequestBody EmailVerificationRequest request
@@ -45,7 +44,7 @@ public class AuthController {
 		return ApiResponse.onSuccess("인증번호가 발송되었습니다.");
 	}
 
-	@Operation(summary = "이메일 인증번호 검증", description = "이메일 인증번호를 검증합니다.")
+	@Operation(summary = "이메일 인증번호 검증", description = "**[회원가입]** 이메일 인증번호를 검증합니다.")
 	@PostMapping("/emails/verifications")
 	public ApiResponse<Void> verifyEmailCode(
 		@Valid @RequestBody EmailCodeVerificationRequest request
@@ -68,15 +67,15 @@ public class AuthController {
 			new LoginResponse(result.userId(), result.accessToken()));
 	}
 
-	@Operation(summary = "로그아웃", description = "**[공통]** 인증된 사용자의 토큰을 무효화합니다.")
+	@Operation(summary = "로그아웃", description = "**[공통]** 현재 세션의 refresh token을 무효화합니다.")
 	@PostMapping("/logout")
 	public ApiResponse<Void> logout(
-		@AuthenticationPrincipal Long userId,
+		@Parameter(hidden = true)
 		@CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) String refreshToken,
 		HttpServletResponse response
 	) {
 
-		ResponseCookie deleted = authFacade.logout(userId, refreshToken);
+		ResponseCookie deleted = authFacade.logout(refreshToken);
 		response.addHeader(HttpHeaders.SET_COOKIE, deleted.toString());
 
 		return ApiResponse.onSuccess("로그아웃 성공");
