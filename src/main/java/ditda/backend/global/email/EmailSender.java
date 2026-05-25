@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class EmailSender {
 
 	private static final String VERIFICATION_SUBJECT = "[DITDA] 이메일 인증 코드";
-	private static final String VERIFICATION_TEMPLATE = "email/verificationCode";
+	private static final String VERIFICATION_TEMPLATE = "email/verification-code";
 
 	private static final String DESIGNER_SIGNUP_SUBJECT = "[DITDA] 새 디자이너 가입 검토 요청";
 	private static final String DESIGNER_SIGNUP_TEMPLATE = "email/designer-signup-notification";
