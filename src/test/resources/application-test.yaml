@@ -38,6 +38,11 @@ spring:
         endpoint: http://localhost:9000
         path-style-access-enabled: true
 
+app:
+  s3:
+    bucket: test-bucket
+    public-base-url: http://localhost:9000/test-bucket
+
 admin:
   notification-email: admin-test@example.com
 
