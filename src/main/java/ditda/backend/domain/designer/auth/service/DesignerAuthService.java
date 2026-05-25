@@ -3,6 +3,7 @@ package ditda.backend.domain.designer.auth.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import ditda.backend.domain.common.user.service.UserService;
 import ditda.backend.domain.designer.auth.dto.DesignerAuthResult;
 import ditda.backend.domain.designer.auth.dto.request.DesignerSignupRequest;
 import ditda.backend.domain.designer.auth.entity.Designer;
+import ditda.backend.domain.designer.auth.event.DesignerSignedUpEvent;
 import ditda.backend.domain.designer.auth.repository.DesignerRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +34,7 @@ public class DesignerAuthService {
 	private final AuthService authService;
 	private final PortfolioService portfolioService;
 	private final PasswordEncoder passwordEncoder;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	public DesignerAuthResult signup(DesignerSignupRequest request, List<String> portfolioKeys) {
@@ -68,6 +71,14 @@ public class DesignerAuthService {
 
 		// accessToken&refreshToken 발급
 		AuthResult tokens = authService.issueTokens(user.getId());
+
+		// 관리자 알림 이벤트 발행
+		eventPublisher.publishEvent(new DesignerSignedUpEvent(
+			user.getId(),
+			user.getName(),
+			user.getEmail(),
+			portfolioKeys
+		));
 
 		return new DesignerAuthResult(user.getId(), tokens.accessToken(), tokens.refreshTokenCookie());
 	}

@@ -49,6 +49,14 @@ encrypt:
   secret-key: ${ENCRYPT_SECRET_KEY}
   hash-key: ${ENCRYPT_HASH_KEY}
 
+admin:
+  notification-email: ${ADMIN_NOTIFICATION_EMAIL}
+
+app:
+  s3:
+    bucket: ${S3_BUCKET}
+    public-base-url: ${S3_PUBLIC_BASE_URL}
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

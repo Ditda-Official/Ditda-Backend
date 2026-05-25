@@ -40,6 +40,10 @@ spring:
 app:
   s3:
     bucket: test-bucket
+    public-base-url: http://localhost:9000/test-bucket
+
+admin:
+  notification-email: admin-test@exmaple.com
 
 jwt:
   secret: application-test-jwt-secret-key-only-for-ci
