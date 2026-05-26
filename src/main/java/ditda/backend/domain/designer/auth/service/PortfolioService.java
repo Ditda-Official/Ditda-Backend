@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
-import ditda.backend.domain.common.user.entity.User;
+import ditda.backend.domain.designer.auth.entity.Designer;
 import ditda.backend.domain.designer.auth.entity.Portfolio;
 import ditda.backend.domain.designer.auth.exception.DesignerErrorCode;
 import ditda.backend.domain.designer.auth.repository.PortfolioRepository;
@@ -70,14 +70,14 @@ public class PortfolioService {
 	}
 
 	@Transactional
-	public void savePortfolios(User user, List<String> portfolioKeys) {
+	public void savePortfolios(Designer designer, List<String> portfolioKeys) {
 		if (portfolioKeys.isEmpty()) {
 			return;
 		}
 
 		// 파일을 DB에 일괄 저장
 		List<Portfolio> portfolios = portfolioKeys.stream()
-			.map(key -> Portfolio.createPortfolio(user, key))
+			.map(key -> Portfolio.createPortfolio(designer, key))
 			.toList();
 		portfolioRepository.saveAll(portfolios);
 	}

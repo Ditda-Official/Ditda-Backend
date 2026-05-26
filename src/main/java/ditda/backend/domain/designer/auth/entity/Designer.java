@@ -30,12 +30,12 @@ import lombok.NoArgsConstructor;
 public class Designer extends BaseEntity {
 
 	@Id
-	@Column(name = "user_id")
+	@Column(name = "designer_id")
 	private Long id;
 
-	@MapsId
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
+	@MapsId
+	@JoinColumn(name = "designer_id")
 	private User user;
 
 	@Builder.Default

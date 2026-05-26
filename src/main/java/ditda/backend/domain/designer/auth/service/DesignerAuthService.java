@@ -67,7 +67,7 @@ public class DesignerAuthService {
 		designerRepository.save(designer);
 
 		// 포트폴리오 S3 key를 DB에 일괄 저장
-		portfolioService.savePortfolios(user, portfolioKeys);
+		portfolioService.savePortfolios(designer, portfolioKeys);
 
 		// accessToken&refreshToken 발급
 		AuthResult tokens = authService.issueTokens(user.getId());

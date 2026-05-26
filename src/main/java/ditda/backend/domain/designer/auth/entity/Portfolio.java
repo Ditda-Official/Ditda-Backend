@@ -1,6 +1,5 @@
 package ditda.backend.domain.designer.auth.entity;
 
-import ditda.backend.domain.common.user.entity.User;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,15 +30,15 @@ public class Portfolio extends BaseEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false)
-	private User user;
+	@JoinColumn(name = "designer_id", nullable = false)
+	private Designer designer;
 
 	@Column(name = "portfolio_url", nullable = false)
 	private String portfolioUrl;
 
-	public static Portfolio createPortfolio(User user, String portfolioUrl) {
+	public static Portfolio createPortfolio(Designer designer, String portfolioUrl) {
 		return Portfolio.builder()
-			.user(user)
+			.designer(designer)
 			.portfolioUrl(portfolioUrl)
 			.build();
 	}
