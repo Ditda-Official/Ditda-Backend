@@ -1,6 +1,7 @@
 package ditda.backend.domain.instructor.auth.entity;
 
 import ditda.backend.domain.common.user.entity.User;
+import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Instructor {
+public class Instructor extends BaseEntity {
 
 	@Id
 	@Column(name = "instructor_id")
