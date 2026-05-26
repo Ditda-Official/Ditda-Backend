@@ -56,7 +56,6 @@ jwt:
 
 encrypt:
   secret-key: test-encrypt-secret-key-only-for-ci-environment
-  hash-key: test-encrypt-hash-key-only-for-ci-environment
 
 swagger:
   server-url: http://localhost:8080

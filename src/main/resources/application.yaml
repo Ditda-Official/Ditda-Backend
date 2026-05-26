@@ -47,7 +47,6 @@ jwt:
 
 encrypt:
   secret-key: ${ENCRYPT_SECRET_KEY}
-  hash-key: ${ENCRYPT_HASH_KEY}
 
 admin:
   notification-email: ${ADMIN_NOTIFICATION_EMAIL}

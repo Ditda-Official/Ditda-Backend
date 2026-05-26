@@ -30,11 +30,7 @@ public class AesEncryptor {
 	@Value("${encrypt.secret-key}")
 	private String secretKey;
 
-	@Value("${encrypt.hash-key}")
-	private String hashKey;
-
 	private SecretKeySpec secretKeySpec;
-	private SecretKeySpec hmacKeySpec;
 
 	@PostConstruct
 	public void init() {
@@ -43,9 +39,6 @@ public class AesEncryptor {
 				.digest(secretKey.getBytes(StandardCharsets.UTF_8));
 			this.secretKeySpec = new SecretKeySpec(keyBytes, "AES");
 
-			byte[] hmacBytes = MessageDigest.getInstance("SHA-256")
-				.digest(hashKey.getBytes(StandardCharsets.UTF_8));
-			this.hmacKeySpec = new SecretKeySpec(hmacBytes, "HmacSHA256");
 		} catch (Exception e) {
 			throw new IllegalStateException("Failed to initialize AES encryption", e);
 		}
