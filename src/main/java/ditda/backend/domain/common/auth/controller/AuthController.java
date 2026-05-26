@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ditda.backend.domain.common.auth.dto.AuthResult;
+import ditda.backend.domain.common.auth.dto.request.CheckUsernameRequest;
 import ditda.backend.domain.common.auth.dto.request.EmailCodeVerificationRequest;
 import ditda.backend.domain.common.auth.dto.request.EmailVerificationRequest;
 import ditda.backend.domain.common.auth.dto.request.LoginRequest;
@@ -33,6 +34,16 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 
 	private final AuthFacade authFacade;
+
+	@Operation(summary = "아이디 중복 확인", description = "**[회원가입]** 사용 가능한 아이디인지 확인합니다.")
+	@PostMapping("/check-username")
+	public ApiResponse<Void> checkUsername(
+		@Valid @RequestBody CheckUsernameRequest request
+	) {
+
+		authFacade.validateUsernameAvailable(request.username());
+		return ApiResponse.onSuccess("아이디 사용 가능 여부 조회 성공");
+	}
 
 	@Operation(summary = "이메일 인증번호 요청", description = "**[회원가입]** 이메일 인증번호를 요청합니다.")
 	@PostMapping("/emails/verification-requests")

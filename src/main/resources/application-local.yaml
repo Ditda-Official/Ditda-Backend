@@ -20,10 +20,6 @@ spring:
         endpoint: ${S3_ENDPOINT}
         path-style-access-enabled: true
 
-app:
-  s3:
-    bucket: ${S3_BUCKET}
-
 swagger:
   server-url: http://localhost:8080
   server-description: Local Server

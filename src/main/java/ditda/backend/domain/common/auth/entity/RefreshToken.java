@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
 
-import ditda.backend.domain.common.user.entity.UserEntity;
+import ditda.backend.domain.common.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -33,7 +33,7 @@ public class RefreshToken {
 	// 다중 기기 허용을 위해 N:1
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
-	private UserEntity user;
+	private User user;
 
 	@Column(name = "refresh_token_hash", nullable = false, length = 128)
 	private String tokenHash;
@@ -42,7 +42,7 @@ public class RefreshToken {
 	private LocalDateTime expiresAt;
 
 	public static RefreshToken createRefreshToken(
-		UserEntity user,
+		User user,
 		String sessionId,
 		String tokenHash,
 		LocalDateTime expiresAt

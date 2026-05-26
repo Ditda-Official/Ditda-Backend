@@ -5,9 +5,10 @@ import org.springframework.stereotype.Component;
 
 import ditda.backend.domain.common.auth.dto.AuthResult;
 import ditda.backend.domain.common.auth.dto.request.LoginRequest;
+import ditda.backend.domain.common.auth.notification.EmailVerificationMailer;
 import ditda.backend.domain.common.auth.service.AuthService;
 import ditda.backend.domain.common.auth.service.EmailVerificationService;
-import ditda.backend.global.email.EmailSender;
+import ditda.backend.domain.common.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -15,13 +16,19 @@ import lombok.RequiredArgsConstructor;
 public class AuthFacade {
 
 	private final EmailVerificationService emailVerificationService;
-	private final EmailSender emailSender;
+	private final EmailVerificationMailer emailVerificationMailer;
+	private final UserService userService;
 	private final AuthService authService;
+
+	// 아이디 중복 검증
+	public void validateUsernameAvailable(String username) {
+		userService.validateUsernameAvailable(username);
+	}
 
 	// 이메일 인증번호 발송
 	public void requestEmailVerification(String email) {
 		String code = emailVerificationService.issueCode(email);
-		emailSender.sendVerificationEmail(email, code);
+		emailVerificationMailer.sendVerificationCode(email, code);
 	}
 
 	// 이메일 인증번호 검증

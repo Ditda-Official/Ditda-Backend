@@ -12,8 +12,8 @@ import ditda.backend.domain.common.auth.dto.AuthResult;
 import ditda.backend.domain.common.auth.dto.request.LoginRequest;
 import ditda.backend.domain.common.auth.entity.RefreshToken;
 import ditda.backend.domain.common.auth.repository.RefreshTokenRepository;
-import ditda.backend.domain.common.user.entity.UserEntity;
-import ditda.backend.domain.common.user.repository.UserEntityRepository;
+import ditda.backend.domain.common.user.entity.User;
+import ditda.backend.domain.common.user.service.UserService;
 import ditda.backend.global.apipayload.code.GeneralErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.hash.RefreshTokenHasher;
@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 
-	private final UserEntityRepository userEntityRepository;
+	private final UserService userService;
 	private final PasswordEncoder passwordEncoder;
 	private final RefreshTokenHasher refreshTokenHasher;
 	private final JwtTokenProvider jwtTokenProvider;
@@ -35,11 +35,39 @@ public class AuthService {
 	private final CookieUtils cookieUtils;
 
 	@Transactional
+	public AuthResult issueTokens(Long userId) {
+
+		// 1. 만료된 토큰 삭제
+		refreshTokenRepository.deleteExpiredByUserId(userId, LocalDateTime.now());
+
+		// 2. sessionId(로그인 기기 식별) 및 JWT 토큰 발급
+		String sessionId = UUID.randomUUID().toString();
+		String accessToken = jwtTokenProvider.generateAccessToken(userId);
+		String refreshToken = jwtTokenProvider.generateRefreshToken(userId, sessionId);
+
+		// 3. DB에는 해시 값으로 저장
+		String refreshTokenHash = refreshTokenHasher.hash(refreshToken);
+		LocalDateTime expiresAt = jwtTokenProvider.getExpiration(refreshToken);
+
+		refreshTokenRepository.save(
+			RefreshToken.createRefreshToken(
+				userService.getReferenceById(userId),
+				sessionId,
+				refreshTokenHash,
+				expiresAt
+			)
+		);
+
+		ResponseCookie cookie = cookieUtils.createRefreshTokenCookie(refreshToken);
+
+		return new AuthResult(userId, accessToken, cookie);
+	}
+
+	@Transactional
 	public AuthResult login(LoginRequest request) {
 
 		// 1. 유저 조회
-		UserEntity user = userEntityRepository.findByUsername(request.username())
-			.orElseThrow(() -> new GeneralException(GeneralErrorCode.INVALID_LOGIN));
+		User user = userService.findByUsername(request.username());
 
 		// 2. 비밀번호 검증
 		if (!passwordEncoder.matches(request.password(), user.getPassword())) {
@@ -121,31 +149,4 @@ public class AuthService {
 		return refreshTokenRepository.deleteExpired(LocalDateTime.now());
 	}
 
-	private AuthResult issueTokens(Long userId) {
-
-		// 1. 만료된 토큰 삭제
-		refreshTokenRepository.deleteExpiredByUserId(userId, LocalDateTime.now());
-
-		// 2. sessionId(로그인 기기 식별) 및 JWT 토큰 발급
-		String sessionId = UUID.randomUUID().toString();
-		String accessToken = jwtTokenProvider.generateAccessToken(userId);
-		String refreshToken = jwtTokenProvider.generateRefreshToken(userId, sessionId);
-
-		// 3. DB에는 해시 값으로 저장
-		String refreshTokenHash = refreshTokenHasher.hash(refreshToken);
-		LocalDateTime expiresAt = jwtTokenProvider.getExpiration(refreshToken);
-
-		refreshTokenRepository.save(
-			RefreshToken.createRefreshToken(
-				userEntityRepository.getReferenceById(userId),
-				sessionId,
-				refreshTokenHash,
-				expiresAt
-			)
-		);
-
-		ResponseCookie cookie = cookieUtils.createRefreshTokenCookie(refreshToken);
-
-		return new AuthResult(userId, accessToken, cookie);
-	}
 }

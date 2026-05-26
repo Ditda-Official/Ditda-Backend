@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserEntity extends BaseEntity {
+public class User extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,7 +56,7 @@ public class UserEntity extends BaseEntity {
 	@Column(name = "email_verified_at")
 	private LocalDateTime emailVerifiedAt;
 
-	public static UserEntity createUser(
+	public static User createUser(
 		String username,
 		String password,
 		String name,
@@ -66,7 +66,7 @@ public class UserEntity extends BaseEntity {
 		UserRole role,
 		LocalDateTime emailVerifiedAt
 	) {
-		return UserEntity.builder()
+		return User.builder()
 			.username(username)
 			.password(password)
 			.name(name)

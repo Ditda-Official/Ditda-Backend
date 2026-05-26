@@ -4,12 +4,12 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import ditda.backend.domain.common.user.entity.UserEntity;
+import ditda.backend.domain.common.user.entity.User;
 
-public interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 	boolean existsByUsername(String username);
 
 	boolean existsByEmail(String email);
 
-	Optional<UserEntity> findByUsername(String username);
+	Optional<User> findByUsername(String username);
 }

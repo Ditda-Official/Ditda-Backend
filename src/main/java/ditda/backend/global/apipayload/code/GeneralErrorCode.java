@@ -29,6 +29,11 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "REQ_404_02", "요청한 리소스를 찾을 수 없습니다."),
 	METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "API_405_01", "지원하지 않는 HTTP 메서드입니다."),
 
+	// 암호화/복호화 에러
+	ENCRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ENCRYPT_500_01", "데이터 암호화에 실패했습니다."),
+	DECRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ENCRYPT_500_02", "데이터 복호화에 실패했습니다."),
+	HASHING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ENCRYPT_500_03", "데이터 해싱에 실패했습니다."),
+
 	// 서버 내부 에러
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_500_01", "서버 내부 오류입니다."),
 	SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "SERVER_503_01", "서버가 일시적으로 불안정합니다."),

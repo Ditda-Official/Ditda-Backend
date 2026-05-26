@@ -57,15 +57,9 @@ public class SecurityConfig {
 			// api 접근 권한 설정
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-				.requestMatchers(HttpMethod.POST,
-					"/api/v1/instructors/check-username",
-					"/api/v1/instructors/signup",
-					"/api/v1/auth/emails/verification-requests",
-					"/api/v1/auth/emails/verifications",
-					"/api/v1/auth/login",
-					"/api/v1/auth/reissue",
-					"/api/v1/auth/logout"
-				).permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/v1/instructors/auth/signup").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/v1/designers/auth/signup").permitAll()
 				.anyRequest().authenticated()
 			)
 			.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);

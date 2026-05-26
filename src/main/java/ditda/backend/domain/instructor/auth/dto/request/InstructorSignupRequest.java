@@ -20,29 +20,29 @@ public record InstructorSignupRequest(
 	@Schema(
 		description = "약관",
 		example = """
-	[
-		{
-			"type": "SERVICE",
-			"version": "V1.0",
-			"isAgreed": true
-		},
-		{
-			"type": "USERINFO",
-			"version": "V1.0",
-			"isAgreed": true
-		},
-		{
-			"type": "SETTLEMENT",
-			"version": "V1.0",
-			"isAgreed": true
-		},
-		{
-			"type": "DISINTERMEDIATION",
-			"version": "V1.0",
-			"isAgreed": true
-		}
-	]
-	"""
+			[
+				{
+					"type": "SERVICE",
+					"version": "V1.0",
+					"isAgreed": true
+				},
+				{
+					"type": "USERINFO",
+					"version": "V1.0",
+					"isAgreed": true
+				},
+				{
+					"type": "SETTLEMENT",
+					"version": "V1.0",
+					"isAgreed": true
+				},
+				{
+					"type": "DISINTERMEDIATION",
+					"version": "V1.0",
+					"isAgreed": true
+				}
+			]
+			"""
 	)
 	@NotEmpty(message = "약관 동의 여부 내용은 필수입니다")
 	@Valid
@@ -84,14 +84,18 @@ public record InstructorSignupRequest(
 
 	public record TermRequest(
 
+		@Schema(description = "약관 종류", example = "SERVICE")
 		@NotNull(message = "약관 종류 필수입니다.")
 		TermType type,
 
+		@Schema(description = "약관 버전", example = "V1.0")
 		@NotBlank(message = "약관 버전 필수입니다.")
 		String version,
 
+		@Schema(description = "약관 동의 여부", example = "true")
+		@NotNull(message = "약관 동의 여부는 필수입니다.")
 		@JsonProperty("isAgreed")
-		boolean isAgreed
+		Boolean isAgreed
 	) {
 	}
 }

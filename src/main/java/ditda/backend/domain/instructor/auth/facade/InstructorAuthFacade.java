@@ -17,7 +17,7 @@ public class InstructorAuthFacade {
 
 	public InstructorAuthResult signup(InstructorSignupRequest request) {
 
-		emailVerificationService.isVerified(request.email());
+		emailVerificationService.validateVerified(request.email());
 
 		InstructorAuthResult result = instructorAuthService.signup(request);
 
@@ -26,7 +26,4 @@ public class InstructorAuthFacade {
 		return result;
 	}
 
-	public void validateUsernameAvailable(String username) {
-		instructorAuthService.validateUsernameAvailable(username);
-	}
 }

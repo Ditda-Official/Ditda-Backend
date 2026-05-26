@@ -31,6 +31,12 @@ spring:
           starttls:
             enable: true
 
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 100MB
+      enabled: true
+
 jwt:
   secret: ${JWT_SECRET_KEY}
   access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
@@ -38,6 +44,17 @@ jwt:
   refresh-token-hash-secret: ${JWT_REFRESH_TOKEN_HASH_SECRET}
   cookie-secure: ${JWT_COOKIE_SECURE}
   refresh-cookie-path: ${JWT_REFRESH_COOKIE_PATH}
+
+encrypt:
+  secret-key: ${ENCRYPT_SECRET_KEY}
+
+admin:
+  notification-email: ${ADMIN_NOTIFICATION_EMAIL}
+
+app:
+  s3:
+    bucket: ${S3_BUCKET}
+    public-base-url: ${S3_PUBLIC_BASE_URL}
 
 springdoc:
   swagger-ui:
