@@ -1,5 +1,6 @@
 package ditda.backend.domain.designer.auth.notification;
 
+import java.time.Duration;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -8,7 +9,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import ditda.backend.domain.designer.auth.event.DesignerSignedUpEvent;
 import ditda.backend.global.config.AdminProperties;
-import ditda.backend.global.s3.S3UrlResolver;
+import ditda.backend.global.s3.S3PresignedUrlGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,9 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DesignerSignupNotifier {
 
+	private static final Duration ADMIN_DOWNLOAD_URL_TTL = Duration.ofHours(6);        // URL 최대 유효기간 6시간
+
 	private final DesignerSignupMailer designerSignupMailer;
 	private final AdminProperties adminProperties;
-	private final S3UrlResolver s3UrlResolver;
+	private final S3PresignedUrlGenerator presignedUrlGenerator;
 
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void onDesignerSignedUp(DesignerSignedUpEvent event) {
@@ -31,7 +34,7 @@ public class DesignerSignupNotifier {
 
 		try {
 			List<String> portfolioUrls = event.portfolioKeys().stream()
-				.map(s3UrlResolver::toPublicS3Url)
+				.map(key -> presignedUrlGenerator.generatePrivateGetUrl(key, ADMIN_DOWNLOAD_URL_TTL))
 				.toList();
 
 			designerSignupMailer.sendAdminNotification(

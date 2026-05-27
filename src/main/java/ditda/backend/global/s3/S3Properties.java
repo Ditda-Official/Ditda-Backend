@@ -12,7 +12,9 @@ import lombok.Setter;
 @ConfigurationProperties(prefix = "app.s3")
 public class S3Properties {
 
-	private String bucket;
+	private String publicBucket;
 
-	private String publicBaseUrl;
+	private String privateBucket;
+
+	private int presignedUrlTtlMinutes = 10;
 }

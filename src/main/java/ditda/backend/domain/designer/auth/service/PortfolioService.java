@@ -15,6 +15,7 @@ import ditda.backend.domain.designer.auth.exception.DesignerErrorCode;
 import ditda.backend.domain.designer.auth.repository.PortfolioRepository;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.s3.S3FileUploader;
+import ditda.backend.global.s3.enums.BucketType;
 import ditda.backend.global.s3.exception.S3UploadException;
 import lombok.RequiredArgsConstructor;
 
@@ -63,7 +64,7 @@ public class PortfolioService {
 
 	public List<String> uploadFiles(List<MultipartFile> files) {
 		try {
-			return s3FileUploader.uploadAll(S3_KEY_PREFIX, files);
+			return s3FileUploader.uploadAll(BucketType.PRIVATE, S3_KEY_PREFIX, files);
 		} catch (S3UploadException e) {
 			throw new GeneralException(DesignerErrorCode.PORTFOLIO_UPLOAD_FAILED);
 		}
@@ -83,6 +84,6 @@ public class PortfolioService {
 	}
 
 	public void deleteFiles(List<String> portfolioKeys) {
-		s3FileUploader.deleteAll(portfolioKeys);
+		s3FileUploader.deleteAll(BucketType.PRIVATE, portfolioKeys);
 	}
 }

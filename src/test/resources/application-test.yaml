@@ -40,8 +40,9 @@ spring:
 
 app:
   s3:
-    bucket: test-bucket
-    public-base-url: http://localhost:9000/test-bucket
+    public-bucket: test-public-bucket
+    private-bucket: test-private-bucket
+    presigned-url-ttl-minutes: 10
 
 admin:
   notification-email: admin-test@example.com
