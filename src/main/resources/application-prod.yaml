@@ -1,0 +1,21 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update    # TODO: validate로 변경
+    properties:
+      hibernate:
+        format_sql: false
+        default_batch_fetch_size: 100
+    show-sql: false
+    open-in-view: false
+
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      s3:
+        path-style-access-enabled: false
+
+swagger:
+  server-url: https://api.ditda.kr
+  server-description: Production Server

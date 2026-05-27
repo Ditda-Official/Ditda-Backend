@@ -57,6 +57,15 @@ app:
     private-bucket: ${S3_PRIVATE_BUCKET}
     presigned-url-ttl-minutes: ${S3_PRESIGNED_URL_TTL_MINUTES:10}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

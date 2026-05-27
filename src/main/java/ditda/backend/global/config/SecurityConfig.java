@@ -60,6 +60,7 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/v1/instructors/auth/signup").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/v1/designers/auth/signup").permitAll()
+				.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
 				.anyRequest().authenticated()
 			)
 			.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
