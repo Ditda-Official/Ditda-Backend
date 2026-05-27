@@ -73,7 +73,7 @@ public class S3FileUploader {
 			try {
 				s3Client.deleteObject(req -> req.bucket(bucket).key(key));
 			} catch (Exception e) {
-				log.error("S3 delete failed. buket={}, key={}", bucket, key, e);
+				log.error("S3 delete failed. bucket={}, key={}", bucket, key, e);
 			}
 		}
 	}
