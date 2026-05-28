@@ -56,4 +56,18 @@ public class CommissionDraft extends BaseEntity {
 	@Builder.Default
 	@Column(name = "is_final", nullable = false)
 	private boolean isFinal = false;
+
+	public static CommissionDraft create(
+		Commission commission,
+		RevisionRequest revisionRequest,
+		int round,
+		String designerComment
+	) {
+		return CommissionDraft.builder()
+			.commission(commission)
+			.revisionRequest(revisionRequest)
+			.round(round)
+			.designerComment(designerComment)
+			.build();
+	}
 }
