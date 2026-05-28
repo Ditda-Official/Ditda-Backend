@@ -75,6 +75,8 @@ public class AuthService {
 
 		return new AuthResult(
 			user.getId(),
+			user.getName(),
+			user.getProfileImage(),
 			tokens.accessToken(),
 			tokens.refreshToken()
 		);

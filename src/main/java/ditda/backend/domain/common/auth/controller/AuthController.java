@@ -16,6 +16,7 @@ import ditda.backend.domain.common.auth.dto.request.LoginRequest;
 import ditda.backend.domain.common.auth.dto.response.LoginResponse;
 import ditda.backend.domain.common.auth.dto.response.ReissueResponse;
 import ditda.backend.domain.common.auth.facade.AuthFacade;
+import ditda.backend.domain.common.auth.mapper.AuthResponseMapper;
 import ditda.backend.global.apipayload.response.ApiResponse;
 import ditda.backend.global.jwt.utils.CookieUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +36,7 @@ public class AuthController {
 
 	private final AuthFacade authFacade;
 	private final CookieUtils cookieUtils;
+	private final AuthResponseMapper authResponseMapper;
 
 	@Operation(summary = "아이디 중복 확인", description = "**[회원가입]** 사용 가능한 아이디인지 확인합니다.")
 	@PostMapping("/check-username")
@@ -76,11 +78,7 @@ public class AuthController {
 
 		addRefreshTokenCookie(response, result.refreshToken());
 
-		LoginResponse loginResponse = new LoginResponse(
-			result.userId(),
-			result.accessToken());
-
-		return ApiResponse.onSuccess("로그인 성공", loginResponse);
+		return ApiResponse.onSuccess("로그인 성공", authResponseMapper.toLoginResponse(result));
 	}
 
 	@Operation(summary = "로그아웃", description = "**[공통]** 현재 세션의 refresh token을 무효화합니다.")

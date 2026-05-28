@@ -14,9 +14,9 @@ import ditda.backend.domain.designer.auth.dto.DesignerAuthResult;
 import ditda.backend.domain.designer.auth.dto.request.DesignerSignupRequest;
 import ditda.backend.domain.designer.auth.dto.response.DesignerSignupResponse;
 import ditda.backend.domain.designer.auth.facade.DesignerAuthFacade;
+import ditda.backend.domain.designer.auth.mapper.DesignerAuthResponseMapper;
 import ditda.backend.global.apipayload.response.ApiResponse;
 import ditda.backend.global.jwt.utils.CookieUtils;
-import ditda.backend.global.s3.S3UrlResolver;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
@@ -33,8 +33,8 @@ import lombok.RequiredArgsConstructor;
 public class DesignerAuthController {
 
 	private final DesignerAuthFacade designerAuthFacade;
-	private final S3UrlResolver s3UrlResolver;
 	private final CookieUtils cookieUtils;
+	private final DesignerAuthResponseMapper authResponseMapper;
 
 	@Operation(
 		summary = "디자이너 회원가입",
@@ -57,13 +57,7 @@ public class DesignerAuthController {
 
 		addRefreshTokenCookie(response, result.refreshToken());
 
-		DesignerSignupResponse signupResponse = new DesignerSignupResponse(
-			result.userId(),
-			result.name(),
-			s3UrlResolver.toPublicS3Url(result.profileImage()),
-			result.accessToken());
-
-		return ApiResponse.onSuccess("디자이너 회원가입 성공", signupResponse);
+		return ApiResponse.onSuccess("디자이너 회원가입 성공", authResponseMapper.toSignupResponse(result));
 	}
 
 	private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
