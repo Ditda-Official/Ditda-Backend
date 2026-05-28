@@ -60,7 +60,8 @@ public class InstructorAuthService {
 			user.getName(),
 			user.getProfileImage(),
 			tokens.accessToken(),
-			tokens.refreshToken());
+			tokens.refreshToken()
+		);
 	}
 
 	private List<TermAgreement> toAgreements(List<InstructorSignupRequest.TermRequest> terms) {

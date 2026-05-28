@@ -63,7 +63,8 @@ public class DesignerAuthService {
 			user,
 			request.bankAccount().bankName(),
 			request.bankAccount().accountNumber(),
-			request.bankAccount().accountHolder());
+			request.bankAccount().accountHolder()
+		);
 		designerRepository.save(designer);
 
 		// 포트폴리오 S3 key를 DB에 일괄 저장
