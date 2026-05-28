@@ -6,6 +6,10 @@ public record DesignerAuthResult(
 
 	Long userId,
 
+	String name,
+
+	String profileImage,
+
 	String accessToken,
 
 	ResponseCookie refreshTokenCookie

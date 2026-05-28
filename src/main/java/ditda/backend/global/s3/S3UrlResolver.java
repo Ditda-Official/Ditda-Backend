@@ -13,6 +13,10 @@ public class S3UrlResolver {
 	private final S3Properties s3Properties;
 
 	public String toPublicS3Url(String key) {
+		if (key == null || key.isEmpty()) {
+			return key;
+		}
+
 		return s3Client.utilities()
 			.getUrl(builder -> builder
 				.bucket(s3Properties.getPublicBucket())

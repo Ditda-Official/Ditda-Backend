@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DesignerAuthService {
 
-	private static final String DEFAULT_PROFILE_IMAGE = "";
+	private static final String DEFAULT_PROFILE_IMAGE = "profile/default.png";
 
 	private final DesignerRepository designerRepository;
 	private final UserService userService;
@@ -80,7 +80,12 @@ public class DesignerAuthService {
 			portfolioKeys
 		));
 
-		return new DesignerAuthResult(user.getId(), tokens.accessToken(), tokens.refreshTokenCookie());
+		return new DesignerAuthResult(
+			user.getId(),
+			user.getName(),
+			user.getProfileImage(),
+			tokens.accessToken(),
+			tokens.refreshTokenCookie());
 	}
 
 	private List<TermAgreement> toAgreements(List<DesignerSignupRequest.TermRequest> terms) {
