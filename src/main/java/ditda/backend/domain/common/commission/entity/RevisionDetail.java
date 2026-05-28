@@ -1,6 +1,8 @@
 package ditda.backend.domain.common.commission.entity;
 
 import ditda.backend.domain.common.commission.entity.enums.RevisionCategory;
+import ditda.backend.domain.common.commission.exception.CommissionErrorCode;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,6 +50,11 @@ public class RevisionDetail extends BaseEntity {
 		RevisionCategory category,
 		String comment
 	) {
+
+		if (comment == null || comment.isBlank()) {
+			throw new GeneralException(CommissionErrorCode.REVISION_COMMENT_REQUIRED);
+		}
+
 		return RevisionDetail.builder()
 			.revisionRequest(revisionRequest)
 			.category(category)

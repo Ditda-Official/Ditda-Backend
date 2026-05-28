@@ -1,6 +1,7 @@
 package ditda.backend.domain.common.commission.entity;
 
 import ditda.backend.domain.common.commission.entity.enums.DraftStatus;
+import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -34,7 +35,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommissionDraftPage {
+public class CommissionDraftPage extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,8 +49,8 @@ public class CommissionDraftPage {
 	@Column(name = "page_order", nullable = false)
 	private int pageOrder;
 
-	@Column(name = "name", length = 100, nullable = false)
-	private String name;
+	@Column(name = "file_name", length = 100, nullable = false)
+	private String fileName;
 
 	@Column(name = "file_url", nullable = false)
 	private String fileUrl;
@@ -64,24 +65,15 @@ public class CommissionDraftPage {
 	public static CommissionDraftPage create(
 		CommissionDraft commissionDraft,
 		int pageOrder,
-		String name,
+		String fileName,
 		String fileUrl
 	) {
 		return CommissionDraftPage.builder()
 			.commissionDraft(commissionDraft)
 			.pageOrder(pageOrder)
-			.name(name)
+			.fileName(fileName)
 			.fileUrl(fileUrl)
 			.draftStatus(DraftStatus.PROCESSING)
 			.build();
-	}
-
-	public void completeWatermark(String watermarkedFileUrl) {
-		this.watermarkedFileUrl = watermarkedFileUrl;
-		this.draftStatus = DraftStatus.COMPLETED;
-	}
-
-	public void failWatermark() {
-		this.draftStatus = DraftStatus.FAILED;
 	}
 }

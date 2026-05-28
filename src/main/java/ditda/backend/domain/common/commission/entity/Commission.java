@@ -7,8 +7,10 @@ import ditda.backend.domain.common.commission.entity.enums.ColorSelectionMode;
 import ditda.backend.domain.common.commission.entity.enums.CommissionStatus;
 import ditda.backend.domain.common.commission.entity.enums.PlanCode;
 import ditda.backend.domain.common.commission.entity.enums.Size;
+import ditda.backend.domain.common.commission.exception.CommissionErrorCode;
 import ditda.backend.domain.designer.auth.entity.Designer;
 import ditda.backend.domain.instructor.auth.entity.Instructor;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,6 +36,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Commission extends BaseEntity {
+
+	// 외주 등록 ~ 1차 시안 마감 일수
+	private static final int MIN_DAYS_UNTIL_FIRST_DRAFT = 10;
+	// 1차 시안 마감 ~ 최종 마감 일수
+	private static final int MIN_DAYS_BETWEEN_DEADLINES = 14;
+	// 시안 지원 제출 마감 ~ 1치 시안 마감 일수
+	private static final int APPLICATION_DEADLINE_OFFSET_DAYS = 7;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -97,6 +106,24 @@ public class Commission extends BaseEntity {
 		LocalDate firstDraftDeadline,
 		LocalDate finalDeadline
 	) {
+		if (firstDraftDeadline == null) {
+			throw new GeneralException(CommissionErrorCode.FIRST_DRAFT_DEADLINE_REQUIRED);
+		}
+
+		if (finalDeadline == null) {
+			throw new GeneralException(CommissionErrorCode.FINAL_DEADLINE_REQUIRED);
+		}
+
+		// 1차 시안 제출일은 외주 등록일로부터 최소 10일 뒤
+		if (firstDraftDeadline.minusDays(MIN_DAYS_UNTIL_FIRST_DRAFT).isBefore(LocalDate.now())) {
+			throw new GeneralException(CommissionErrorCode.FIRST_DRAFT_DEADLINE_TOO_SOON);
+		}
+
+		// 최종 제출일은 1차 시안 마감일로부터 최소 14일 뒤
+		if (finalDeadline.minusDays(MIN_DAYS_BETWEEN_DEADLINES).isBefore(firstDraftDeadline)) {
+			throw new GeneralException(CommissionErrorCode.FINAL_DEADLINE_TOO_SOON);
+		}
+
 		return Commission.builder()
 			.instructor(instructor)
 			.planCode(planCode)
@@ -106,7 +133,7 @@ public class Commission extends BaseEntity {
 			.additionalConcept(additionalConcept)
 			.colorSelectionMode(colorSelectionMode)
 			.firstDraftDeadline(firstDraftDeadline)
-			.applicationDeadline(firstDraftDeadline.minusDays(7))
+			.applicationDeadline(firstDraftDeadline.minusDays(APPLICATION_DEADLINE_OFFSET_DAYS))
 			.finalDeadline(finalDeadline)
 			.status(CommissionStatus.PENDING)
 			.maxRevision(planCode.getMaxRevision())

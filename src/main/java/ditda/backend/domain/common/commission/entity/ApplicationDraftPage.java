@@ -1,6 +1,7 @@
 package ditda.backend.domain.common.commission.entity;
 
 import ditda.backend.domain.common.commission.entity.enums.DraftStatus;
+import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -25,7 +26,7 @@ import lombok.NoArgsConstructor;
 	name = "application_draft_pages",
 	uniqueConstraints = {
 		@UniqueConstraint(
-			name = "uk_application_draft_order",
+			name = "uk_application_draft_page_order",
 			columnNames = {"commission_application_id", "page_order"}
 		)
 	}
@@ -34,7 +35,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ApplicationDraftPage {
+public class ApplicationDraftPage extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,13 +44,13 @@ public class ApplicationDraftPage {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "commission_application_id", nullable = false)
-	private CommissionApplication application;
+	private CommissionApplication commissionApplication;
 
 	@Column(name = "page_order", nullable = false)
 	private int pageOrder;
 
-	@Column(name = "name", length = 100, nullable = false)
-	private String name;
+	@Column(name = "file_name", length = 100, nullable = false)
+	private String fileName;
 
 	@Column(name = "file_url", nullable = false)
 	private String fileUrl;
@@ -62,26 +63,17 @@ public class ApplicationDraftPage {
 	private DraftStatus draftStatus;
 
 	public static ApplicationDraftPage create(
-		CommissionApplication application,
+		CommissionApplication commissionApplication,
 		int pageOrder,
-		String name,
+		String fileName,
 		String fileUrl
 	) {
 		return ApplicationDraftPage.builder()
-			.application(application)
+			.commissionApplication(commissionApplication)
 			.pageOrder(pageOrder)
-			.name(name)
+			.fileName(fileName)
 			.fileUrl(fileUrl)
 			.draftStatus(DraftStatus.PROCESSING)
 			.build();
-	}
-
-	public void completeWatermark(String watermarkedFileUrl) {
-		this.watermarkedFileUrl = watermarkedFileUrl;
-		this.draftStatus = DraftStatus.COMPLETED;
-	}
-
-	public void failWatermark() {
-		this.draftStatus = DraftStatus.FAILED;
 	}
 }

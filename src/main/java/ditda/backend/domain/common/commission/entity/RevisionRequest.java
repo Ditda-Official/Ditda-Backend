@@ -45,11 +45,4 @@ public class RevisionRequest extends BaseEntity {
 
 	@Column(name = "round", nullable = false)
 	private int round;
-
-	public static RevisionRequest create(Commission commission, int round) {
-		return RevisionRequest.builder()
-			.commission(commission)
-			.round(round)
-			.build();
-	}
 }
