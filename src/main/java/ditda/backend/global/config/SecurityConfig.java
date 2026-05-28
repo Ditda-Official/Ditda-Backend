@@ -72,7 +72,13 @@ public class SecurityConfig {
 		CorsConfiguration config = new CorsConfiguration();
 
 		config.setAllowCredentials(true);
-		config.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://localhost:5173"));
+		config.setAllowedOriginPatterns(List.of(
+			"http://localhost:3000",
+			"http://localhost:5173",
+			"https://ditda.kr",
+			"https://www.ditda.kr",
+			"https://api.ditda.kr"
+		));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
