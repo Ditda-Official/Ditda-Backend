@@ -1,9 +1,9 @@
 package ditda.backend.domain.common.auth.facade;
 
-import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import ditda.backend.domain.common.auth.dto.AuthResult;
+import ditda.backend.domain.common.auth.dto.TokenResult;
 import ditda.backend.domain.common.auth.dto.request.LoginRequest;
 import ditda.backend.domain.common.auth.notification.EmailVerificationMailer;
 import ditda.backend.domain.common.auth.service.AuthService;
@@ -42,12 +42,12 @@ public class AuthFacade {
 	}
 
 	// 유저 로그아웃
-	public ResponseCookie logout(String refreshToken) {
-		return authService.logout(refreshToken);
+	public void logout(String refreshToken) {
+		authService.logout(refreshToken);
 	}
 
 	// 토큰 재발급
-	public AuthResult reissue(String refreshToken) {
+	public TokenResult reissue(String refreshToken) {
 		return authService.reissue(refreshToken);
 	}
 }

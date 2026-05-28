@@ -15,6 +15,7 @@ import ditda.backend.domain.designer.auth.dto.request.DesignerSignupRequest;
 import ditda.backend.domain.designer.auth.dto.response.DesignerSignupResponse;
 import ditda.backend.domain.designer.auth.facade.DesignerAuthFacade;
 import ditda.backend.global.apipayload.response.ApiResponse;
+import ditda.backend.global.jwt.utils.CookieUtils;
 import ditda.backend.global.s3.S3UrlResolver;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,6 +34,7 @@ public class DesignerAuthController {
 
 	private final DesignerAuthFacade designerAuthFacade;
 	private final S3UrlResolver s3UrlResolver;
+	private final CookieUtils cookieUtils;
 
 	@Operation(
 		summary = "디자이너 회원가입",
@@ -53,7 +55,7 @@ public class DesignerAuthController {
 
 		DesignerAuthResult result = designerAuthFacade.signup(request, portfolioFiles);
 
-		response.addHeader(HttpHeaders.SET_COOKIE, result.refreshTokenCookie().toString());
+		addRefreshTokenCookie(response, result.refreshToken());
 
 		DesignerSignupResponse signupResponse = new DesignerSignupResponse(
 			result.userId(),
@@ -62,5 +64,9 @@ public class DesignerAuthController {
 			result.accessToken());
 
 		return ApiResponse.onSuccess("디자이너 회원가입 성공", signupResponse);
+	}
+
+	private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+		response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.createRefreshTokenCookie(refreshToken).toString());
 	}
 }
