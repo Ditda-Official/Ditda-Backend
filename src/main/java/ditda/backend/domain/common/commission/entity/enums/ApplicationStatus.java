@@ -1,0 +1,7 @@
+package ditda.backend.domain.common.commission.entity.enums;
+
+public enum ApplicationStatus {
+	PENDING,		// 지원 완료
+	APPROVED,		// 강사 시안 선택
+	REJECTED		// 미선택
+}
