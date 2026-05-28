@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +20,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "commission_colors")
+// 하나의 외주에 MAIN/SUB1/SUB2 각 1개씩만
+@Table(
+	name = "commission_colors",
+	uniqueConstraints = {
+		@UniqueConstraint(
+			name = "uk_commission_color_role",
+			columnNames = {"commission_id", "role"}
+		)
+	}
+)
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

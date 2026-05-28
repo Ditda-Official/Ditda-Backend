@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +22,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "commission_applications")
+// 한 디자이너는 한 외주에 1번만 지원
+@Table(
+	name = "commission_applications",
+	uniqueConstraints = {
+		@UniqueConstraint(
+			name = "uk_commission_application",
+			columnNames = {"commission_id", "designer_id"}
+		)
+	}
+)
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -53,8 +63,7 @@ public class CommissionApplication extends BaseEntity {
 			.build();
 	}
 
-	public void select(Designer selectedDesigner) {
-		this.designer = selectedDesigner;
+	public void select() {
 		this.status = ApplicationStatus.SELECTED;
 	}
 

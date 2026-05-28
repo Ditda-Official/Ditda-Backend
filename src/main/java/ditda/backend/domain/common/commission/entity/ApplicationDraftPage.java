@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +20,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "application_draft_pages")
+// 한 시안의 페이지 순서 중복 X
+@Table(
+	name = "application_draft_pages",
+	uniqueConstraints = {
+		@UniqueConstraint(
+			name = "uk_application_draft_order",
+			columnNames = {"commission_application_id", "page_order"}
+		)
+	}
+)
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
