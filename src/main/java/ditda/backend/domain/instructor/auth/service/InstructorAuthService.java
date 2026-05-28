@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InstructorAuthService {
 
-	private static final String DEFAULT_PROFILE_IMAGE = "";
+	private static final String DEFAULT_PROFILE_IMAGE = "profile/default.png";
 
 	private final InstructorRepository instructorRepository;
 	private final UserService userService;
@@ -55,7 +55,12 @@ public class InstructorAuthService {
 
 		TokenResult tokens = authService.issueTokens(user.getId());
 
-		return new InstructorAuthResult(user.getId(), tokens.accessToken(), tokens.refreshToken());
+		return new InstructorAuthResult(
+			user.getId(),
+			user.getName(),
+			user.getProfileImage(),
+			tokens.accessToken(),
+			tokens.refreshToken());
 	}
 
 	private List<TermAgreement> toAgreements(List<InstructorSignupRequest.TermRequest> terms) {
