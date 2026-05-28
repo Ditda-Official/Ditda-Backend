@@ -1,3 +1,78 @@
 spring:
   application:
-    name: backend
+    name: ditda
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 100MB
+      enabled: true
+
+jwt:
+  secret: ${JWT_SECRET_KEY}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+  refresh-token-hash-secret: ${JWT_REFRESH_TOKEN_HASH_SECRET}
+  cookie-secure: ${JWT_COOKIE_SECURE}
+  refresh-cookie-path: ${JWT_REFRESH_COOKIE_PATH}
+
+encrypt:
+  secret-key: ${ENCRYPT_SECRET_KEY}
+
+admin:
+  notification-email: ${ADMIN_NOTIFICATION_EMAIL}
+
+app:
+  s3:
+    public-bucket: ${S3_PUBLIC_BUCKET}
+    private-bucket: ${S3_PRIVATE_BUCKET}
+    presigned-url-ttl-minutes: ${S3_PRESIGNED_URL_TTL_MINUTES:10}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+  api-docs:
+    path: /v3/api-docs
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json

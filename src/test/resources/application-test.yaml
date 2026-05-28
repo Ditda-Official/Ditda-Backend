@@ -1,0 +1,63 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MYSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+  data:
+    redis:
+      host: localhost
+      port: 6370
+      password:
+
+  mail:
+    host: 127.0.0.1
+    port: 3025
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: false
+
+  cloud:
+    aws:
+      credentials:
+        access-key: test
+        secret-key: test
+      region:
+        static: ap-northeast-2
+      s3:
+        endpoint: http://localhost:9000
+        path-style-access-enabled: true
+
+app:
+  s3:
+    public-bucket: test-public-bucket
+    private-bucket: test-private-bucket
+    presigned-url-ttl-minutes: 10
+
+admin:
+  notification-email: admin-test@example.com
+
+jwt:
+  secret: application-test-jwt-secret-key-only-for-ci
+  access-token-expiration: 3600000
+  refresh-token-expiration: 86400000
+  refresh-token-hash-secret: test-refresh-token-hash-secret
+  cookie-secure: false
+  refresh-cookie-path: /api/v1/auth
+
+encrypt:
+  secret-key: test-encrypt-secret-key-only-for-ci-environment
+
+swagger:
+  server-url: http://localhost:8080
+  server-description: Test Server
