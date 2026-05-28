@@ -37,8 +37,8 @@ public class CommissionFile extends BaseEntity {
 	private Commission commission;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "file_type", length = 20, nullable = false)
-	private FileKind fileType;
+	@Column(name = "file_kind", length = 20, nullable = false)
+	private FileKind fileKind;
 
 	@Column(name = "file_url", nullable = false)
 	private String fileUrl;
@@ -48,13 +48,13 @@ public class CommissionFile extends BaseEntity {
 
 	public static CommissionFile create(
 		Commission commission,
-		FileKind fileType,
+		FileKind fileKind,
 		String fileUrl,
 		String description
 	) {
 		return CommissionFile.builder()
 			.commission(commission)
-			.fileType(fileType)
+			.fileKind(fileKind)
 			.fileUrl(fileUrl)
 			.description(description)
 			.build();

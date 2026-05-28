@@ -53,8 +53,9 @@ public class CommissionApplication extends BaseEntity {
 			.build();
 	}
 
-	public void approve() {
-		this.status = ApplicationStatus.APPROVED;
+	public void select(Designer selectedDesigner) {
+		this.designer = selectedDesigner;
+		this.status = ApplicationStatus.SELECTED;
 	}
 
 	public void reject() {
