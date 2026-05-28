@@ -3,12 +3,12 @@ package ditda.backend.domain.common.auth.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.common.auth.dto.AuthResult;
+import ditda.backend.domain.common.auth.dto.TokenResult;
 import ditda.backend.domain.common.auth.dto.request.LoginRequest;
 import ditda.backend.domain.common.auth.entity.RefreshToken;
 import ditda.backend.domain.common.auth.repository.RefreshTokenRepository;
@@ -19,7 +19,6 @@ import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.hash.RefreshTokenHasher;
 import ditda.backend.global.jwt.JwtTokenProvider;
 import ditda.backend.global.jwt.dto.RefreshTokenPayload;
-import ditda.backend.global.jwt.utils.CookieUtils;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 
@@ -32,10 +31,9 @@ public class AuthService {
 	private final RefreshTokenHasher refreshTokenHasher;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RefreshTokenRepository refreshTokenRepository;
-	private final CookieUtils cookieUtils;
 
 	@Transactional
-	public AuthResult issueTokens(Long userId) {
+	public TokenResult issueTokens(Long userId) {
 
 		// 1. 만료된 토큰 삭제
 		refreshTokenRepository.deleteExpiredByUserId(userId, LocalDateTime.now());
@@ -58,9 +56,7 @@ public class AuthService {
 			)
 		);
 
-		ResponseCookie cookie = cookieUtils.createRefreshTokenCookie(refreshToken);
-
-		return new AuthResult(userId, accessToken, cookie);
+		return new TokenResult(accessToken, refreshToken);
 	}
 
 	@Transactional
@@ -75,11 +71,19 @@ public class AuthService {
 		}
 
 		// 3. Access / Refresh 토큰 발급
-		return issueTokens(user.getId());
+		TokenResult tokens = issueTokens(user.getId());
+
+		return new AuthResult(
+			user.getId(),
+			user.getName(),
+			user.getProfileImage(),
+			tokens.accessToken(),
+			tokens.refreshToken()
+		);
 	}
 
 	@Transactional
-	public ResponseCookie logout(String refreshToken) {
+	public void logout(String refreshToken) {
 
 		if (refreshToken != null && !refreshToken.isBlank()) {
 			try {
@@ -97,12 +101,10 @@ public class AuthService {
 				// 토큰이 만료 또는 위조여도 쿠키는 제거
 			}
 		}
-
-		return cookieUtils.deleteRefreshTokenCookie();
 	}
 
 	@Transactional
-	public AuthResult reissue(String refreshToken) {
+	public TokenResult reissue(String refreshToken) {
 
 		// 1. 쿠키 존재 여부 확인
 		if (refreshToken == null || refreshToken.isBlank()) {
@@ -139,9 +141,7 @@ public class AuthService {
 
 		stored.rotate(newRefreshTokenHash, newExpiresAt);
 
-		ResponseCookie cookie = cookieUtils.createRefreshTokenCookie(newRefreshToken);
-
-		return new AuthResult(userId, newAccessToken, cookie);
+		return new TokenResult(newAccessToken, newRefreshToken);
 	}
 
 	@Transactional

@@ -1,15 +1,7 @@
 package ditda.backend.domain.common.auth.dto;
 
-public record AuthResult(
-
-	Long userId,
-
-	String name,
-
-	String profileImage,
-
+public record TokenResult(
 	String accessToken,
-
 	String refreshToken
 ) {
 }

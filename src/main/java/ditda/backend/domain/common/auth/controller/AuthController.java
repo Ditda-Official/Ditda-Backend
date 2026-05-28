@@ -1,7 +1,6 @@
 package ditda.backend.domain.common.auth.controller;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ditda.backend.domain.common.auth.dto.AuthResult;
+import ditda.backend.domain.common.auth.dto.TokenResult;
 import ditda.backend.domain.common.auth.dto.request.CheckUsernameRequest;
 import ditda.backend.domain.common.auth.dto.request.EmailCodeVerificationRequest;
 import ditda.backend.domain.common.auth.dto.request.EmailVerificationRequest;
@@ -16,6 +16,7 @@ import ditda.backend.domain.common.auth.dto.request.LoginRequest;
 import ditda.backend.domain.common.auth.dto.response.LoginResponse;
 import ditda.backend.domain.common.auth.dto.response.ReissueResponse;
 import ditda.backend.domain.common.auth.facade.AuthFacade;
+import ditda.backend.domain.common.auth.mapper.AuthResponseMapper;
 import ditda.backend.global.apipayload.response.ApiResponse;
 import ditda.backend.global.jwt.utils.CookieUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 
 	private final AuthFacade authFacade;
+	private final CookieUtils cookieUtils;
+	private final AuthResponseMapper authResponseMapper;
 
 	@Operation(summary = "아이디 중복 확인", description = "**[회원가입]** 사용 가능한 아이디인지 확인합니다.")
 	@PostMapping("/check-username")
@@ -72,10 +75,10 @@ public class AuthController {
 	) {
 
 		AuthResult result = authFacade.login(request);
-		response.addHeader(HttpHeaders.SET_COOKIE, result.refreshTokenCookie().toString());
 
-		return ApiResponse.onSuccess("로그인 성공",
-			new LoginResponse(result.userId(), result.accessToken()));
+		addRefreshTokenCookie(response, result.refreshToken());
+
+		return ApiResponse.onSuccess("로그인 성공", authResponseMapper.toLoginResponse(result));
 	}
 
 	@Operation(summary = "로그아웃", description = "**[공통]** 현재 세션의 refresh token을 무효화합니다.")
@@ -86,8 +89,9 @@ public class AuthController {
 		HttpServletResponse response
 	) {
 
-		ResponseCookie deleted = authFacade.logout(refreshToken);
-		response.addHeader(HttpHeaders.SET_COOKIE, deleted.toString());
+		authFacade.logout(refreshToken);
+
+		clearRefreshTokenCookie(response);
 
 		return ApiResponse.onSuccess("로그아웃 성공");
 	}
@@ -99,10 +103,19 @@ public class AuthController {
 		@CookieValue(value = CookieUtils.REFRESH_TOKEN_COOKIE, required = false) String refreshToken,
 		HttpServletResponse response
 	) {
-		AuthResult result = authFacade.reissue(refreshToken);
-		response.addHeader(HttpHeaders.SET_COOKIE, result.refreshTokenCookie().toString());
+		TokenResult result = authFacade.reissue(refreshToken);
+
+		addRefreshTokenCookie(response, result.refreshToken());
 
 		return ApiResponse.onSuccess("토큰 재발급 성공",
 			new ReissueResponse(result.accessToken()));
+	}
+
+	private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+		response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.createRefreshTokenCookie(refreshToken).toString());
+	}
+
+	private void clearRefreshTokenCookie(HttpServletResponse response) {
+		response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.deleteRefreshTokenCookie().toString());
 	}
 }

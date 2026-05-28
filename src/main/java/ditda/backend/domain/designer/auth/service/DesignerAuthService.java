@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import ditda.backend.domain.common.auth.dto.AuthResult;
+import ditda.backend.domain.common.auth.dto.TokenResult;
 import ditda.backend.domain.common.auth.service.AuthService;
 import ditda.backend.domain.common.term.dto.TermAgreement;
 import ditda.backend.domain.common.term.service.TermService;
@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DesignerAuthService {
 
-	private static final String DEFAULT_PROFILE_IMAGE = "";
+	private static final String DEFAULT_PROFILE_IMAGE = "profile/default.png";
 
 	private final DesignerRepository designerRepository;
 	private final UserService userService;
@@ -63,14 +63,15 @@ public class DesignerAuthService {
 			user,
 			request.bankAccount().bankName(),
 			request.bankAccount().accountNumber(),
-			request.bankAccount().accountHolder());
+			request.bankAccount().accountHolder()
+		);
 		designerRepository.save(designer);
 
 		// 포트폴리오 S3 key를 DB에 일괄 저장
 		portfolioService.savePortfolios(designer, portfolioKeys);
 
 		// accessToken&refreshToken 발급
-		AuthResult tokens = authService.issueTokens(user.getId());
+		TokenResult tokens = authService.issueTokens(user.getId());
 
 		// 관리자 알림 이벤트 발행
 		eventPublisher.publishEvent(new DesignerSignedUpEvent(
@@ -80,7 +81,12 @@ public class DesignerAuthService {
 			portfolioKeys
 		));
 
-		return new DesignerAuthResult(user.getId(), tokens.accessToken(), tokens.refreshTokenCookie());
+		return new DesignerAuthResult(
+			user.getId(),
+			user.getName(),
+			user.getProfileImage(),
+			tokens.accessToken(),
+			tokens.refreshToken());
 	}
 
 	private List<TermAgreement> toAgreements(List<DesignerSignupRequest.TermRequest> terms) {

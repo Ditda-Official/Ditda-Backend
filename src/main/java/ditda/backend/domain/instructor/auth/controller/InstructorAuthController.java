@@ -10,7 +10,9 @@ import ditda.backend.domain.instructor.auth.dto.InstructorAuthResult;
 import ditda.backend.domain.instructor.auth.dto.request.InstructorSignupRequest;
 import ditda.backend.domain.instructor.auth.dto.response.InstructorSignupResponse;
 import ditda.backend.domain.instructor.auth.facade.InstructorAuthFacade;
+import ditda.backend.domain.instructor.auth.mapper.InstructorAuthResponseMapper;
 import ditda.backend.global.apipayload.response.ApiResponse;
+import ditda.backend.global.jwt.utils.CookieUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,6 +26,8 @@ import lombok.RequiredArgsConstructor;
 public class InstructorAuthController {
 
 	private final InstructorAuthFacade instructorAuthFacade;
+	private final CookieUtils cookieUtils;
+	private final InstructorAuthResponseMapper authResponseMapper;
 
 	@Operation(summary = "강사 회원가입", description = "**[회원가입]** 회원가입 후 자동 로그인 처리됩니다.")
 	@PostMapping("/signup")
@@ -34,9 +38,12 @@ public class InstructorAuthController {
 
 		InstructorAuthResult result = instructorAuthFacade.signup(request);
 
-		response.addHeader(HttpHeaders.SET_COOKIE, result.refreshTokenCookie().toString());
+		addRefreshTokenCookie(response, result.refreshToken());
 
-		return ApiResponse.onSuccess("강사 회원가입 성공",
-			new InstructorSignupResponse(result.userId(), result.accessToken()));
+		return ApiResponse.onSuccess("강사 회원가입 성공", authResponseMapper.toSignupResponse(result));
+	}
+
+	private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+		response.addHeader(HttpHeaders.SET_COOKIE, cookieUtils.createRefreshTokenCookie(refreshToken).toString());
 	}
 }

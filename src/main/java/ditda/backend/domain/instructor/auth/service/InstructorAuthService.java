@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import ditda.backend.domain.common.auth.dto.AuthResult;
+import ditda.backend.domain.common.auth.dto.TokenResult;
 import ditda.backend.domain.common.auth.service.AuthService;
 import ditda.backend.domain.common.term.dto.TermAgreement;
 import ditda.backend.domain.common.term.service.TermService;
@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InstructorAuthService {
 
-	private static final String DEFAULT_PROFILE_IMAGE = "";
+	private static final String DEFAULT_PROFILE_IMAGE = "profile/default.png";
 
 	private final InstructorRepository instructorRepository;
 	private final UserService userService;
@@ -53,9 +53,15 @@ public class InstructorAuthService {
 
 		instructorRepository.save(Instructor.createInstructor(user));
 
-		AuthResult tokens = authService.issueTokens(user.getId());
+		TokenResult tokens = authService.issueTokens(user.getId());
 
-		return new InstructorAuthResult(user.getId(), tokens.accessToken(), tokens.refreshTokenCookie());
+		return new InstructorAuthResult(
+			user.getId(),
+			user.getName(),
+			user.getProfileImage(),
+			tokens.accessToken(),
+			tokens.refreshToken()
+		);
 	}
 
 	private List<TermAgreement> toAgreements(List<InstructorSignupRequest.TermRequest> terms) {
