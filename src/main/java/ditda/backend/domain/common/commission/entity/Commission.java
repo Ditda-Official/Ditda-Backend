@@ -35,7 +35,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Commission extends BaseEntity {
 
-	// 시안 지원 제출 마감 ~ 1치 시안 마감 일수
+	// 시안 지원 제출 마감 ~ 1차 시안 마감 일수
 	private static final int APPLICATION_DEADLINE_OFFSET_DAYS = 7;
 
 	@Id
@@ -76,6 +76,7 @@ public class Commission extends BaseEntity {
 	@Column(name = "first_draft_deadline", nullable = false)
 	private LocalDate firstDraftDeadline;
 
+	// 디자이너 지원 선착순 마감일
 	@Column(name = "application_deadline", nullable = false)
 	private LocalDate applicationDeadline;
 
@@ -88,6 +89,10 @@ public class Commission extends BaseEntity {
 
 	@Column(name = "max_revision", nullable = false)
 	private int maxRevision;
+
+	@Builder.Default
+	@Column(name = "revision_count", nullable = false)
+	private int revisionCount = 0;
 
 	public static Commission create(
 		Instructor instructor,

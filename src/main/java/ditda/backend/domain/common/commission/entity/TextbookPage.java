@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Entity
 // 같은 페이지 종류 중복 X
 @Table(
-	name = "commission_required_pages",
+	name = "textbook_pages",
 	uniqueConstraints = {
 		@UniqueConstraint(
 			name = "uk_commission_required_page_type",
@@ -34,11 +34,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommissionRequiredPage {
+public class TextbookPage {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "commission_required_page_id")
+	@Column(name = "textbook_page_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -52,12 +52,12 @@ public class CommissionRequiredPage {
 	@Column(name = "page_description", length = 150)
 	private String pageDescription;
 
-	public static CommissionRequiredPage create(
+	public static TextbookPage create(
 		Commission commission,
 		PageType pageType,
 		String pageDescription
 	) {
-		return CommissionRequiredPage.builder()
+		return TextbookPage.builder()
 			.commission(commission)
 			.pageType(pageType)
 			.pageDescription(pageDescription)

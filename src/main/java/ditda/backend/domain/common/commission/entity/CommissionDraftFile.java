@@ -1,6 +1,6 @@
 package ditda.backend.domain.common.commission.entity;
 
-import ditda.backend.domain.common.commission.entity.enums.DraftStatus;
+import ditda.backend.domain.common.commission.entity.enums.WatermarkStatus;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,10 +23,10 @@ import lombok.NoArgsConstructor;
 @Entity
 // 한 시안의 페이지 순서 중복 X
 @Table(
-	name = "commission_draft_pages",
+	name = "commission_draft_files",
 	uniqueConstraints = {
 		@UniqueConstraint(
-			name = "uk_commission_draft_page_order",
+			name = "uk_commission_draft_file_order",
 			columnNames = {"commission_draft_id", "page_order"}
 		)
 	}
@@ -35,11 +35,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommissionDraftPage extends BaseEntity {
+public class CommissionDraftFile extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "commission_draft_page_id")
+	@Column(name = "commission_draft_file_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -59,21 +59,21 @@ public class CommissionDraftPage extends BaseEntity {
 	private String watermarkedFileUrl;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "draft_status", length = 20, nullable = false)
-	private DraftStatus draftStatus;
+	@Column(name = "watermark_status", length = 20, nullable = false)
+	private WatermarkStatus watermarkStatus;
 
-	public static CommissionDraftPage create(
+	public static CommissionDraftFile create(
 		CommissionDraft commissionDraft,
 		int pageOrder,
 		String fileName,
 		String fileUrl
 	) {
-		return CommissionDraftPage.builder()
+		return CommissionDraftFile.builder()
 			.commissionDraft(commissionDraft)
 			.pageOrder(pageOrder)
 			.fileName(fileName)
 			.fileUrl(fileUrl)
-			.draftStatus(DraftStatus.PROCESSING)
+			.watermarkStatus(WatermarkStatus.PROCESSING)
 			.build();
 	}
 }
