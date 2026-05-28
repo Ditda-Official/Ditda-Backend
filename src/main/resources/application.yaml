@@ -53,8 +53,18 @@ admin:
 
 app:
   s3:
-    bucket: ${S3_BUCKET}
-    public-base-url: ${S3_PUBLIC_BASE_URL}
+    public-bucket: ${S3_PUBLIC_BUCKET}
+    private-bucket: ${S3_PRIVATE_BUCKET}
+    presigned-url-ttl-minutes: ${S3_PRESIGNED_URL_TTL_MINUTES:10}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
 
 springdoc:
   swagger-ui:
