@@ -18,13 +18,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-// 한 외주에 같은 라운드 시안 1개만
+// 한 지원에 같은 라운드 시안 1개만
 @Table(
 	name = "commission_drafts",
 	uniqueConstraints = {
 		@UniqueConstraint(
 			name = "uk_commission_draft_round",
-			columnNames = {"commission_id", "round"}
+			columnNames = {"commission_application_id", "round"}
 		)
 	}
 )
@@ -40,34 +40,32 @@ public class CommissionDraft extends BaseEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "commission_id", nullable = false)
-	private Commission commission;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "revision_request_id")
-	private RevisionRequest revisionRequest;
+	@JoinColumn(name = "commission_application_id", nullable = false)
+	private CommissionApplication commissionApplication;
 
 	@Column(name = "round", nullable = false)
 	private int round;
-
-	@Column(name = "designer_comment", length = 500)
-	private String designerComment;
 
 	@Builder.Default
 	@Column(name = "is_final", nullable = false)
 	private boolean isFinal = false;
 
-	public static CommissionDraft create(
-		Commission commission,
-		RevisionRequest revisionRequest,
-		int round,
-		String designerComment
+	// 1차 시안 (디자이너 지원 완료 후 제출, 수정 0회)
+	public static CommissionDraft createInitial(CommissionApplication commissionApplication) {
+		return CommissionDraft.builder()
+			.commissionApplication(commissionApplication)
+			.round(0)
+			.build();
+	}
+
+	// 수정 시안 (강사의 수정요청에 대한 응답)
+	public static CommissionDraft createRevision(
+		CommissionApplication commissionApplication,
+		int round
 	) {
 		return CommissionDraft.builder()
-			.commission(commission)
-			.revisionRequest(revisionRequest)
+			.commissionApplication(commissionApplication)
 			.round(round)
-			.designerComment(designerComment)
 			.build();
 	}
 }
