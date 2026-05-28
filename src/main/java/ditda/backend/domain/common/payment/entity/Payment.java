@@ -52,10 +52,11 @@ public class Payment extends BaseEntity {
 	@Column(name = "paid_at")
 	private LocalDateTime paidAt;
 
-	public static Payment create(Commission commission, int amount) {
+	public static Payment create(Commission commission) {
+
 		return Payment.builder()
 			.commission(commission)
-			.amount(amount)
+			.amount(commission.getPlanCode().getPrice())
 			.status(PaymentStatus.PENDING)
 			.build();
 	}
