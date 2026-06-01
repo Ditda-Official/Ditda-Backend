@@ -87,7 +87,7 @@ public record DesignerSignupRequest(
 	BankAccountRequest bankAccount,
 
 	@Schema(description = "presigned URL로 업로드한 포트폴리오 key 목록 (최대 3개)",
-		example = "[\"portfolio/3f2b....pdf\", \"portfolio/9a1c....png\"]")
+		example = "[\"portfolio/tmp/3f2b....pdf\", \"portfolio/tmp/9a1c....png\"]")
 	@Size(max = 3, message = "포트폴리오 파일은 최대 3개까지 업로드 가능합니다.")
 	List<@NotBlank(message = "포트폴리오 key는 비어 있을 수 없습니다.") String> portfolioKeys
 ) {
