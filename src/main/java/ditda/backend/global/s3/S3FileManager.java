@@ -19,7 +19,7 @@ public class S3FileManager {
 	private final S3Properties s3Properties;
 
 	public Long getObjectSize(BucketType bucketType, String key) {
-		String bucket = resolveBucket(bucketType);
+		String bucket = s3Properties.getBucket(bucketType);
 
 		try {
 			return s3Client.headObject(req -> req.bucket(bucket).key(key)).contentLength();
@@ -37,7 +37,7 @@ public class S3FileManager {
 			return;
 		}
 
-		String bucket = resolveBucket(bucketType);
+		String bucket = s3Properties.getBucket(bucketType);
 		for (String key : keys) {
 			try {
 				s3Client.deleteObject(req -> req.bucket(bucket).key(key));
@@ -47,10 +47,13 @@ public class S3FileManager {
 		}
 	}
 
-	private String resolveBucket(BucketType bucketType) {
-		return switch (bucketType) {
-			case PUBLIC -> s3Properties.getPublicBucket();
-			case PRIVATE -> s3Properties.getPrivateBucket();
-		};
+	public void copy(BucketType bucketType, String sourceKey, String destinationKey) {
+		String bucket = s3Properties.getBucket(bucketType);
+
+		s3Client.copyObject(req -> req
+			.sourceBucket(bucket)
+			.sourceKey(sourceKey)
+			.destinationBucket(bucket)
+			.destinationKey(destinationKey));
 	}
 }

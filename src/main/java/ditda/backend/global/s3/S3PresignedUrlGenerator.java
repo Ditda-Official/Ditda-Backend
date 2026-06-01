@@ -4,6 +4,7 @@ import java.time.Duration;
 
 import org.springframework.stereotype.Component;
 
+import ditda.backend.global.s3.enums.BucketType;
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -39,14 +40,14 @@ public class S3PresignedUrlGenerator {
 		return presignedRequest.url().toString();
 	}
 
-	public String generatePrivatePutUrl(String key, String contentType) {
+	public String generatePutUrl(BucketType bucketType, String key, String contentType) {
 		Duration ttl = Duration.ofMinutes(s3Properties.getPresignedUrlTtlMinutes());
-		return generatePrivatePutUrl(key, contentType, ttl);
+		return generatePutUrl(bucketType, key, contentType, ttl);
 	}
 
-	public String generatePrivatePutUrl(String key, String contentType, Duration ttl) {
+	public String generatePutUrl(BucketType bucketType, String key, String contentType, Duration ttl) {
 		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-			.bucket(s3Properties.getPrivateBucket())
+			.bucket(s3Properties.getBucket(bucketType))
 			.key(key)
 			.contentType(contentType)
 			.build();

@@ -41,8 +41,11 @@ public class DesignerAuthFacade {
 		userService.validateEmailAvailable(request.email());
 
 		// 포트폴리오 key 검증
-		List<String> portfolioKeys = request.portfolioKeys() == null ? List.of() : request.portfolioKeys();
-		portfolioService.validateKeys(portfolioKeys);
+		List<String> tempKeys = request.portfolioKeys() == null ? List.of() : request.portfolioKeys();
+		portfolioService.validateKeys(tempKeys);
+
+		// 임시('portfolio/tmp') -> 정식('portfolio/') 승격
+		List<String> portfolioKeys = portfolioService.promote(tempKeys);
 
 		// 회원가입
 		DesignerAuthResult result;
