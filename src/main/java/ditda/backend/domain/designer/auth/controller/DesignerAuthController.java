@@ -1,26 +1,21 @@
 package ditda.backend.domain.designer.auth.controller;
 
-import java.util.List;
-
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import ditda.backend.domain.designer.auth.dto.DesignerAuthResult;
 import ditda.backend.domain.designer.auth.dto.request.DesignerSignupRequest;
+import ditda.backend.domain.designer.auth.dto.request.PortfolioPresignRequest;
 import ditda.backend.domain.designer.auth.dto.response.DesignerSignupResponse;
+import ditda.backend.domain.designer.auth.dto.response.PortfolioPresignResponse;
 import ditda.backend.domain.designer.auth.facade.DesignerAuthFacade;
 import ditda.backend.domain.designer.auth.mapper.DesignerAuthResponseMapper;
 import ditda.backend.global.apipayload.response.ApiResponse;
 import ditda.backend.global.jwt.utils.CookieUtils;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Encoding;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -37,23 +32,29 @@ public class DesignerAuthController {
 	private final DesignerAuthResponseMapper authResponseMapper;
 
 	@Operation(
+		summary = "포트폴리오 업로드 URL 발급",
+		description = "**[회원가입]** 이메일 인증 완료 후, 포트폴리오 파일을 S3에 올릴 presigned PUT URL을 발급합니다. "
+			+ "PUT URL로 S3에 직접 업로드한 뒤, 응답의 key를 회원가입 요청의 portfolioKeys에 담아 전송합니다."
+	)
+	@PostMapping("/signup/portfolio/presigned-url")
+	public ApiResponse<PortfolioPresignResponse> issuePortfolioPresignedUrls(
+		@Valid @RequestBody PortfolioPresignRequest request
+	) {
+		PortfolioPresignResponse response = designerAuthFacade.issuePortfolioPresignedUrl(request);
+
+		return ApiResponse.onSuccess("포트폴리오 업로드 URL 발급 성공", response);
+	}
+
+	@Operation(
 		summary = "디자이너 회원가입",
-		description = "**[회원가입]** 회원가입 후 자동 로그인 처리됩니다. `data`(JSON) + `portfolioFiles`(파일 최대 3개, 각 30MB)"
+		description = "**[회원가입]** 회원가입 후 자동 로그인 처리됩니다. presigned PUT URL로 업로드한 포트폴리오 key를 portfolioKeys에 담아 전송합니다."
 	)
-	@RequestBody(
-		content = @Content(
-			mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-			encoding = @Encoding(name = "data", contentType = MediaType.APPLICATION_JSON_VALUE)
-		)
-	)
-	@PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/signup")
 	public ApiResponse<DesignerSignupResponse> signup(
-		@Valid @RequestPart("data") DesignerSignupRequest request,
-		@RequestPart(value = "portfolioFiles", required = false) List<MultipartFile> portfolioFiles,
+		@Valid @RequestBody DesignerSignupRequest request,
 		HttpServletResponse response
 	) {
-
-		DesignerAuthResult result = designerAuthFacade.signup(request, portfolioFiles);
+		DesignerAuthResult result = designerAuthFacade.signup(request);
 
 		addRefreshTokenCookie(response, result.refreshToken());
 

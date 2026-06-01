@@ -2,6 +2,7 @@ package ditda.backend.global.s3;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.util.unit.DataSize;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,8 @@ import lombok.Setter;
 @Setter
 @ConfigurationProperties(prefix = "app.s3")
 public class S3Properties {
+
+	private DataSize maxFileSize = DataSize.ofMegabytes(30);
 
 	private String publicBucket;
 
