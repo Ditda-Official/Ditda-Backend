@@ -90,10 +90,6 @@ public class Commission extends BaseEntity {
 	@Column(name = "max_revision", nullable = false)
 	private int maxRevision;
 
-	@Builder.Default
-	@Column(name = "revision_count", nullable = false)
-	private int revisionCount = 0;
-
 	public static Commission create(
 		Instructor instructor,
 		PlanCode planCode,
@@ -117,7 +113,7 @@ public class Commission extends BaseEntity {
 			.applicationDeadline(firstDraftDeadline.minusDays(APPLICATION_DEADLINE_OFFSET_DAYS))
 			.finalDeadline(finalDeadline)
 			.status(CommissionStatus.PENDING)
-			.maxRevision(planCode.getMaxRevision())
+			.maxRevision(planCode.getBaseRevision())
 			.build();
 	}
 }

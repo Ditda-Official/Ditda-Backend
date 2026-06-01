@@ -18,13 +18,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-// 한 외주에 같은 라운드 1개만
+// 한 시안에 대한 수정요청 1개만
 @Table(
 	name = "revision_requests",
 	uniqueConstraints = {
 		@UniqueConstraint(
-			name = "uk_revision_request_round",
-			columnNames = {"commission_id", "round"}
+			name = "uk_revision_request_target_draft",
+			columnNames = {"target_draft_id"}
 		)
 	}
 )
@@ -43,13 +43,14 @@ public class RevisionRequest extends BaseEntity {
 	@JoinColumn(name = "commission_id", nullable = false)
 	private Commission commission;
 
-	@Column(name = "round", nullable = false)
-	private int round;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "target_draft_id", nullable = false)
+	private CommissionDraft targetDraft;
 
-	public static RevisionRequest create(Commission commission, int round) {
+	public static RevisionRequest create(Commission commission, CommissionDraft targetDraft) {
 		return RevisionRequest.builder()
 			.commission(commission)
-			.round(round)
+			.targetDraft(targetDraft)
 			.build();
 	}
 }

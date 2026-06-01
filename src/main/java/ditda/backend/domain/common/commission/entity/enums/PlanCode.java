@@ -1,8 +1,10 @@
 package ditda.backend.domain.common.commission.entity.enums;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public enum PlanCode {
 
 	BASIC(3, 400000, 3, "디자이너 3명에 대한 시안을 받아볼 수 있습니다."),
@@ -11,13 +13,6 @@ public enum PlanCode {
 
 	private final int designerCount;
 	private final int price;
-	private final int maxRevision;
+	private final int baseRevision;
 	private final String description;
-
-	PlanCode(int designerCount, int price, int maxRevision, String description) {
-		this.designerCount = designerCount;
-		this.price = price;
-		this.maxRevision = maxRevision;
-		this.description = description;
-	}
 }

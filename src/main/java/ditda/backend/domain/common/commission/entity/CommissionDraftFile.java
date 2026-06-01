@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 	uniqueConstraints = {
 		@UniqueConstraint(
 			name = "uk_commission_draft_file_order",
-			columnNames = {"commission_draft_id", "page_order"}
+			columnNames = {"commission_draft_id", "file_order"}
 		)
 	}
 )
@@ -46,8 +46,8 @@ public class CommissionDraftFile extends BaseEntity {
 	@JoinColumn(name = "commission_draft_id", nullable = false)
 	private CommissionDraft commissionDraft;
 
-	@Column(name = "page_order", nullable = false)
-	private int pageOrder;
+	@Column(name = "file_order", nullable = false)
+	private int fileOrder;
 
 	@Column(name = "file_name", length = 100, nullable = false)
 	private String fileName;
@@ -64,13 +64,13 @@ public class CommissionDraftFile extends BaseEntity {
 
 	public static CommissionDraftFile create(
 		CommissionDraft commissionDraft,
-		int pageOrder,
+		int fileOrder,
 		String fileName,
 		String fileUrl
 	) {
 		return CommissionDraftFile.builder()
 			.commissionDraft(commissionDraft)
-			.pageOrder(pageOrder)
+			.fileOrder(fileOrder)
 			.fileName(fileName)
 			.fileUrl(fileUrl)
 			.watermarkStatus(WatermarkStatus.PROCESSING)
