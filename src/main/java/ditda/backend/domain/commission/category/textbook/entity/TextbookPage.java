@@ -1,5 +1,6 @@
-package ditda.backend.domain.commission.core.entity;
+package ditda.backend.domain.commission.category.textbook.entity;
 
+import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.PageType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
