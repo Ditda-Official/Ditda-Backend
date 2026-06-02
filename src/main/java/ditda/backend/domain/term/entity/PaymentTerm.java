@@ -1,9 +1,12 @@
 package ditda.backend.domain.term.entity;
 
 import ditda.backend.domain.payment.entity.Payment;
+import ditda.backend.domain.term.entity.enums.TermType;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,6 +36,11 @@ public class PaymentTerm extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "payment_id", nullable = false)
 	private Payment payment;
+
+	@Enumerated(EnumType.STRING)
+	@Builder.Default
+	@Column(name = "term_type", nullable = false, length = 50)
+	private TermType termType = TermType.SETTLEMENT;
 
 	@Column(name = "version", length = 20, nullable = false)
 	private String version;
