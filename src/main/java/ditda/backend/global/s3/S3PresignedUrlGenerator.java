@@ -4,11 +4,14 @@ import java.time.Duration;
 
 import org.springframework.stereotype.Component;
 
+import ditda.backend.global.s3.enums.BucketType;
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @Component
 @RequiredArgsConstructor
@@ -35,5 +38,25 @@ public class S3PresignedUrlGenerator {
 
 		PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
 		return presignedRequest.url().toString();
+	}
+
+	public String generatePutUrl(BucketType bucketType, String key, String contentType) {
+		Duration ttl = Duration.ofMinutes(s3Properties.getPresignedUrlTtlMinutes());
+		return generatePutUrl(bucketType, key, contentType, ttl);
+	}
+
+	public String generatePutUrl(BucketType bucketType, String key, String contentType, Duration ttl) {
+		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+			.bucket(s3Properties.getBucket(bucketType))
+			.key(key)
+			.contentType(contentType)
+			.build();
+
+		PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+			.signatureDuration(ttl)
+			.putObjectRequest(putObjectRequest)
+			.build();
+
+		return s3Presigner.presignPutObject(presignRequest).url().toString();
 	}
 }

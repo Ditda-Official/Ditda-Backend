@@ -1,22 +1,21 @@
 package ditda.backend.domain.designer.auth.service;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.unit.DataSize;
-import org.springframework.web.multipart.MultipartFile;
 
+import ditda.backend.domain.designer.auth.dto.response.PortfolioPresignResponse;
 import ditda.backend.domain.designer.auth.entity.Designer;
 import ditda.backend.domain.designer.auth.entity.Portfolio;
 import ditda.backend.domain.designer.auth.exception.DesignerErrorCode;
 import ditda.backend.domain.designer.auth.repository.PortfolioRepository;
 import ditda.backend.global.apipayload.exception.GeneralException;
-import ditda.backend.global.s3.S3FileUploader;
+import ditda.backend.global.s3.PresignedUpload;
+import ditda.backend.global.s3.S3Properties;
+import ditda.backend.global.s3.S3UploadManager;
 import ditda.backend.global.s3.enums.BucketType;
-import ditda.backend.global.s3.exception.S3UploadException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,49 +23,55 @@ import lombok.RequiredArgsConstructor;
 public class PortfolioService {
 
 	private static final int MAX_PORTFOLIO_COUNT = 3;
-	private static final String S3_KEY_PREFIX = "portfolio";
-	private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
-		"application/pdf",
-		"image/png"
+	private static final String DIR = "portfolio";
+	private static final BucketType BUCKET = BucketType.PRIVATE;
+	private static final Map<String, String> ALLOWED_CONTENT_TYPES = Map.of(
+		"application/pdf", ".pdf",
+		"image/png", ".png"
 	);
 
-	private final S3FileUploader s3FileUploader;
+	private final S3UploadManager s3UploadManager;
 	private final PortfolioRepository portfolioRepository;
+	private final S3Properties s3Properties;
 
-	@Value("${spring.servlet.multipart.max-file-size}")
-	private DataSize maxFileSize;
+	public PortfolioPresignResponse generatePresignedUpload(String contentType) {
 
-	public void validateFiles(List<MultipartFile> files) {
-		if (files == null || files.isEmpty()) {
-			return;
+		// 파일 타입 검증
+		String extension = ALLOWED_CONTENT_TYPES.get(contentType);
+		if (extension == null) {
+			throw new GeneralException(DesignerErrorCode.INVALID_PORTFOLIO_FILE);
 		}
 
-		// 파일 최대 개수 검증
-		long realCount = files.stream().filter(f -> !f.isEmpty()).count();
-		if (realCount > MAX_PORTFOLIO_COUNT) {
+		PresignedUpload upload = s3UploadManager.issueTempUpload(BUCKET, DIR, extension, contentType);
+		return new PortfolioPresignResponse(upload.key(), upload.presignedUrl());
+	}
+
+	public void validateKeys(List<String> keys) {
+
+		// 파일 개수 검증
+		if (keys.size() > MAX_PORTFOLIO_COUNT) {
 			throw new GeneralException(DesignerErrorCode.PORTFOLIO_FILE_LIMIT_EXCEEDED);
 		}
 
-		// 파일 사이즈 및 타입 검증
-		for (MultipartFile file : files) {
-			if (file.isEmpty()) {
-				continue;
-			}
+		// distinct key 검증
+		if (keys.size() != keys.stream().distinct().count()) {
+			throw new GeneralException(DesignerErrorCode.INVALID_PORTFOLIO_FILE);
+		}
 
-			if (file.getSize() > maxFileSize.toBytes()) {
-				throw new GeneralException(DesignerErrorCode.PORTFOLIO_FILE_SIZE_EXCEEDED);
-			}
-			if (!ALLOWED_CONTENT_TYPES.contains(file.getContentType())) {
+		for (String key : keys) {
+			// 파일 key 형식 검증
+			if (!s3UploadManager.isTempKey(key, DIR)) {
 				throw new GeneralException(DesignerErrorCode.INVALID_PORTFOLIO_FILE);
 			}
-		}
-	}
 
-	public List<String> uploadFiles(List<MultipartFile> files) {
-		try {
-			return s3FileUploader.uploadAll(BucketType.PRIVATE, S3_KEY_PREFIX, files);
-		} catch (S3UploadException e) {
-			throw new GeneralException(DesignerErrorCode.PORTFOLIO_UPLOAD_FAILED);
+			// 파일 크기 검증
+			Long size = s3UploadManager.getObjectSize(BUCKET, key);
+			if (size == null) {
+				throw new GeneralException(DesignerErrorCode.INVALID_PORTFOLIO_FILE);    // 미업로드 key
+			}
+			if (size > s3Properties.getMaxFileSize().toBytes()) {
+				throw new GeneralException(DesignerErrorCode.PORTFOLIO_FILE_SIZE_EXCEEDED);
+			}
 		}
 	}
 
@@ -83,7 +88,12 @@ public class PortfolioService {
 		portfolioRepository.saveAll(portfolios);
 	}
 
-	public void deleteFiles(List<String> portfolioKeys) {
-		s3FileUploader.deleteAll(BucketType.PRIVATE, portfolioKeys);
+	public List<String> promote(List<String> tempKeys) {
+		return s3UploadManager.promote(BUCKET, tempKeys);
 	}
+
+	public void deleteFiles(List<String> portfolioKeys) {
+		s3UploadManager.deleteAll(BUCKET, portfolioKeys);
+	}
+
 }
