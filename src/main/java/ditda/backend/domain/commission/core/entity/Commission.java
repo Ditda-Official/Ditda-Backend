@@ -6,7 +6,7 @@ import ditda.backend.domain.commission.core.entity.enums.CategoryType;
 import ditda.backend.domain.commission.core.entity.enums.ColorSelectionMode;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.entity.enums.PlanCode;
-import ditda.backend.domain.commission.core.entity.enums.Size;
+import ditda.backend.domain.commission.core.entity.enums.PageSize;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.instructor.entity.Instructor;
 import ditda.backend.global.entity.BaseEntity;
@@ -64,7 +64,7 @@ public class Commission extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "size", length = 10, nullable = false)
-	private Size size;
+	private PageSize pageSize;
 
 	@Column(name = "additional_concept", length = 300)
 	private String additionalConcept;
@@ -95,7 +95,7 @@ public class Commission extends BaseEntity {
 		PlanCode planCode,
 		String title,
 		CategoryType categoryType,
-		Size size,
+		PageSize pageSize,
 		String additionalConcept,
 		ColorSelectionMode colorSelectionMode,
 		LocalDate firstDraftDeadline,
@@ -106,7 +106,7 @@ public class Commission extends BaseEntity {
 			.planCode(planCode)
 			.title(title)
 			.categoryType(categoryType)
-			.size(size)
+			.pageSize(pageSize)
 			.additionalConcept(additionalConcept)
 			.colorSelectionMode(colorSelectionMode)
 			.firstDraftDeadline(firstDraftDeadline)
