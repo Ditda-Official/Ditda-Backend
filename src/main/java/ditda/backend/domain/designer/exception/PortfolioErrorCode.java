@@ -1,4 +1,4 @@
-package ditda.backend.domain.auth.exception;
+package ditda.backend.domain.designer.exception;
 
 import org.springframework.http.HttpStatus;
 

@@ -14,6 +14,7 @@ import ditda.backend.domain.auth.dto.request.DesignerSignupRequest;
 import ditda.backend.domain.auth.event.DesignerSignedUpEvent;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.designer.repository.DesignerRepository;
+import ditda.backend.domain.designer.service.PortfolioService;
 import ditda.backend.domain.term.dto.TermAgreement;
 import ditda.backend.domain.term.service.TermService;
 import ditda.backend.domain.user.entity.User;
@@ -31,7 +32,7 @@ public class DesignerAuthService {
 	private final UserService userService;
 	private final TermService termService;
 	private final AuthService authService;
-	private final SignupPortfolioService signupPortfolioService;
+	private final PortfolioService portfolioService;
 	private final PasswordEncoder passwordEncoder;
 	private final ApplicationEventPublisher eventPublisher;
 
@@ -67,7 +68,7 @@ public class DesignerAuthService {
 		designerRepository.save(designer);
 
 		// 포트폴리오 S3 key를 DB에 일괄 저장
-		signupPortfolioService.savePortfolios(designer, portfolioKeys);
+		portfolioService.savePortfolios(designer, portfolioKeys);
 
 		// accessToken&refreshToken 발급
 		TokenResult tokens = authService.issueTokens(user.getId());

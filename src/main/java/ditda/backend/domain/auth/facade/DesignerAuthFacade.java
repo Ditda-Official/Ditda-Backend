@@ -10,8 +10,9 @@ import ditda.backend.domain.auth.dto.request.PortfolioPresignRequest;
 import ditda.backend.domain.auth.dto.response.PortfolioPresignResponse;
 import ditda.backend.domain.auth.service.DesignerAuthService;
 import ditda.backend.domain.auth.service.EmailVerificationService;
-import ditda.backend.domain.auth.service.SignupPortfolioService;
+import ditda.backend.domain.designer.service.PortfolioService;
 import ditda.backend.domain.user.service.UserService;
+import ditda.backend.global.s3.PresignedUpload;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -20,7 +21,7 @@ public class DesignerAuthFacade {
 
 	private final DesignerAuthService designerAuthService;
 	private final EmailVerificationService emailVerificationService;
-	private final SignupPortfolioService signupPortfolioService;
+	private final PortfolioService portfolioService;
 	private final UserService userService;
 
 	public PortfolioPresignResponse issuePortfolioPresignedUrl(PortfolioPresignRequest request) {
@@ -28,7 +29,9 @@ public class DesignerAuthFacade {
 		// 이메일 인증 여부 확인
 		emailVerificationService.validateVerified(request.email());
 
-		return signupPortfolioService.generatePresignedUpload(request.contentType());
+		PresignedUpload presignedUpload = portfolioService.generatePresignedUpload(request.contentType());
+
+		return new PortfolioPresignResponse(presignedUpload.key(), presignedUpload.presignedUrl());
 	}
 
 	public AuthResult signup(DesignerSignupRequest request) {
@@ -42,17 +45,17 @@ public class DesignerAuthFacade {
 
 		// 포트폴리오 key 검증
 		List<String> tempKeys = request.portfolioKeys() == null ? List.of() : request.portfolioKeys();
-		signupPortfolioService.validateKeys(tempKeys);
+		portfolioService.validateKeys(tempKeys);
 
 		// 임시('portfolio/tmp') -> 정식('portfolio/') 승격
-		List<String> portfolioKeys = signupPortfolioService.promote(tempKeys);
+		List<String> portfolioKeys = portfolioService.promote(tempKeys);
 
 		// 회원가입
 		AuthResult result;
 		try {
 			result = designerAuthService.signup(request, portfolioKeys);
 		} catch (Exception e) {
-			signupPortfolioService.deleteFiles(portfolioKeys);
+			portfolioService.deleteFiles(portfolioKeys);
 			throw e;
 		}
 

@@ -1,4 +1,4 @@
-package ditda.backend.domain.auth.service;
+package ditda.backend.domain.designer.service;
 
 import java.util.List;
 import java.util.Map;
@@ -6,10 +6,9 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import ditda.backend.domain.auth.dto.response.PortfolioPresignResponse;
-import ditda.backend.domain.auth.exception.PortfolioErrorCode;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.designer.entity.Portfolio;
+import ditda.backend.domain.designer.exception.PortfolioErrorCode;
 import ditda.backend.domain.designer.repository.PortfolioRepository;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.s3.PresignedUpload;
@@ -20,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class SignupPortfolioService {
+public class PortfolioService {
 
 	private static final int MAX_PORTFOLIO_COUNT = 3;
 	private static final String DIR = "portfolio";
@@ -34,7 +33,7 @@ public class SignupPortfolioService {
 	private final PortfolioRepository portfolioRepository;
 	private final S3Properties s3Properties;
 
-	public PortfolioPresignResponse generatePresignedUpload(String contentType) {
+	public PresignedUpload generatePresignedUpload(String contentType) {
 
 		// 파일 타입 검증
 		String extension = ALLOWED_CONTENT_TYPES.get(contentType);
@@ -42,8 +41,7 @@ public class SignupPortfolioService {
 			throw new GeneralException(PortfolioErrorCode.INVALID_PORTFOLIO_FILE);
 		}
 
-		PresignedUpload upload = s3UploadManager.issueTempUpload(BUCKET, DIR, extension, contentType);
-		return new PortfolioPresignResponse(upload.key(), upload.presignedUrl());
+		return s3UploadManager.issueTempUpload(BUCKET, DIR, extension, contentType);
 	}
 
 	public void validateKeys(List<String> keys) {
