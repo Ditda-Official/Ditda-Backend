@@ -1,4 +1,4 @@
-package ditda.backend.domain.auth.exception;
+package ditda.backend.domain.designer.exception;
 
 import org.springframework.http.HttpStatus;
 
@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum PortfolioErrorCode implements BaseErrorCode {
+public enum DesignerErrorCode implements BaseErrorCode {
 
 	PORTFOLIO_FILE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "DESIGNER_400_01", "포트폴리오 파일은 최대 3개까지 업로드 가능합니다."),
 	INVALID_PORTFOLIO_FILE(HttpStatus.BAD_REQUEST, "DESIGNER_400_02", "지원하지 않는 파일 형식입니다."),
