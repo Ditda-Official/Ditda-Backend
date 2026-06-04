@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest;
+import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.DateInfo;
+import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.DesignInfo;
+import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.TermRequest;
 import ditda.backend.domain.commission.core.dto.response.CommissionCreateResponse;
 import ditda.backend.domain.commission.core.dto.response.PlanListResponse;
 import ditda.backend.domain.commission.core.entity.Commission;
@@ -48,6 +51,10 @@ public class CommissionService {
 		List<CommissionFileToSave> commissionFiles
 	) {
 
+		DesignInfo design = request.designInfo();
+		DateInfo date = request.date();
+		TermRequest term = request.term();
+
 		// 1. Commission 저장
 		Instructor instructor = instructorRepository.getReferenceById(instructorId);
 		String title = handler.buildTitle(request);
@@ -56,51 +63,51 @@ public class CommissionService {
 			request.plan(),
 			title,
 			request.category(),
-			request.designInfo().pageSize(),
-			request.designInfo().additionalConcept(),
-			request.designInfo().colorSelectionMode(),
-			request.date().firstDraftDeadline(),
-			request.date().finalDeadline()
+			design.pageSize(),
+			design.additionalConcept(),
+			design.colorSelectionMode(),
+			date.firstDraftDeadline(),
+			date.finalDeadline()
 		);
 		commissionRepository.save(commission);
 
 		// 2. 공통 섹션 저장
-		saveConcepts(commission, request);
-		saveColors(commission, request);
+		saveConcepts(commission, design);
+		saveColors(commission, design);
 		saveFiles(commission, commissionFiles);
 
 		// 3. 카테고리별 전용 섹션 저장
 		handler.saveDetail(commission, request);
 
 		// 4. 결제(입금 대기 [PENDING]) + 결제 약관 저장
-		String depositorName = instructor.getUser().getName();
+		String depositorName = instructor.getName();
 		paymentService.createPendingPayment(
 			commission,
 			depositorName,
-			request.term().version(),
-			request.term().isAgreed()
+			term.version(),
+			term.isAgreed()
 		);
 
 		return CommissionCreateResponse.from(commission);
 	}
 
 	// 컨셉 저장
-	private void saveConcepts(Commission commission, CommissionCreateRequest request) {
+	private void saveConcepts(Commission commission, DesignInfo design) {
 
-		List<CommissionConcept> concepts = request.designInfo().concepts().stream()
+		List<CommissionConcept> concepts = design.concepts().stream()
 			.map(tag -> CommissionConcept.create(commission, tag))
 			.toList();
 		commissionConceptRepository.saveAll(concepts);
 	}
 
 	// 색상 저장 (강사 직접 선택시)
-	private void saveColors(Commission commission, CommissionCreateRequest request) {
+	private void saveColors(Commission commission, DesignInfo design) {
 
-		if (request.designInfo().colorSelectionMode() != ColorSelectionMode.USER_SELECTED) {
+		if (design.colorSelectionMode() != ColorSelectionMode.USER_SELECTED) {
 			return;
 		}
 
-		List<CommissionColor> colors = request.designInfo().colors().stream()
+		List<CommissionColor> colors = design.colors().stream()
 			.map(color -> CommissionColor.create(commission, color.role(), color.colorCode()))
 			.toList();
 		commissionColorRepository.saveAll(colors);

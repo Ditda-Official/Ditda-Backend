@@ -38,4 +38,8 @@ public class Instructor extends BaseEntity {
 			.user(user)
 			.build();
 	}
+
+	public String getName() {
+		return user.getName();
+	}
 }

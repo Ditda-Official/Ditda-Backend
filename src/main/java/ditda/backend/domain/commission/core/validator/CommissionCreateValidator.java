@@ -9,6 +9,10 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest;
+import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.ColorInfo;
+import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.DateInfo;
+import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.TermRequest;
+import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.DesignInfo;
 import ditda.backend.domain.commission.core.entity.enums.ColorRole;
 import ditda.backend.domain.commission.core.entity.enums.ColorSelectionMode;
 import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
@@ -29,9 +33,9 @@ public class CommissionCreateValidator {
 
 	public CommissionCategoryHandler validate(CommissionCreateRequest request) {
 
-		validateColors(request);
-		validateTerm(request);
-		validateDeadlines(request);
+		validateColors(request.designInfo());
+		validateTerm(request.term());
+		validateDeadlines(request.date());
 
 		CommissionCategoryHandler handler = commissionCategoryHandlerResolver.resolve(request.category());
 		handler.validate(request);
@@ -39,19 +43,19 @@ public class CommissionCreateValidator {
 	}
 
 	// 색상 검증 (직접 색상 지정시 MAIN, SUB1, SUB2 필수)
-	private void validateColors(CommissionCreateRequest request) {
+	private void validateColors(DesignInfo design) {
 
-		if (request.designInfo().colorSelectionMode() != ColorSelectionMode.USER_SELECTED) {
+		if (design.colorSelectionMode() != ColorSelectionMode.USER_SELECTED) {
 			return;
 		}
 
-		List<CommissionCreateRequest.ColorInfo> colors = request.designInfo().colors();
+		List<ColorInfo> colors = design.colors();
 		if (colors == null || colors.isEmpty()) {
 			throw new GeneralException(CommissionErrorCode.COLORS_REQUIRED);
 		}
 
 		Set<ColorRole> roles = colors.stream()
-			.map(CommissionCreateRequest.ColorInfo::role)
+			.map(ColorInfo::role)
 			.collect(Collectors.toSet());
 
 		if (roles.size() != colors.size() || !roles.equals(EnumSet.allOf(ColorRole.class))) {
@@ -60,18 +64,16 @@ public class CommissionCreateValidator {
 	}
 
 	// 결제 약관 검증
-	private void validateTerm(CommissionCreateRequest request) {
+	private void validateTerm(TermRequest term) {
 
-		CommissionCreateRequest.TermRequest term = request.term();
 		if (term.type() != TermType.SETTLEMENT || !Boolean.TRUE.equals(term.isAgreed())) {
 			throw new GeneralException(CommissionErrorCode.SETTLEMENT_TERM_NOT_AGREED);
 		}
 	}
 
 	// 마감 기한 검증
-	private void validateDeadlines(CommissionCreateRequest request) {
+	private void validateDeadlines(DateInfo date) {
 
-		CommissionCreateRequest.DateInfo date = request.date();
 		LocalDate today = LocalDate.now();
 
 		if (!date.firstDraftDeadline().isBefore(date.finalDeadline())) {
