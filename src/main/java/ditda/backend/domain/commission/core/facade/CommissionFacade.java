@@ -16,6 +16,8 @@ import ditda.backend.domain.commission.core.service.CommissionCreateFileService;
 import ditda.backend.domain.commission.core.service.CommissionService;
 import ditda.backend.domain.commission.core.validator.CommissionCreateValidator;
 import ditda.backend.domain.commission.core.vo.CommissionFileToSave;
+import ditda.backend.domain.payment.dto.response.DepositNotifyResponse;
+import ditda.backend.domain.payment.service.PaymentService;
 import ditda.backend.global.s3.PresignedUpload;
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +28,7 @@ public class CommissionFacade {
 	private final CommissionService commissionService;
 	private final CommissionCreateFileService commissionCreateFileService;
 	private final CommissionCreateValidator commissionCreateValidator;
+	private final PaymentService paymentService;
 
 	public PlanListResponse getPlans() {
 		return commissionService.getPlans();
@@ -74,5 +77,10 @@ public class CommissionFacade {
 			commissionCreateFileService.deleteFiles(promotedKeys);
 			throw exception;
 		}
+	}
+
+	public DepositNotifyResponse notifyDeposit(Long instructorId, Long commissionId) {
+
+		return paymentService.notifyDeposit(instructorId, commissionId);
 	}
 }
