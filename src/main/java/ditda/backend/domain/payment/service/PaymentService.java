@@ -65,6 +65,10 @@ public class PaymentService {
 			throw new GeneralException(PaymentException.DEPOSIT_NOTIFY_NOT_ALLOWED);
 		}
 
+		if (payment.getDepositNotifiedAt() != null) {
+				throw new GeneralException(PaymentException.DEPOSIT_NOTIFY_NOT_ALLOWED);
+		}
+
 		payment.markDepositNotified();
 
 		eventPublisher.publishEvent(new DepositNotifiedEvent(

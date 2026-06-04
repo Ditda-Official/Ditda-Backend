@@ -73,9 +73,13 @@ public class CommissionFacade {
 			}
 
 			return commissionService.createCommission(instructorId, request, handler, commissionFiles);
-		} catch (Exception exception) {
-			commissionCreateFileService.deleteFiles(promotedKeys);
-			throw exception;
+		} catch (Exception original) {
+			try {
+				commissionCreateFileService.deleteFiles(promotedKeys);
+			} catch (Exception cleanupEx) {
+				original.addSuppressed(cleanupEx);
+			}
+			throw original;
 		}
 	}
 
