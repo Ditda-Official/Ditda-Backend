@@ -20,7 +20,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/instructors")
+@RequestMapping("/api/v1/instructors/commissions")
 @RequiredArgsConstructor
 @Tag(name = "Instructor Commission", description = "강사 새 외주 작성 API")
 public class CommissionController {

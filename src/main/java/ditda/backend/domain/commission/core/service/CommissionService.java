@@ -37,7 +37,6 @@ public class CommissionService {
 	private final PaymentService paymentService;
 
 	// 외주 플랜 정보 조회
-	@Transactional(readOnly = true)
 	public PlanListResponse getPlans() {
 		return PlanListResponse.from();
 	}
