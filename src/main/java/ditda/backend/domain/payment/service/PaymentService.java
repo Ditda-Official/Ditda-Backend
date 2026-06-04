@@ -1,5 +1,7 @@
 package ditda.backend.domain.payment.service;
 
+import java.util.Objects;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +57,7 @@ public class PaymentService {
 
 		Commission commission = payment.getCommission();
 
-		if (!commission.getInstructor().getId().equals(instructorId)) {
+		if (!Objects.equals(commission.getInstructor().getId(), instructorId)) {
 			throw new GeneralException(PaymentException.PAYMENT_ACCESS_DENIED);
 		}
 
