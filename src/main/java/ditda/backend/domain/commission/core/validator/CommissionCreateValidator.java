@@ -50,6 +50,7 @@ public class CommissionCreateValidator {
 		}
 
 		List<ColorInfo> colors = design.colors();
+		// 색상이 아예 없을 경우
 		if (colors == null || colors.isEmpty()) {
 			throw new GeneralException(CommissionErrorCode.COLORS_REQUIRED);
 		}
@@ -58,8 +59,9 @@ public class CommissionCreateValidator {
 			.map(ColorInfo::role)
 			.collect(Collectors.toSet());
 
+		// MAIN, SUB1, SUB2 중 부분 누락 or 중복
 		if (roles.size() != colors.size() || !roles.equals(EnumSet.allOf(ColorRole.class))) {
-			throw new GeneralException(CommissionErrorCode.COLORS_REQUIRED);
+			throw new GeneralException(CommissionErrorCode.INVALID_COLOR_COMPOSITION);
 		}
 	}
 
