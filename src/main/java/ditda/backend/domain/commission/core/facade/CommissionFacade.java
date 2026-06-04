@@ -11,8 +11,10 @@ import ditda.backend.domain.commission.core.dto.request.CommissionFilePresignReq
 import ditda.backend.domain.commission.core.dto.response.CommissionCreateResponse;
 import ditda.backend.domain.commission.core.dto.response.CommissionFilePresignResponse;
 import ditda.backend.domain.commission.core.dto.response.PlanListResponse;
+import ditda.backend.domain.commission.core.handler.CommissionCategoryHandler;
 import ditda.backend.domain.commission.core.service.CommissionCreateFileService;
 import ditda.backend.domain.commission.core.service.CommissionService;
+import ditda.backend.domain.commission.core.validator.CommissionCreateValidator;
 import ditda.backend.domain.commission.core.vo.CommissionFileToSave;
 import ditda.backend.global.s3.PresignedUpload;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class CommissionFacade {
 
 	private final CommissionService commissionService;
 	private final CommissionCreateFileService commissionCreateFileService;
+	private final CommissionCreateValidator commissionCreateValidator;
 
 	public PlanListResponse getPlans() {
 		return commissionService.getPlans();
@@ -43,15 +46,16 @@ public class CommissionFacade {
 		CommissionCreateRequest request
 	) {
 
+		// 1. 순수 검증 + 카테고리 핸들러 확보
+		CommissionCategoryHandler handler = commissionCreateValidator.validate(request);
+
+		// 2. 파일 검증
 		List<FileInfo> files = request.files() == null
 			? List.of()
 			: request.files();
+		commissionCreateFileService.validateFiles(files);
 
-		files.forEach(file -> commissionCreateFileService.validateKeys(
-			file.fileKind(),
-			file.keys()
-		));
-
+		// 3. promote 후 영속화
 		List<CommissionFileToSave> commissionFiles = new ArrayList<>();
 		List<String> promotedKeys = new ArrayList<>();
 		try {
@@ -65,7 +69,7 @@ public class CommissionFacade {
 				promotedKeys.addAll(permanent);
 			}
 
-			return commissionService.createCommission(instructorId, request, commissionFiles);
+			return commissionService.createCommission(instructorId, request, handler, commissionFiles);
 		} catch (Exception exception) {
 			commissionCreateFileService.deleteFiles(promotedKeys);
 			throw exception;

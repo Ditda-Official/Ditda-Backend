@@ -2,11 +2,14 @@ package ditda.backend.domain.commission.core.service;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.FileInfo;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.CommissionFile;
 import ditda.backend.domain.commission.core.entity.enums.FileKind;
@@ -43,37 +46,17 @@ public class CommissionCreateFileService {
 		return s3UploadManager.issueTempUpload(BUCKET, directoryOf(fileKind), type.getExtension(), contentType);
 	}
 
-	public void validateKeys(FileKind fileKind, List<String> keys) {
+	// 첨부 파일의 종류별로 keys 합산하여 검증
+	// 클라이언트가 같은 종류 여러번 보내도 종류별 총량을 기준으로 검사
+	public void validateFiles(List<FileInfo> files) {
 
-		// 파일 개수 검증
-		if (keys.size() > fileKind.getMaxCount()) {
-			throw new GeneralException(
-				CommissionErrorCode.COMMISSION_FILE_LIMIT_EXCEEDED,
-				"%s 파일은 최대 %d개까지 업로드 가능합니다.".formatted(fileKind, fileKind.getMaxCount())
-			);
-		}
+		Map<FileKind, List<String>> keysByKind = files.stream()
+			.collect(Collectors.groupingBy(
+				FileInfo::fileKind,
+				Collectors.flatMapping(file -> file.keys().stream(), Collectors.toList())
+			));
 
-		// distinct key 검증
-		if (keys.size() != keys.stream().distinct().count()) {
-			throw new GeneralException(CommissionErrorCode.INVALID_COMMISSION_FILE);
-		}
-
-		String dir = directoryOf(fileKind);
-		for (String key : keys) {
-			// 파일 key 형식 검증
-			if (!s3UploadManager.isTempKey(key, dir)) {
-				throw new GeneralException(CommissionErrorCode.INVALID_COMMISSION_FILE);
-			}
-
-			// 파일 크기 검증
-			Long size = s3UploadManager.getObjectSize(BUCKET, key);
-			if (size == null) {
-				throw new GeneralException(CommissionErrorCode.INVALID_COMMISSION_FILE);
-			}
-			if (size > s3Properties.getMaxFileSize().toBytes()) {
-				throw new GeneralException(CommissionErrorCode.COMMISSION_FILE_SIZE_EXCEEDED);
-			}
-		}
+		keysByKind.forEach(this::validateKeys);
 	}
 
 	@Transactional
@@ -105,5 +88,38 @@ public class CommissionCreateFileService {
 
 	private String directoryOf(FileKind fileKind) {
 		return DIR + "/" + fileKind.name().toLowerCase();
+	}
+
+	private void validateKeys(FileKind fileKind, List<String> keys) {
+
+		// 파일 개수 검증
+		if (keys.size() > fileKind.getMaxCount()) {
+			throw new GeneralException(
+				CommissionErrorCode.COMMISSION_FILE_LIMIT_EXCEEDED,
+				"%s 파일은 최대 %d개까지 업로드 가능합니다.".formatted(fileKind, fileKind.getMaxCount())
+			);
+		}
+
+		// distinct key 검증
+		if (keys.size() != keys.stream().distinct().count()) {
+			throw new GeneralException(CommissionErrorCode.INVALID_COMMISSION_FILE);
+		}
+
+		String dir = directoryOf(fileKind);
+		for (String key : keys) {
+			// 파일 key 형식 검증
+			if (!s3UploadManager.isTempKey(key, dir)) {
+				throw new GeneralException(CommissionErrorCode.INVALID_COMMISSION_FILE);
+			}
+
+			// 파일 크기 검증
+			Long size = s3UploadManager.getObjectSize(BUCKET, key);
+			if (size == null) {
+				throw new GeneralException(CommissionErrorCode.INVALID_COMMISSION_FILE);
+			}
+			if (size > s3Properties.getMaxFileSize().toBytes()) {
+				throw new GeneralException(CommissionErrorCode.COMMISSION_FILE_SIZE_EXCEEDED);
+			}
+		}
 	}
 }
