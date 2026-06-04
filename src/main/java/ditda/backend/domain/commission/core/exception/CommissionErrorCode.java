@@ -18,7 +18,11 @@ public enum CommissionErrorCode implements BaseErrorCode {
 
 	// 색상 선택 (직접 색상 지정)
 	COLORS_REQUIRED(HttpStatus.BAD_REQUEST, "COMMISSION_400_03", "직접 색상 선택 시 색상은 필수입니다."),
-	INVALID_COLOR_COMPOSITION(HttpStatus.BAD_REQUEST, "COMMISSION_400_04", "색상 구성이 올바르지 않습니다. MAIN, SUB1, SUB2를 각 1개씩 지정해야 합니다."),
+	INVALID_COLOR_COMPOSITION(
+		HttpStatus.BAD_REQUEST,
+		"COMMISSION_400_04",
+		"색상 구성이 올바르지 않습니다. MAIN, SUB1, SUB2를 각 1개씩 지정해야 합니다."
+	),
 
 	// 카테고리별
 	UNSUPPORTED_CATEGORY(HttpStatus.BAD_REQUEST, "COMMISSION_400_05", "지원하지 않는 카테고리입니다."),
