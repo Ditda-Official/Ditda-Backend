@@ -21,8 +21,10 @@ import ditda.backend.domain.commission.core.repository.CommissionConceptReposito
 import ditda.backend.domain.commission.core.repository.CommissionRepository;
 import ditda.backend.domain.commission.core.vo.CommissionFileToSave;
 import ditda.backend.domain.instructor.entity.Instructor;
+import ditda.backend.domain.instructor.exception.InstructorErrorCode;
 import ditda.backend.domain.instructor.repository.InstructorRepository;
 import ditda.backend.domain.payment.service.PaymentService;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -55,7 +57,9 @@ public class CommissionService {
 		TermRequest term = request.term();
 
 		// 1. Commission 저장
-		Instructor instructor = instructorRepository.getReferenceById(instructorId);
+		Instructor instructor = instructorRepository.findById(instructorId)
+			.orElseThrow(() -> new GeneralException(InstructorErrorCode.INSTRUCTOR_NOT_FOUND));
+
 		String title = handler.buildTitle(request);
 		Commission commission = Commission.create(
 			instructor,
