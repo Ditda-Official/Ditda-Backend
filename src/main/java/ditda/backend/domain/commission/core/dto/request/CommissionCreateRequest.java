@@ -33,24 +33,10 @@ public record CommissionCreateRequest(
 	@Valid
 	DesignInfo designInfo,
 
-	@Schema(description = "교재명", example = "수학의 정석")
-	@NotBlank(message = "교재명은 필수입니다.")
-	@Size(max = 50, message = "교재명은 50자 이하여야 합니다.")
-	String textbookName,
-
-	@Schema(description = "강사명", example = "홍길동")
-	@NotBlank(message = "강사명은 필수입니다.")
-	@Size(max = 50, message = "강사명은 50자 이하여야 합니다.")
-	String instructorName,
-
-	@Schema(description = "과목", example = "수학")
-	@NotBlank(message = "과목은 필수입니다.")
-	@Size(max = 50, message = "과목은 50자 이하여야 합니다.")
-	String subject,
-
-	@NotEmpty(message = "외주 요청 페이지는 최소 1개 이상입니다.")
+	// 교재 내지/외지 카테고리 전용 (카테고리에 따라 비어있을 수 있어 @NotNull 제외 -> Handler에서 검증)
+	@Schema(description = "교재 내지/외지 카테고리 상세")
 	@Valid
-	List<@NotNull @Valid RequiredPage> requiredPages,
+	TextbookDetail textbook,
 
 	@Schema(description = "첨부 파일 목록 (presign 업로드 후 받은 key)")
 	@Valid
@@ -77,7 +63,8 @@ public record CommissionCreateRequest(
 		PageSize pageSize,
 
 		@Schema(description = "컨셉 태그", example = "[\"CUTE\", \"ELEGANT\"]")
-		@NotEmpty(message = "컨셉은 최소 1개 이상입니다.")
+		@NotNull(message = "컨셉은 필수입니다.")
+		@Size(min = 1, max = 2, message = "컨셉은 1개 이상 2개 이하여야 합니다.")
 		List<@NotNull ConceptTag> concepts,
 
 		@Schema(description = "추가 컨셉 설명", example = "초등 저학년 대상이라 너무 무겁지 않게")
@@ -91,6 +78,31 @@ public record CommissionCreateRequest(
 		@Schema(description = "색상 목록 (USER_SELECTED일 때 필수)")
 		@Valid
 		List<@NotNull @Valid ColorInfo> colors
+	) {
+	}
+
+	// 추후 카테고리 추가될 시, 다형 역직렬화(@JsonTypeInfo)를 통해 분리
+	@Schema(description = "교재 외지/내지 카테고리 상세")
+	public record TextbookDetail(
+
+		@Schema(description = "교재명", example = "수학의 정석")
+		@NotBlank(message = "교재명은 필수입니다.")
+		@Size(max = 50, message = "교재명은 50자 이하여야 합니다.")
+		String textbookName,
+
+		@Schema(description = "강사명", example = "홍길동")
+		@NotBlank(message = "강사명은 필수입니다.")
+		@Size(max = 50, message = "강사명은 50자 이하여야 합니다.")
+		String instructorName,
+
+		@Schema(description = "과목", example = "수학")
+		@NotBlank(message = "과목은 필수입니다.")
+		@Size(max = 50, message = "과목은 50자 이하여야 합니다.")
+		String subject,
+
+		@NotEmpty(message = "외주 요청 페이지는 최소 1개 이상입니다.")
+		@Valid
+		List<@NotNull @Valid RequiredPage> requiredPages
 	) {
 	}
 
@@ -128,13 +140,13 @@ public record CommissionCreateRequest(
 		@NotNull(message = "파일 종류는 필수입니다.")
 		FileKind fileKind,
 
-		@Schema(description = "presigned URL로 업로드한 첨부파일 key 목록 (최대 3개)",
+		@Schema(description = "presigned URL로 업로드한 첨부파일 key 목록",
 			example = "[\"commission/tmp/3f2b....png\", \"commission/tmp/9a1c....jpg\"]")
-		@Size(max = 3, message = "파일은 최대 3개까지 업로드 가능합니다.")
+		@NotEmpty(message = "파일 key는 최소 1개 이상입니다.")
 		List<@NotBlank(message = "파일 key는 비어 있을 수 없습니다.") String> keys,
 
-		// 필수값이라고 생각하는데, 디자인에서는 선택
 		@Schema(description = "파일 설명", example = "img.04는 강사 프로필 이미지")
+		@NotBlank(message = "파일 설명은 필수입니다.")
 		@Size(max = 300, message = "파일 설명은 300자 이하여야 합니다.")
 		String description
 	) {
