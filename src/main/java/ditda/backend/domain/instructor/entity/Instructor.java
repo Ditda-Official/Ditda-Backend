@@ -1,5 +1,7 @@
 package ditda.backend.domain.instructor.entity;
 
+import org.springframework.data.domain.Persistable;
+
 import ditda.backend.domain.user.entity.User;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -22,7 +24,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Instructor extends BaseEntity {
+public class Instructor extends BaseEntity implements Persistable<Long> {
 
 	@Id
 	@Column(name = "instructor_id")
@@ -33,6 +35,11 @@ public class Instructor extends BaseEntity {
 	@JoinColumn(name = "instructor_id")
 	private User user;
 
+	@Override
+	public boolean isNew() {
+		return getCreatedAt() == null;
+	}
+
 	public static Instructor createInstructor(User user) {
 		return Instructor.builder()
 			.user(user)
@@ -42,4 +49,5 @@ public class Instructor extends BaseEntity {
 	public String getName() {
 		return user.getName();
 	}
+
 }

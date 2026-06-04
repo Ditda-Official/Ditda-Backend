@@ -1,5 +1,7 @@
 package ditda.backend.domain.designer.entity;
 
+import org.springframework.data.domain.Persistable;
+
 import ditda.backend.domain.designer.entity.enums.BankName;
 import ditda.backend.domain.user.entity.User;
 import ditda.backend.global.encryption.AesEncryptConverter;
@@ -27,7 +29,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Designer extends BaseEntity {
+public class Designer extends BaseEntity implements Persistable<Long> {
 
 	@Id
 	@Column(name = "designer_id")
@@ -56,6 +58,11 @@ public class Designer extends BaseEntity {
 
 	@Column(name = "account_holder", length = 50, nullable = false)
 	private String accountHolder;
+
+	@Override
+	public boolean isNew() {
+		return getCreatedAt() == null;
+	}
 
 	public static Designer createDesigner(User user, BankName bankName, String accountNumber, String accountHolder) {
 		return Designer.builder()
