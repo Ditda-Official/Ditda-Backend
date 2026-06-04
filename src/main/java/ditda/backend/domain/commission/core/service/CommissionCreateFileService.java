@@ -40,7 +40,12 @@ public class CommissionCreateFileService {
 			throw new GeneralException(CommissionErrorCode.INVALID_COMMISSION_FILE);
 		}
 
-		PresignedUpload upload = s3UploadManager.issueTempUpload(BUCKET, directoryOf(fileKind), type.getExtension(), contentType);
+		PresignedUpload upload = s3UploadManager.issueTempUpload(
+			BUCKET,
+			directoryOf(fileKind),
+			type.getExtension(),
+			contentType
+		);
 
 		return new CommissionFilePresignResponse(upload.key(), upload.presignedUrl());
 	}
