@@ -11,10 +11,9 @@ import ditda.backend.domain.payment.dto.response.DepositNotifyResponse;
 import ditda.backend.domain.payment.entity.Payment;
 import ditda.backend.domain.payment.entity.enums.PaymentStatus;
 import ditda.backend.domain.payment.event.DepositNotifiedEvent;
-import ditda.backend.domain.payment.exception.PaymentException;
+import ditda.backend.domain.payment.exception.PaymenErrorCode;
 import ditda.backend.domain.payment.repository.PaymentRepository;
-import ditda.backend.domain.term.entity.PaymentTerm;
-import ditda.backend.domain.term.repository.PaymentTermRepository;
+import ditda.backend.domain.term.service.TermService;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
@@ -23,8 +22,8 @@ import lombok.RequiredArgsConstructor;
 public class PaymentService {
 
 	private final PaymentRepository paymentRepository;
-	private final PaymentTermRepository paymentTermRepository;
 	private final ApplicationEventPublisher eventPublisher;
+	private final TermService termService;
 
 	// 강사 새 외주 작성시 결제 대기 상태 생성
 	@Transactional
@@ -41,32 +40,27 @@ public class PaymentService {
 		);
 		paymentRepository.save(payment);
 
-		PaymentTerm paymentTerm = PaymentTerm.create(
-			payment,
-			termVersion,
-			isTermAgreed
-		);
-		paymentTermRepository.save(paymentTerm);
+		termService.savePaymentTerm(payment, termVersion, isTermAgreed);
 	}
 
 	@Transactional
 	public DepositNotifyResponse notifyDeposit(Long instructorId, Long commissionId) {
 
 		Payment payment = paymentRepository.findByCommissionId(commissionId)
-			.orElseThrow(() -> new GeneralException(PaymentException.PAYMENT_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(PaymenErrorCode.PAYMENT_NOT_FOUND));
 
 		Commission commission = payment.getCommission();
 
 		if (!Objects.equals(commission.getInstructor().getId(), instructorId)) {
-			throw new GeneralException(PaymentException.PAYMENT_ACCESS_DENIED);
+			throw new GeneralException(PaymenErrorCode.PAYMENT_ACCESS_DENIED);
 		}
 
 		if (payment.getStatus() != PaymentStatus.PENDING) {
-			throw new GeneralException(PaymentException.DEPOSIT_NOTIFY_NOT_ALLOWED);
+			throw new GeneralException(PaymenErrorCode.DEPOSIT_NOTIFY_NOT_ALLOWED);
 		}
 
 		if (payment.getDepositNotifiedAt() != null) {
-			throw new GeneralException(PaymentException.DEPOSIT_NOTIFY_NOT_ALLOWED);
+			throw new GeneralException(PaymenErrorCode.DEPOSIT_NOTIFY_NOT_ALLOWED);
 		}
 
 		payment.markDepositNotified();
