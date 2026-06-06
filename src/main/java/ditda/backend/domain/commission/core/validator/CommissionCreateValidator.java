@@ -19,6 +19,7 @@ import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.commission.core.handler.CommissionCategoryHandler;
 import ditda.backend.domain.commission.core.handler.CommissionCategoryHandlerResolver;
 import ditda.backend.domain.term.entity.enums.TermType;
+import ditda.backend.domain.term.exception.TermErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
@@ -69,7 +70,7 @@ public class CommissionCreateValidator {
 	private void validateTerm(TermRequest term) {
 
 		if (term.type() != TermType.SETTLEMENT || !Boolean.TRUE.equals(term.isAgreed())) {
-			throw new GeneralException(CommissionErrorCode.SETTLEMENT_TERM_NOT_AGREED);
+			throw new GeneralException(TermErrorCode.SETTLEMENT_TERM_NOT_AGREED);
 		}
 	}
 

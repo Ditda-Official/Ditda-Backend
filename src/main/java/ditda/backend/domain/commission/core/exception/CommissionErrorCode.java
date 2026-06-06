@@ -32,10 +32,7 @@ public enum CommissionErrorCode implements BaseErrorCode {
 	// 마감 기한
 	INVALID_DEADLINE_ORDER(HttpStatus.BAD_REQUEST, "COMMISSION_400_08", "1차 시안 마감일은 최종 마감일보다 빨라야 합니다."),
 	FIRST_DRAFT_DEADLINE_TOO_SOON(HttpStatus.BAD_REQUEST, "COMMISSION_400_09", "1차 시안 마감일은 오늘로부터 최소 10일 이후여야 합니다."),
-	FINAL_DEADLINE_TOO_SOON(HttpStatus.BAD_REQUEST, "COMMISSION_400_10", "최종 마감일은 1차 시안 마감일로부터 최소 14일 이후여야 합니다."),
-
-	// 결제 약관
-	SETTLEMENT_TERM_NOT_AGREED(HttpStatus.BAD_REQUEST, "COMMISSION_400_11", "결제 약관 동의는 필수입니다.");
+	FINAL_DEADLINE_TOO_SOON(HttpStatus.BAD_REQUEST, "COMMISSION_400_10", "최종 마감일은 1차 시안 마감일로부터 최소 14일 이후여야 합니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;
