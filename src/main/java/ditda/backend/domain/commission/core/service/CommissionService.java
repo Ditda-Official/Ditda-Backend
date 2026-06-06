@@ -6,9 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest;
-import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.DateInfo;
-import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.DesignInfo;
-import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.TermRequest;
 import ditda.backend.domain.commission.core.dto.response.CommissionCreateResponse;
 import ditda.backend.domain.commission.core.dto.response.PlanListResponse;
 import ditda.backend.domain.commission.core.entity.Commission;
@@ -22,7 +19,7 @@ import ditda.backend.domain.commission.core.repository.CommissionRepository;
 import ditda.backend.domain.commission.core.vo.CommissionFileToSave;
 import ditda.backend.domain.instructor.entity.Instructor;
 import ditda.backend.domain.instructor.exception.InstructorErrorCode;
-import ditda.backend.domain.instructor.repository.InstructorRepository;
+import ditda.backend.domain.instructor.service.InstructorService;
 import ditda.backend.domain.payment.service.PaymentService;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +31,7 @@ public class CommissionService {
 	private final CommissionRepository commissionRepository;
 	private final CommissionConceptRepository commissionConceptRepository;
 	private final CommissionColorRepository commissionColorRepository;
-	private final InstructorRepository instructorRepository;
+	private final InstructorService instructorService;
 	private final CommissionCreateFileService commissionCreateFileService;
 	private final PaymentService paymentService;
 
@@ -52,14 +49,12 @@ public class CommissionService {
 		List<CommissionFileToSave> commissionFiles
 	) {
 
-		DesignInfo design = request.designInfo();
-		DateInfo date = request.date();
-		TermRequest term = request.term();
+		CommissionCreateRequest.DesignInfo design = request.designInfo();
+		CommissionCreateRequest.DateInfo date = request.date();
+		CommissionCreateRequest.TermRequest term = request.term();
 
 		// 1. Commission 저장
-		Instructor instructor = instructorRepository.findById(instructorId)
-			.orElseThrow(() -> new GeneralException(InstructorErrorCode.INSTRUCTOR_NOT_FOUND));
-
+		Instructor instructor = instructorService.getById(instructorId);
 		String title = handler.buildTitle(request);
 		Commission commission = Commission.create(
 			instructor,
@@ -95,7 +90,7 @@ public class CommissionService {
 	}
 
 	// 컨셉 저장
-	private void saveConcepts(Commission commission, DesignInfo design) {
+	private void saveConcepts(Commission commission, CommissionCreateRequest.DesignInfo design) {
 
 		List<CommissionConcept> concepts = design.concepts().stream()
 			.map(tag -> CommissionConcept.create(commission, tag))
@@ -104,7 +99,7 @@ public class CommissionService {
 	}
 
 	// 색상 저장 (강사 직접 선택시)
-	private void saveColors(Commission commission, DesignInfo design) {
+	private void saveColors(Commission commission, CommissionCreateRequest.DesignInfo design) {
 
 		if (design.colorSelectionMode() != ColorSelectionMode.USER_SELECTED) {
 			return;
