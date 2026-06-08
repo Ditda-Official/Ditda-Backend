@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import ditda.backend.domain.commission.core.dto.CommissionFileToSave;
 import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest;
 import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.FileInfo;
 import ditda.backend.domain.commission.core.dto.request.CommissionFilePresignRequest;
@@ -15,7 +16,6 @@ import ditda.backend.domain.commission.core.handler.CommissionCategoryHandler;
 import ditda.backend.domain.commission.core.service.CommissionCreateFileService;
 import ditda.backend.domain.commission.core.service.CommissionService;
 import ditda.backend.domain.commission.core.validator.CommissionCreateValidator;
-import ditda.backend.domain.commission.core.dto.CommissionFileToSave;
 import ditda.backend.domain.payment.dto.response.DepositNotifyResponse;
 import ditda.backend.domain.payment.service.PaymentService;
 import ditda.backend.global.s3.PresignedUpload;

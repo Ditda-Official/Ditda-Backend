@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ditda.backend.domain.commission.core.dto.CommissionFileToSave;
 import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest;
 import ditda.backend.domain.commission.core.dto.response.CommissionCreateResponse;
 import ditda.backend.domain.commission.core.dto.response.PlanListResponse;
@@ -16,7 +17,6 @@ import ditda.backend.domain.commission.core.handler.CommissionCategoryHandler;
 import ditda.backend.domain.commission.core.repository.CommissionColorRepository;
 import ditda.backend.domain.commission.core.repository.CommissionConceptRepository;
 import ditda.backend.domain.commission.core.repository.CommissionRepository;
-import ditda.backend.domain.commission.core.dto.CommissionFileToSave;
 import ditda.backend.domain.instructor.entity.Instructor;
 import ditda.backend.domain.instructor.service.InstructorService;
 import ditda.backend.domain.payment.service.PaymentService;
