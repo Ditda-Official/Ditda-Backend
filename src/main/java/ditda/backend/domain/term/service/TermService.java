@@ -6,10 +6,13 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ditda.backend.domain.payment.entity.Payment;
 import ditda.backend.domain.term.dto.TermAgreement;
+import ditda.backend.domain.term.entity.PaymentTerm;
 import ditda.backend.domain.term.entity.UserTerm;
 import ditda.backend.domain.term.entity.enums.TermType;
 import ditda.backend.domain.term.exception.TermErrorCode;
+import ditda.backend.domain.term.repository.PaymentTermRepository;
 import ditda.backend.domain.term.repository.UserTermRepository;
 import ditda.backend.domain.user.entity.User;
 import ditda.backend.global.apipayload.exception.GeneralException;
@@ -26,6 +29,18 @@ public class TermService {
 		TermType.DISINTERMEDIATION
 	);
 	private final UserTermRepository userTermRepository;
+	private final PaymentTermRepository paymentTermRepository;
+
+	@Transactional
+	public void savePaymentTerm(Payment payment, String version, boolean isAgreed) {
+
+		PaymentTerm paymentTerm = PaymentTerm.create(
+			payment,
+			version,
+			isAgreed
+		);
+		paymentTermRepository.save(paymentTerm);
+	}
 
 	@Transactional
 	public void saveTerms(User user, List<TermAgreement> agreements) {

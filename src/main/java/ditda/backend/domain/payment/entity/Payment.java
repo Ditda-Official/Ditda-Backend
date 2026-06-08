@@ -52,12 +52,19 @@ public class Payment extends BaseEntity {
 	@Column(name = "paid_at")
 	private LocalDateTime paidAt;
 
-	public static Payment create(Commission commission) {
+	@Column(name = "deposit_notified_at")
+	private LocalDateTime depositNotifiedAt;
 
+	public static Payment create(Commission commission, String depositorName) {
 		return Payment.builder()
 			.commission(commission)
 			.amount(commission.getPlanCode().getPrice())
+			.depositorName(depositorName)
 			.status(PaymentStatus.PENDING)
 			.build();
+	}
+
+	public void markDepositNotified() {
+		this.depositNotifiedAt = LocalDateTime.now();
 	}
 }

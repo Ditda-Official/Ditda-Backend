@@ -50,7 +50,8 @@ public class InstructorAuthService {
 
 		termService.saveTerms(user, toAgreements(request.terms()));
 
-		instructorRepository.save(Instructor.createInstructor(user));
+		// 왜인지 모르겠지만 save로 했을때는 user만 저장. Instructor는 저장 X
+		instructorRepository.saveAndFlush(Instructor.createInstructor(user));
 
 		TokenResult tokens = authService.issueTokens(user.getId());
 

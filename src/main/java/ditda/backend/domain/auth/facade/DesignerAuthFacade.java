@@ -54,9 +54,13 @@ public class DesignerAuthFacade {
 		AuthResult result;
 		try {
 			result = designerAuthService.signup(request, portfolioKeys);
-		} catch (Exception e) {
-			portfolioService.deleteFiles(portfolioKeys);
-			throw e;
+		} catch (Exception original) {
+			try {
+				portfolioService.deleteFiles(portfolioKeys);
+			} catch (Exception cleanupEx) {
+				original.addSuppressed(cleanupEx);
+			}
+			throw original;
 		}
 
 		// 이메일 인증 마크 정리
