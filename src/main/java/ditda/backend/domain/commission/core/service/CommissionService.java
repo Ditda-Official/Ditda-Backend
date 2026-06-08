@@ -16,12 +16,10 @@ import ditda.backend.domain.commission.core.handler.CommissionCategoryHandler;
 import ditda.backend.domain.commission.core.repository.CommissionColorRepository;
 import ditda.backend.domain.commission.core.repository.CommissionConceptRepository;
 import ditda.backend.domain.commission.core.repository.CommissionRepository;
-import ditda.backend.domain.commission.core.vo.CommissionFileToSave;
+import ditda.backend.domain.commission.core.dto.CommissionFileToSave;
 import ditda.backend.domain.instructor.entity.Instructor;
-import ditda.backend.domain.instructor.exception.InstructorErrorCode;
 import ditda.backend.domain.instructor.service.InstructorService;
 import ditda.backend.domain.payment.service.PaymentService;
-import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
 @Service

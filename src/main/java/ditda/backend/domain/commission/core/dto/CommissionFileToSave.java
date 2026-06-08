@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.core.vo;
+package ditda.backend.domain.commission.core.dto;
 
 import java.util.List;
 
