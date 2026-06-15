@@ -37,7 +37,10 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	// 서버 내부 에러
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_500_01", "서버 내부 오류입니다."),
 	SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "SERVER_503_01", "서버가 일시적으로 불안정합니다."),
-	EXTERNAL_SERVICE_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, "SERVER_504_01", "외부 서비스 응답 지연");
+	EXTERNAL_SERVICE_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, "SERVER_504_01", "외부 서비스 응답 지연"),
+
+	// S3 파일 에러
+	FILE_URL_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FILE_500_01", "파일 URL 생성에 실패했습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;
