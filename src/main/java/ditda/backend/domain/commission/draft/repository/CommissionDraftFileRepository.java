@@ -14,4 +14,6 @@ public interface CommissionDraftFileRepository extends JpaRepository<CommissionD
 		+ "where f.commissionDraft.id in :draftIds "
 		+ "and f.fileOrder = 0 ")
 	List<CommissionDraftFile> findThumbnails(@Param("draftIds") List<Long> draftIds);
+
+	List<CommissionDraftFile> findByCommissionDraftIdOrderByFileOrderAsc(Long draftId);
 }

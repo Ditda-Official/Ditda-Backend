@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
 import ditda.backend.domain.commission.draft.service.DraftQueryService;
 import ditda.backend.global.apipayload.response.ApiResponse;
@@ -30,5 +31,17 @@ public class DraftController {
 
 		DraftListResponse response = draftQueryService.getFirstRoundDrafts(instructorId, commissionId);
 		return ApiResponse.onSuccess("1차 시안 목록 조회 성공", response);
+	}
+
+	@Operation(summary = "시안 상세 조회", description = "**[시안 상세 조회]** 시안 클릭 시 시안의 상세 정보를 반환합니다.")
+	@GetMapping("/{commissionId}/drafts/{draftId}")
+	public ApiResponse<DraftDetailResponse> getDraftDetail(
+		@AuthenticationPrincipal Long instructorId,
+		@PathVariable Long commissionId,
+		@PathVariable Long draftId
+	) {
+
+		DraftDetailResponse response = draftQueryService.getDraftDetail(instructorId, commissionId, draftId);
+		return ApiResponse.onSuccess("시안 상세 조회 성공", response);
 	}
 }

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.commission.core.repository.CommissionRepository;
+import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
@@ -34,12 +35,7 @@ public class DraftQueryService {
 	public DraftListResponse getFirstRoundDrafts(Long instructorId, Long commissionId) {
 
 		// 1. 외주 조회 + 강사 확인
-		Commission commission = commissionRepository.findById(commissionId)
-			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
-
-		if (!Objects.equals(commission.getInstructor().getId(), instructorId)) {
-			throw new GeneralException(CommissionErrorCode.COMMISSION_ACCESS_DENIED);
-		}
+		Commission commission = getOwnedCommission(commissionId, instructorId);
 
 		// 2. 1차 시안 (round = 0) 목록 확인
 		List<CommissionDraft> drafts = commissionDraftRepository.findFirstRoundDrafts(commissionId);
@@ -64,5 +60,37 @@ public class DraftQueryService {
 			.toList();
 
 		return DraftListResponse.of(commission, responses);
+	}
+
+	// 시안 상세 조회
+	@Transactional(readOnly = true)
+	public DraftDetailResponse getDraftDetail(Long instructorId, Long commissionId, Long draftId) {
+
+		// 1. 외주 조회 + 강사 확인
+		getOwnedCommission(commissionId, instructorId);
+
+		// 2. 시안 조회
+		if (!commissionDraftRepository.existsByIdAndCommissionApplication_Commission_Id(draftId, commissionId)) {
+			throw new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND);
+		}
+
+		// 3. 시안 파일 URL 목록
+		List<String> fileUrls = commissionDraftFileRepository
+			.findByCommissionDraftIdOrderByFileOrderAsc(draftId).stream()
+			.map(CommissionDraftFile::getFileUrl)
+			.toList();
+
+		return DraftDetailResponse.of(commissionId, draftId, fileUrls);
+	}
+
+	private Commission getOwnedCommission(Long commissionId, Long instructorId) {
+		Commission commission = commissionRepository.findById(commissionId)
+			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
+
+		if (!Objects.equals(commission.getInstructor().getId(), instructorId)) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_ACCESS_DENIED);
+		}
+
+		return commission;
 	}
 }

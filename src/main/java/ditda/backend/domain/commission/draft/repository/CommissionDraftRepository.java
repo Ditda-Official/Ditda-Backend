@@ -15,4 +15,6 @@ public interface CommissionDraftRepository extends JpaRepository<CommissionDraft
 		+ "and d.round = 0 "
 		+ "order by d.id asc")
 	List<CommissionDraft> findFirstRoundDrafts(@Param("commissionId") Long commissionId);
+
+	boolean existsByIdAndCommissionApplication_Commission_Id(Long draftId, Long commissionId);
 }
