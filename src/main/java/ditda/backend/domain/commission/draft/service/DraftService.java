@@ -53,6 +53,10 @@ public class DraftService {
 			throw new GeneralException(DraftErrorCode.DRAFTS_NOT_READY);
 		}
 
+		if (drafts.isEmpty()) {
+			return new DraftListResponse(commission.getId(), commission.getTitle(), List.of());
+		}
+
 		// 3. 시안별 썸네일(워터마크) (fileOrder = 0) 목록
 		List<Long> draftIds = drafts.stream().map(CommissionDraft::getId).toList();
 		Map<Long, CommissionDraftFile> thumbnailByDraftId = commissionDraftFileRepository.findThumbnails(draftIds)
