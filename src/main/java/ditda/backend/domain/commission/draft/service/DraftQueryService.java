@@ -15,11 +15,11 @@ import ditda.backend.domain.commission.core.repository.CommissionRepository;
 import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
-import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.exception.DraftErrorCode;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftRepository;
 import ditda.backend.global.apipayload.exception.GeneralException;
+import ditda.backend.global.s3.S3PresignedUrlGenerator;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,6 +29,7 @@ public class DraftQueryService {
 	private final CommissionRepository commissionRepository;
 	private final CommissionDraftRepository commissionDraftRepository;
 	private final CommissionDraftFileRepository commissionDraftFileRepository;
+	private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
 
 	// 1차 시안 목록 조회
 	@Transactional(readOnly = true)
@@ -47,12 +48,12 @@ public class DraftQueryService {
 			throw new GeneralException(DraftErrorCode.DRAFTS_NOT_READY);
 		}
 
-		// 3. 시안별 썸네일 (fileOrder = 0) 목록
+		// 3. 시안별 썸네일(워터마크 O) (fileOrder = 0) 목록
 		List<Long> draftIds = drafts.stream().map(CommissionDraft::getId).toList();
 		Map<Long, String> thumbnailByDraftId = commissionDraftFileRepository.findThumbnails(draftIds).stream()
 			.collect(Collectors.toMap(
 				f -> f.getCommissionDraft().getId(),
-				CommissionDraftFile::getFileUrl // TODO : 워터마크 도입 후 getWaterMarkedFileUrl()로 교체
+				f -> s3PresignedUrlGenerator.generatePrivateGetUrl(f.getWatermarkedFileUrl())
 			));
 
 		List<DraftListResponse.DraftResponse> responses = drafts.stream()
@@ -74,16 +75,17 @@ public class DraftQueryService {
 			throw new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND);
 		}
 
-		// 3. 시안 파일 URL 목록
+		// 3. 시안 파일(워터마크 O) URL 목록
 		List<String> fileUrls = commissionDraftFileRepository
 			.findByCommissionDraftIdOrderByFileOrderAsc(draftId).stream()
-			.map(CommissionDraftFile::getFileUrl)
+			.map(f -> s3PresignedUrlGenerator.generatePrivateGetUrl(f.getWatermarkedFileUrl()))
 			.toList();
 
 		return DraftDetailResponse.of(commissionId, draftId, fileUrls);
 	}
 
 	private Commission getOwnedCommission(Long commissionId, Long instructorId) {
+
 		Commission commission = commissionRepository.findById(commissionId)
 			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 
