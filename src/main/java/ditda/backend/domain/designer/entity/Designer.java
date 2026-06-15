@@ -3,6 +3,7 @@ package ditda.backend.domain.designer.entity;
 import org.springframework.data.domain.Persistable;
 
 import ditda.backend.domain.designer.entity.enums.BankName;
+import ditda.backend.domain.designer.entity.enums.DesignerLevel;
 import ditda.backend.domain.user.entity.User;
 import ditda.backend.global.encryption.AesEncryptConverter;
 import ditda.backend.global.entity.BaseEntity;
@@ -40,9 +41,10 @@ public class Designer extends BaseEntity implements Persistable<Long> {
 	@JoinColumn(name = "designer_id")
 	private User user;
 
+	@Enumerated(EnumType.STRING)
 	@Builder.Default
-	@Column(name = "level", nullable = false)
-	private int level = 1;
+	@Column(name = "level", length = 20, nullable = false)
+	private DesignerLevel level = DesignerLevel.LEVEL_1;
 
 	@Builder.Default
 	@Column(name = "exp", nullable = false)
@@ -71,5 +73,13 @@ public class Designer extends BaseEntity implements Persistable<Long> {
 			.accountNumber(accountNumber)
 			.accountHolder(accountHolder)
 			.build();
+	}
+
+	public void gainExp(int amount) {
+		this.exp += amount;
+		if (level.canLevelUp(this.exp)) {
+			this.level = level.next();
+			this.exp = 0;
+		}
 	}
 }
