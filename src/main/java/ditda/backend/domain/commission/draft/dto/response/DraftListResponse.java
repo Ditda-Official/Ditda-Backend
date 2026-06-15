@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "1차 시안 목록 조회 응답")
 public record DraftListResponse(
+
 	@Schema(description = "외주 ID", example = "1")
 	Long commissionId,
 
