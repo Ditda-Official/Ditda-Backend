@@ -76,4 +76,8 @@ public class CommissionDraftFile extends BaseEntity {
 			.watermarkStatus(WatermarkStatus.PROCESSING)
 			.build();
 	}
+
+	public boolean isWatermarkCompleted() {
+		return this.watermarkStatus == WatermarkStatus.COMPLETED;
+	}
 }

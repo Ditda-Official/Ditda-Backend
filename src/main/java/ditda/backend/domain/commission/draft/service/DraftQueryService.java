@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
@@ -15,10 +16,10 @@ import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
-import ditda.backend.domain.commission.draft.entity.enums.WatermarkStatus;
 import ditda.backend.domain.commission.draft.exception.DraftErrorCode;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftRepository;
+import ditda.backend.global.apipayload.code.GeneralErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.s3.S3PresignedUrlGenerator;
 import lombok.RequiredArgsConstructor;
@@ -67,7 +68,7 @@ public class DraftQueryService {
 		return new DraftListResponse(commission.getId(), commission.getTitle(), responses);
 	}
 
-	// 1차 시안 상세 조회
+	// 시안 상세 조회
 	@Transactional(readOnly = true)
 	public DraftDetailResponse getDraftDetail(Long instructorId, Long commissionId, Long draftId) {
 
@@ -79,7 +80,7 @@ public class DraftQueryService {
 			throw new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND);
 		}
 
-		// 3. 1차 시안 상세 파일들(워터마크)
+		// 3. 시안 상세 파일들(워터마크)
 		List<DraftDetailResponse.FileResponse> files = commissionDraftFileRepository
 			.findByCommissionDraftIdOrderByFileOrderAsc(draftId).stream()
 			.map(f -> new DraftDetailResponse.FileResponse(
@@ -96,15 +97,22 @@ public class DraftQueryService {
 		Commission commission = commissionRepository.findById(commissionId)
 			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 
-		commission.validateOwner(instructorId);
+		if (!commission.isOwnedBy(instructorId)) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_ACCESS_DENIED);
+		}
 		return commission;
 	}
 
 	private String resolveUrl(CommissionDraftFile file) {
 
-		if (file.getWatermarkStatus() != WatermarkStatus.COMPLETED) {
+		if (!file.isWatermarkCompleted()) {
 			return null;
 		}
-		return s3PresignedUrlGenerator.generatePrivateGetUrl(file.getWatermarkedFileUrl());
+
+		String waterMarkedFileUrl = file.getWatermarkedFileUrl();
+		if (!StringUtils.hasText(waterMarkedFileUrl)) {
+			throw new GeneralException(GeneralErrorCode.FILE_URL_GENERATION_FAILED);
+		}
+		return s3PresignedUrlGenerator.generatePrivateGetUrl(waterMarkedFileUrl);
 	}
 }

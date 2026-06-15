@@ -8,10 +8,8 @@ import ditda.backend.domain.commission.core.entity.enums.ColorSelectionMode;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.entity.enums.PageSize;
 import ditda.backend.domain.commission.core.entity.enums.PlanCode;
-import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.instructor.entity.Instructor;
-import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -126,10 +124,7 @@ public class Commission extends BaseEntity {
 		return isFirstDeadlinePassed || currentDraftCount >= planCode.getDesignerCount();
 	}
 
-	public void validateOwner(Long instructorId) {
-
-		if (!Objects.equals(this.instructor.getId(), instructorId)) {
-			throw new GeneralException(CommissionErrorCode.COMMISSION_ACCESS_DENIED);
-		}
+	public boolean isOwnedBy(Long instructorId) {
+		return Objects.equals(instructor.getId(), instructorId);
 	}
 }
