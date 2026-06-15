@@ -3,7 +3,6 @@ package ditda.backend.domain.commission.draft.service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -15,6 +14,8 @@ import ditda.backend.domain.commission.core.repository.CommissionRepository;
 import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
+import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
+import ditda.backend.domain.commission.draft.entity.enums.WatermarkStatus;
 import ditda.backend.domain.commission.draft.exception.DraftErrorCode;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftRepository;
@@ -40,30 +41,33 @@ public class DraftQueryService {
 
 		// 2. 1차 시안 (round = 0) 목록 확인
 		List<CommissionDraft> drafts = commissionDraftRepository.findFirstRoundDrafts(commissionId);
-		boolean isFirstDeadlinePassed = LocalDate.now().isAfter(commission.getFirstDraftDeadline());
-		int required = commission.getPlanCode().getDesignerCount();
 
 		// 마감 전에는 요구 인원이 다 차야 조회 가능, 마감 후에는 덜 차도 조회 가능
-		if (!isFirstDeadlinePassed && drafts.size() < required) {
+		if (!commission.isDraftListViewable(drafts.size(), LocalDate.now())) {
 			throw new GeneralException(DraftErrorCode.DRAFTS_NOT_READY);
 		}
 
-		// 3. 시안별 썸네일(워터마크 O) (fileOrder = 0) 목록
+		// 3. 시안별 썸네일(워터마크) (fileOrder = 0) 목록
 		List<Long> draftIds = drafts.stream().map(CommissionDraft::getId).toList();
-		Map<Long, String> thumbnailByDraftId = commissionDraftFileRepository.findThumbnails(draftIds).stream()
-			.collect(Collectors.toMap(
-				f -> f.getCommissionDraft().getId(),
-				f -> s3PresignedUrlGenerator.generatePrivateGetUrl(f.getWatermarkedFileUrl())
-			));
+		Map<Long, CommissionDraftFile> thumbnailByDraftId = commissionDraftFileRepository.findThumbnails(draftIds)
+			.stream()
+			.collect(Collectors.toMap(f -> f.getCommissionDraft().getId(), f -> f));
 
 		List<DraftListResponse.DraftResponse> responses = drafts.stream()
-			.map(d -> new DraftListResponse.DraftResponse(d.getId(), thumbnailByDraftId.get(d.getId())))
+			.map(d -> {
+				CommissionDraftFile thumbnail = thumbnailByDraftId.get(d.getId());
+				return new DraftListResponse.DraftResponse(
+					d.getId(),
+					thumbnail == null ? null : resolveUrl(thumbnail),
+					thumbnail == null ? null : thumbnail.getWatermarkStatus()
+				);
+			})
 			.toList();
 
-		return DraftListResponse.of(commission, responses);
+		return new DraftListResponse(commission.getId(), commission.getTitle(), responses);
 	}
 
-	// 시안 상세 조회
+	// 1차 시안 상세 조회
 	@Transactional(readOnly = true)
 	public DraftDetailResponse getDraftDetail(Long instructorId, Long commissionId, Long draftId) {
 
@@ -75,13 +79,16 @@ public class DraftQueryService {
 			throw new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND);
 		}
 
-		// 3. 시안 파일(워터마크 O) URL 목록
-		List<String> fileUrls = commissionDraftFileRepository
+		// 3. 1차 시안 상세 파일들(워터마크)
+		List<DraftDetailResponse.FileResponse> files = commissionDraftFileRepository
 			.findByCommissionDraftIdOrderByFileOrderAsc(draftId).stream()
-			.map(f -> s3PresignedUrlGenerator.generatePrivateGetUrl(f.getWatermarkedFileUrl()))
+			.map(f -> new DraftDetailResponse.FileResponse(
+				f.getFileOrder(),
+				resolveUrl(f),
+				f.getWatermarkStatus()))
 			.toList();
 
-		return DraftDetailResponse.of(commissionId, draftId, fileUrls);
+		return new DraftDetailResponse(commissionId, draftId, files);
 	}
 
 	private Commission getOwnedCommission(Long commissionId, Long instructorId) {
@@ -89,10 +96,15 @@ public class DraftQueryService {
 		Commission commission = commissionRepository.findById(commissionId)
 			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 
-		if (!Objects.equals(commission.getInstructor().getId(), instructorId)) {
-			throw new GeneralException(CommissionErrorCode.COMMISSION_ACCESS_DENIED);
-		}
-
+		commission.validateOwner(instructorId);
 		return commission;
+	}
+
+	private String resolveUrl(CommissionDraftFile file) {
+
+		if (file.getWatermarkStatus() != WatermarkStatus.COMPLETED) {
+			return null;
+		}
+		return s3PresignedUrlGenerator.generatePrivateGetUrl(file.getWatermarkedFileUrl());
 	}
 }

@@ -11,7 +11,8 @@ import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 public interface CommissionDraftRepository extends JpaRepository<CommissionDraft, Long> {
 
 	@Query("select d from CommissionDraft d "
-		+ "where d.commissionApplication.commission.id = :commissionId "
+		+ "join d.commissionApplication ca "
+		+ "where ca.commission.id = :commissionId "
 		+ "and d.round = 0 "
 		+ "order by d.id asc")
 	List<CommissionDraft> findFirstRoundDrafts(@Param("commissionId") Long commissionId);

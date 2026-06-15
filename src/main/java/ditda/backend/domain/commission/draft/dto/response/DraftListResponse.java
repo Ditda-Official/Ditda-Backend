@@ -2,7 +2,7 @@ package ditda.backend.domain.commission.draft.dto.response;
 
 import java.util.List;
 
-import ditda.backend.domain.commission.core.entity.Commission;
+import ditda.backend.domain.commission.draft.entity.enums.WatermarkStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "1차 시안 목록 조회 응답")
@@ -17,19 +17,17 @@ public record DraftListResponse(
 	List<DraftResponse> drafts
 ) {
 
-	public static DraftListResponse of(Commission commission, List<DraftResponse> drafts) {
-		return new DraftListResponse(commission.getId(), commission.getTitle(), drafts);
-	}
-
-	// 상세 조회에서 재사용할 수 있으면 빼놓고 import로 가져오는 방법 기억해두기.
 	@Schema(description = "시안 정보")
 	public record DraftResponse(
 
 		@Schema(description = "시안 ID", example = "1")
 		Long draftId,
 
-		@Schema(description = "썸네일 URL")
-		String thumbnailUrl
+		@Schema(description = "썸네일 URL (워터마크 미완료 시 null)", nullable = true)
+		String thumbnailUrl,
+
+		@Schema(description = "썸네일 워터마크 상태", example = "COMPLETED")
+		WatermarkStatus watermarkStatus
 	) {
 	}
 }
