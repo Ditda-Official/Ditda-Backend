@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import ditda.backend.domain.commission.application.entity.CommissionApplication;
 import ditda.backend.domain.commission.application.repository.CommissionApplicationRepository;
@@ -21,11 +20,10 @@ import ditda.backend.domain.commission.draft.dto.response.DraftSelectResponse;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.exception.DraftErrorCode;
+import ditda.backend.domain.commission.draft.mapper.DraftResponseMapper;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftRepository;
-import ditda.backend.global.apipayload.code.GeneralErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
-import ditda.backend.global.s3.S3PresignedUrlGenerator;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -37,8 +35,8 @@ public class DraftService {
 	private final CommissionRepository commissionRepository;
 	private final CommissionDraftRepository commissionDraftRepository;
 	private final CommissionDraftFileRepository commissionDraftFileRepository;
-	private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
 	private final CommissionApplicationRepository commissionApplicationRepository;
+	private final DraftResponseMapper draftResponseMapper;
 
 	// 1차 시안 목록 조회
 	@Transactional(readOnly = true)
@@ -62,14 +60,7 @@ public class DraftService {
 			.collect(Collectors.toMap(f -> f.getCommissionDraft().getId(), f -> f));
 
 		List<DraftListResponse.DraftResponse> responses = drafts.stream()
-			.map(d -> {
-				CommissionDraftFile thumbnail = thumbnailByDraftId.get(d.getId());
-				return new DraftListResponse.DraftResponse(
-					d.getId(),
-					thumbnail == null ? null : resolveUrl(thumbnail),
-					thumbnail == null ? null : thumbnail.getWatermarkStatus()
-				);
-			})
+			.map(d -> draftResponseMapper.toDraftResponse(d, thumbnailByDraftId.get(d.getId())))
 			.toList();
 
 		return new DraftListResponse(commission.getId(), commission.getTitle(), responses);
@@ -90,10 +81,7 @@ public class DraftService {
 		// 3. 시안 상세 파일들(워터마크)
 		List<DraftDetailResponse.FileResponse> files = commissionDraftFileRepository
 			.findByCommissionDraftIdOrderByFileOrderAsc(draftId).stream()
-			.map(f -> new DraftDetailResponse.FileResponse(
-				f.getFileOrder(),
-				resolveUrl(f),
-				f.getWatermarkStatus()))
+			.map(draftResponseMapper::toFileResponse)
 			.toList();
 
 		return new DraftDetailResponse(commissionId, draftId, files);
@@ -152,18 +140,5 @@ public class DraftService {
 			throw new GeneralException(CommissionErrorCode.COMMISSION_ACCESS_DENIED);
 		}
 		return commission;
-	}
-
-	private String resolveUrl(CommissionDraftFile file) {
-
-		if (!file.isWatermarkCompleted()) {
-			return null;
-		}
-
-		String watermarkedFileUrl = file.getWatermarkedFileUrl();
-		if (!StringUtils.hasText(watermarkedFileUrl)) {
-			throw new GeneralException(GeneralErrorCode.FILE_URL_GENERATION_FAILED);
-		}
-		return s3PresignedUrlGenerator.generatePrivateGetUrl(watermarkedFileUrl);
 	}
 }
