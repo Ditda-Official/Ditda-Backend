@@ -40,7 +40,10 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	EXTERNAL_SERVICE_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, "SERVER_504_01", "외부 서비스 응답 지연"),
 
 	// S3 파일 에러
-	FILE_URL_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FILE_500_01", "파일 URL 생성에 실패했습니다.");
+	FILE_URL_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FILE_500_01", "파일 URL 생성에 실패했습니다."),
+
+	// 동시성 에러
+	CONCURRENT_REQUEST(HttpStatus.CONFLICT, "REQ_409_02", "이미 처리 중인 요청입니다. 잠시 후 다시 시도해주세요.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

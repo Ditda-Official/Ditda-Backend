@@ -69,4 +69,8 @@ public class CommissionDraft extends BaseEntity {
 			.round(round)
 			.build();
 	}
+
+	public boolean isDraftFirstRound() {
+		return round == 0;
+	}
 }

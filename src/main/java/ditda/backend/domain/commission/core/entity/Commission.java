@@ -1,6 +1,7 @@
 package ditda.backend.domain.commission.core.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import ditda.backend.domain.commission.core.entity.enums.CategoryType;
@@ -22,6 +23,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -91,6 +93,13 @@ public class Commission extends BaseEntity {
 	@Column(name = "max_revision", nullable = false)
 	private int maxRevision;
 
+	@Column(name = "selected_at")
+	private LocalDateTime selectedAt;
+
+	@Version
+	@Column(name = "version", nullable = false)
+	private Long version;
+
 	public static Commission create(
 		Instructor instructor,
 		PlanCode planCode,
@@ -126,5 +135,20 @@ public class Commission extends BaseEntity {
 
 	public boolean isOwnedBy(Long instructorId) {
 		return Objects.equals(instructor.getId(), instructorId);
+	}
+
+	public boolean isSelectable() {
+		return status == CommissionStatus.IN_PROGRESS;
+	}
+
+	public boolean isDesignerSelected() {
+		return assignedDesigner != null;
+	}
+
+	public void selectDesigner(Designer designer, LocalDateTime selectedAt) {
+
+		this.assignedDesigner = designer;
+		this.status = CommissionStatus.EDITING;
+		this.selectedAt = selectedAt;
 	}
 }

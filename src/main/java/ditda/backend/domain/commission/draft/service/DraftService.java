@@ -1,6 +1,7 @@
 package ditda.backend.domain.commission.draft.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -9,11 +10,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import ditda.backend.domain.commission.application.entity.CommissionApplication;
+import ditda.backend.domain.commission.application.repository.CommissionApplicationRepository;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.commission.core.repository.CommissionRepository;
 import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
+import ditda.backend.domain.commission.draft.dto.response.DraftSelectResponse;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.exception.DraftErrorCode;
@@ -28,10 +32,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DraftService {
 
+	private static final int EXP_ON_SELECTION = 150;
+
 	private final CommissionRepository commissionRepository;
 	private final CommissionDraftRepository commissionDraftRepository;
 	private final CommissionDraftFileRepository commissionDraftFileRepository;
 	private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
+	private final CommissionApplicationRepository commissionApplicationRepository;
 
 	// 1차 시안 목록 조회
 	@Transactional(readOnly = true)
@@ -92,6 +99,50 @@ public class DraftService {
 		return new DraftDetailResponse(commissionId, draftId, files);
 	}
 
+	// 1차 시안 확정
+	@Transactional
+	public DraftSelectResponse selectDraft(Long instructorId, Long commissionId, Long draftId) {
+
+		// 1. 외주 조회 + 강사 확인
+		Commission commission = getOwnedCommission(commissionId, instructorId);
+
+		// 2. 외주 상태 확인
+		if (commission.isDesignerSelected()) {
+			throw new GeneralException(CommissionErrorCode.DESIGNER_ALREADY_SELECTED);
+		}
+
+		if (!commission.isSelectable()) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_STATUS_INVALID);
+		}
+
+		// 3. 시안 조회 + 1차 시안 확인
+		CommissionDraft draft = commissionDraftRepository
+			.findByIdAndCommissionApplication_Commission_Id(draftId, commissionId)
+			.orElseThrow(() -> new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND));
+		if (!draft.isDraftFirstRound()) {
+			throw new GeneralException(DraftErrorCode.DRAFT_INVALID_ROUND);
+		}
+
+		// 4. 시안 선택
+		CommissionApplication selected = draft.getCommissionApplication();
+		commission.selectDesigner(selected.getDesigner(), LocalDateTime.now());
+
+		selected.markSelected();
+		selected.getDesigner().gainExp(EXP_ON_SELECTION);
+
+		commissionApplicationRepository.findByCommission_Id(commissionId).stream()
+			.filter(app -> !app.getId().equals(selected.getId()))
+			.forEach(CommissionApplication::markRejected);
+
+		return new DraftSelectResponse(
+			commissionId,
+			draftId,
+			selected.getStatus(),
+			commission.getMaxRevision(),
+			commission.getSelectedAt()
+		);
+	}
+
 	private Commission getOwnedCommission(Long commissionId, Long instructorId) {
 
 		Commission commission = commissionRepository.findById(commissionId)
@@ -109,10 +160,10 @@ public class DraftService {
 			return null;
 		}
 
-		String waterMarkedFileUrl = file.getWatermarkedFileUrl();
-		if (!StringUtils.hasText(waterMarkedFileUrl)) {
+		String watermarkedFileUrl = file.getWatermarkedFileUrl();
+		if (!StringUtils.hasText(watermarkedFileUrl)) {
 			throw new GeneralException(GeneralErrorCode.FILE_URL_GENERATION_FAILED);
 		}
-		return s3PresignedUrlGenerator.generatePrivateGetUrl(waterMarkedFileUrl);
+		return s3PresignedUrlGenerator.generatePrivateGetUrl(watermarkedFileUrl);
 	}
 }

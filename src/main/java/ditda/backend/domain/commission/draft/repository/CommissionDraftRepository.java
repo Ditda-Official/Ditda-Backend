@@ -1,6 +1,7 @@
 package ditda.backend.domain.commission.draft.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,6 @@ public interface CommissionDraftRepository extends JpaRepository<CommissionDraft
 	List<CommissionDraft> findFirstRoundDrafts(@Param("commissionId") Long commissionId);
 
 	boolean existsByIdAndCommissionApplication_Commission_Id(Long draftId, Long commissionId);
+
+	Optional<CommissionDraft> findByIdAndCommissionApplication_Commission_Id(Long draftId, Long commissionId);
 }

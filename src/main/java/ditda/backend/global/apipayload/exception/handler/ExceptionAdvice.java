@@ -4,6 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -201,6 +202,22 @@ public class ExceptionAdvice {
 		BaseErrorCode code = GeneralErrorCode.INTERNAL_SERVER_ERROR;
 
 		log.error("Unhandled Exception", exception);
+
+		return ResponseEntity
+			.status(code.getHttpStatus())
+			.body(ApiResponse.onFailure(code, code.getMessage()));
+	}
+
+	/**
+	 * [동시성 충돌 예외] 낙관적 락 충돌(동시 수정) 처리
+	 */
+	@ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+	public ResponseEntity<ApiResponse<Object>> handleOptimisticLock(
+		ObjectOptimisticLockingFailureException exception
+	) {
+		BaseErrorCode code = GeneralErrorCode.CONCURRENT_REQUEST;
+
+		log.warn("OptimisticLockException: {}", exception.getMessage());
 
 		return ResponseEntity
 			.status(code.getHttpStatus())

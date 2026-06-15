@@ -3,11 +3,13 @@ package ditda.backend.domain.commission.draft.controller;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
+import ditda.backend.domain.commission.draft.dto.response.DraftSelectResponse;
 import ditda.backend.domain.commission.draft.service.DraftService;
 import ditda.backend.global.apipayload.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/instructors/commissions")
 @RequiredArgsConstructor
-@Tag(name = "Instructor Draft", description = "강사 시안 조회 API")
+@Tag(name = "Instructor Draft", description = "강사 시안 조회/선택 API")
 public class DraftController {
 
 	private final DraftService draftService;
@@ -44,4 +46,17 @@ public class DraftController {
 		DraftDetailResponse response = draftService.getDraftDetail(instructorId, commissionId, draftId);
 		return ApiResponse.onSuccess("시안 상세 조회 성공", response);
 	}
+
+	@Operation(summary = "1차 시안 선택", description = "**[시안 확인]** 시안 선택 후 제출하기 클릭 시 해당 시안의 디자이너로 확정하고 외주를 수정 단계로 전환합니다.")
+	@PostMapping("/{commissionId}/drafts/{draftId}/select")
+	public ApiResponse<DraftSelectResponse> selectDraft(
+		@AuthenticationPrincipal Long instructorId,
+		@PathVariable Long commissionId,
+		@PathVariable Long draftId
+	) {
+
+		DraftSelectResponse response = draftService.selectDraft(instructorId, commissionId, draftId);
+		return ApiResponse.onSuccess("1차 시안 선택 성공", response);
+	}
+
 }

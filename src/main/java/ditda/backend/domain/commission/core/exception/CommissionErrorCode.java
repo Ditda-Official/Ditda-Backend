@@ -34,9 +34,11 @@ public enum CommissionErrorCode implements BaseErrorCode {
 	FIRST_DRAFT_DEADLINE_TOO_SOON(HttpStatus.BAD_REQUEST, "COMMISSION_400_09", "1차 시안 마감일은 오늘로부터 최소 10일 이후여야 합니다."),
 	FINAL_DEADLINE_TOO_SOON(HttpStatus.BAD_REQUEST, "COMMISSION_400_10", "최종 마감일은 1차 시안 마감일로부터 최소 14일 이후여야 합니다."),
 
-	// 외주
+	// 외주 조회 및 선택
 	COMMISSION_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMISSION_404_01", "외주를 찾을 수 없습니다."),
-	COMMISSION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "COMMISSION_403_01", "해당 외주에 대한 권한이 없습니다.");
+	COMMISSION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "COMMISSION_403_01", "해당 외주에 대한 권한이 없습니다."),
+	COMMISSION_STATUS_INVALID(HttpStatus.CONFLICT, "COMMISSION_409_01", "외주 상태가 올바르지 않습니다."),
+	DESIGNER_ALREADY_SELECTED(HttpStatus.CONFLICT, "COMMISSION_409_02", "이미 디자이너가 확정된 외주입니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

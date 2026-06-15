@@ -63,4 +63,12 @@ public class CommissionApplication extends BaseEntity {
 			.status(ApplicationStatus.PENDING)
 			.build();
 	}
+
+	public void markSelected() {
+		this.status = ApplicationStatus.SELECTED;
+	}
+
+	public void markRejected() {
+		this.status = ApplicationStatus.REJECTED;
+	}
 }
