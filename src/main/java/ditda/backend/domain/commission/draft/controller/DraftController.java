@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
-import ditda.backend.domain.commission.draft.service.DraftQueryService;
+import ditda.backend.domain.commission.draft.service.DraftService;
 import ditda.backend.global.apipayload.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Instructor Draft", description = "강사 시안 조회 API")
 public class DraftController {
 
-	private final DraftQueryService draftQueryService;
+	private final DraftService draftService;
 
 	@Operation(summary = "1차 시안 목록 조회", description = "**[시안 제출 조회]** 외주명 클릭 시 디자이너들이 제출한 1차 시안 목록을 조회합니다.")
 	@GetMapping("/{commissionId}/drafts")
@@ -29,7 +29,7 @@ public class DraftController {
 		@PathVariable Long commissionId
 	) {
 
-		DraftListResponse response = draftQueryService.getFirstRoundDrafts(instructorId, commissionId);
+		DraftListResponse response = draftService.getFirstRoundDrafts(instructorId, commissionId);
 		return ApiResponse.onSuccess("1차 시안 목록 조회 성공", response);
 	}
 
@@ -41,7 +41,7 @@ public class DraftController {
 		@PathVariable Long draftId
 	) {
 
-		DraftDetailResponse response = draftQueryService.getDraftDetail(instructorId, commissionId, draftId);
+		DraftDetailResponse response = draftService.getDraftDetail(instructorId, commissionId, draftId);
 		return ApiResponse.onSuccess("시안 상세 조회 성공", response);
 	}
 }
