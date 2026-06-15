@@ -8,6 +8,7 @@ import ditda.backend.global.apipayload.code.GeneralErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.s3.enums.BucketType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -17,6 +18,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class S3PresignedUrlGenerator {
 
@@ -43,6 +45,7 @@ public class S3PresignedUrlGenerator {
 			PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
 			return presignedRequest.url().toString();
 		} catch (SdkException exception) {
+			log.error("Failed to generate private presigned url. key={}", key, exception);
 			throw new GeneralException(GeneralErrorCode.FILE_URL_GENERATION_FAILED);
 		}
 	}
