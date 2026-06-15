@@ -51,25 +51,6 @@ public class CommissionDraft extends BaseEntity {
 	@Column(name = "is_final", nullable = false)
 	private boolean isFinal = false;
 
-	// 1차 시안 (디자이너 지원 완료 후 제출, 수정 0회)
-	public static CommissionDraft createInitial(CommissionApplication commissionApplication) {
-		return CommissionDraft.builder()
-			.commissionApplication(commissionApplication)
-			.round(0)
-			.build();
-	}
-
-	// 수정 시안 (강사의 수정요청에 대한 응답)
-	public static CommissionDraft createRevision(
-		CommissionApplication commissionApplication,
-		int round
-	) {
-		return CommissionDraft.builder()
-			.commissionApplication(commissionApplication)
-			.round(round)
-			.build();
-	}
-
 	public boolean isDraftFirstRound() {
 		return round == 0;
 	}
