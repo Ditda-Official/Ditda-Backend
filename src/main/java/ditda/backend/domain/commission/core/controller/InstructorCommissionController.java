@@ -13,7 +13,7 @@ import ditda.backend.domain.commission.core.dto.request.CommissionFilePresignReq
 import ditda.backend.domain.commission.core.dto.response.CommissionCreateResponse;
 import ditda.backend.domain.commission.core.dto.response.CommissionFilePresignResponse;
 import ditda.backend.domain.commission.core.dto.response.PlanListResponse;
-import ditda.backend.domain.commission.core.facade.CommissionFacade;
+import ditda.backend.domain.commission.core.facade.InstructorCommissionFacade;
 import ditda.backend.domain.payment.dto.response.DepositNotifyResponse;
 import ditda.backend.global.apipayload.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,15 +25,15 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/instructors/commissions")
 @RequiredArgsConstructor
 @Tag(name = "Instructor Commission", description = "강사 새 외주 작성 API")
-public class CommissionController {
+public class InstructorCommissionController {
 
-	private final CommissionFacade commissionFacade;
+	private final InstructorCommissionFacade instructorCommissionFacade;
 
 	@Operation(summary = "플랜 조회", description = "**[새 외주 작성]** 플랜 정보를 조회합니다.")
 	@GetMapping("/plans")
 	public ApiResponse<PlanListResponse> getPlans() {
 
-		PlanListResponse response = commissionFacade.getPlans();
+		PlanListResponse response = instructorCommissionFacade.getPlans();
 
 		return ApiResponse.onSuccess("플랜 조회 성공", response);
 	}
@@ -48,7 +48,7 @@ public class CommissionController {
 		@Valid @RequestBody CommissionFilePresignRequest request
 	) {
 
-		CommissionFilePresignResponse response = commissionFacade.issueFilePresignedUrls(request);
+		CommissionFilePresignResponse response = instructorCommissionFacade.issueFilePresignedUrls(request);
 
 		return ApiResponse.onSuccess("새 외주 작성 파일 업로드 URL 발급 성공", response);
 	}
@@ -60,7 +60,7 @@ public class CommissionController {
 		@Valid @RequestBody CommissionCreateRequest request
 	) {
 
-		CommissionCreateResponse response = commissionFacade.createCommission(instructorId, request);
+		CommissionCreateResponse response = instructorCommissionFacade.createCommission(instructorId, request);
 
 		return ApiResponse.onSuccess("외주 생성 성공", response);
 	}
@@ -71,7 +71,7 @@ public class CommissionController {
 		@AuthenticationPrincipal Long instructorId,
 		@PathVariable Long commissionId
 	) {
-		DepositNotifyResponse response = commissionFacade.notifyDeposit(instructorId, commissionId);
+		DepositNotifyResponse response = instructorCommissionFacade.notifyDeposit(instructorId, commissionId);
 
 		return ApiResponse.onSuccess("입금이 접수되었습니다. 관리자 확인 후 진행됩니다.", response);
 	}
