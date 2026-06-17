@@ -11,7 +11,7 @@ import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
-import ditda.backend.global.apipayload.code.GeneralErrorCode;
+import ditda.backend.domain.commission.draft.exception.DraftErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.s3.S3PresignedUrlGenerator;
 import lombok.RequiredArgsConstructor;
@@ -76,7 +76,7 @@ public class DraftResponseMapper {
 
 		String watermarkedFileUrl = file.getWatermarkedFileUrl();
 		if (!StringUtils.hasText(watermarkedFileUrl)) {
-			throw new GeneralException(GeneralErrorCode.FILE_URL_GENERATION_FAILED);
+			throw new GeneralException(DraftErrorCode.WATERMARK_FILE_URL_MISSING);
 		}
 
 		return s3PresignedUrlGenerator.generatePrivateGetUrl(watermarkedFileUrl);
