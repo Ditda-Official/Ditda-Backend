@@ -3,6 +3,7 @@ package ditda.backend.domain.commission.application.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
 import ditda.backend.domain.commission.application.repository.CommissionApplicationRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +20,7 @@ public class ApplicationService {
 			.forEach(app -> {
 				if (app.getId().equals(selectedApplicationId)) {
 					app.markDraftSelected();
-				} else {
+				} else if (app.getStatus() == ApplicationStatus.DRAFT_SUBMITTED) {
 					app.markDraftRejected();
 				}
 			});

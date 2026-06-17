@@ -64,7 +64,7 @@ public class DraftService {
 		commissionService.getOwnedCommission(commissionId, instructorId);
 
 		// 2. 시안 조회
-		if (!commissionDraftRepository.existsByIdAndCommissionApplication_Commission_Id(draftId, commissionId)) {
+		if (!commissionDraftRepository.existsDraftInCommission(draftId, commissionId)) {
 			throw new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND);
 		}
 
@@ -78,7 +78,7 @@ public class DraftService {
 	public CommissionApplication getApplicationForSelection(Long commissionId, Long draftId) {
 
 		CommissionDraft draft = commissionDraftRepository
-			.findByIdAndCommissionApplication_Commission_Id(draftId, commissionId)
+			.findDraftInCommission(draftId, commissionId)
 			.orElseThrow(() -> new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND));
 
 		if (!draft.isDraftFirstRound()) {

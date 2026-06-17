@@ -18,7 +18,21 @@ public interface CommissionDraftRepository extends JpaRepository<CommissionDraft
 		+ "order by d.id asc")
 	List<CommissionDraft> findFirstRoundDrafts(@Param("commissionId") Long commissionId);
 
-	boolean existsByIdAndCommissionApplication_Commission_Id(Long draftId, Long commissionId);
+	@Query("select d from CommissionDraft d "
+		+ "join d.commissionApplication ca "
+		+ "where d.id = :draftId "
+		+ "and ca.commission.id = :commissionId")
+	Optional<CommissionDraft> findDraftInCommission(
+		@Param("draftId") Long draftId,
+		@Param("commissionId") Long commissionId
+	);
 
-	Optional<CommissionDraft> findByIdAndCommissionApplication_Commission_Id(Long draftId, Long commissionId);
+	@Query("select count(d) > 0 from CommissionDraft d "
+		+ "join d.commissionApplication ca "
+		+ "where d.id = :draftId "
+		+ "and ca.commission.id = :commissionId")
+	boolean existsDraftInCommission(
+		@Param("draftId") Long draftId,
+		@Param("commissionId") Long commissionId
+	);
 }
