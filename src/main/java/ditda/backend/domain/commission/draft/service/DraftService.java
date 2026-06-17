@@ -119,12 +119,12 @@ public class DraftService {
 		CommissionApplication selected = draft.getCommissionApplication();
 		commission.selectDesigner(selected.getDesigner(), LocalDateTime.now());
 
-		selected.markSelected();
+		selected.markDraftSelected();
 		selected.getDesigner().gainExp(EXP_ON_SELECTION);
 
 		commissionApplicationRepository.findByCommission_Id(commissionId).stream()
 			.filter(app -> !app.getId().equals(selected.getId()))
-			.forEach(CommissionApplication::markRejected);
+			.forEach(CommissionApplication::markDraftRejected);
 
 		return new DraftSelectResponse(
 			commissionId,
