@@ -139,11 +139,4 @@ public class Commission extends BaseEntity {
 	public boolean isDesignerSelected() {
 		return assignedDesigner != null;
 	}
-
-	public void selectDesigner(Designer designer, LocalDateTime selectedAt) {
-
-		this.assignedDesigner = designer;
-		this.status = CommissionStatus.EDITING;
-		this.selectedAt = selectedAt;
-	}
 }
