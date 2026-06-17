@@ -151,4 +151,9 @@ public class Commission extends BaseEntity {
 		this.status = CommissionStatus.EDITING;
 		this.selectedAt = selectedAt;
 	}
+
+	// 디자이너 모집 정원
+	public int getDesignerCount() {
+		return planCode.getDesignerCount();
+	}
 }

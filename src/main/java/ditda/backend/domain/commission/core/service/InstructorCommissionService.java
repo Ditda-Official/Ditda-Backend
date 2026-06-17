@@ -13,6 +13,7 @@ import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.CommissionColor;
 import ditda.backend.domain.commission.core.entity.CommissionConcept;
 import ditda.backend.domain.commission.core.entity.enums.ColorSelectionMode;
+import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.handler.CommissionCategoryHandler;
 import ditda.backend.domain.commission.core.repository.CommissionColorRepository;
 import ditda.backend.domain.commission.core.repository.CommissionConceptRepository;
@@ -85,6 +86,11 @@ public class InstructorCommissionService {
 		);
 
 		return CommissionCreateResponse.from(commission);
+	}
+
+	// status인 commission 조회
+	public List<Commission> getCommissionByInstructorAndStatus(Long instructorId, CommissionStatus status) {
+		return commissionRepository.findByInstructorIdAndStatus(instructorId, status);
 	}
 
 	// 컨셉 저장
