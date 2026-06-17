@@ -1,8 +1,12 @@
 package ditda.backend.domain.commission.draft.mapper;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
@@ -18,16 +22,44 @@ public class DraftResponseMapper {
 
 	private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
 
-	public DraftListResponse.DraftResponse toDraftResponse(CommissionDraft draft, CommissionDraftFile thumbnail) {
+	public DraftListResponse toDraftListResponse(
+		Commission commission,
+		List<CommissionDraft> drafts,
+		Map<Long, CommissionDraftFile> thumbnailByDraftId
+	) {
+
+		List<DraftListResponse.DraftResponse> items = drafts.stream()
+			.map(d -> toDraftResponse(d, thumbnailByDraftId.get(d.getId())))
+			.toList();
+
+		return new DraftListResponse(commission.getId(), commission.getTitle(), items);
+	}
+
+	public DraftDetailResponse toDraftDetailResponse(
+		Long commissionId,
+		Long draftId,
+		List<CommissionDraftFile> files
+	) {
+
+		List<DraftDetailResponse.FileResponse> fileResponses = files.stream()
+			.map(this::toFileResponse)
+			.toList();
+
+		return new DraftDetailResponse(commissionId, draftId, fileResponses);
+	}
+
+	private DraftListResponse.DraftResponse toDraftResponse(
+		CommissionDraft draft,
+		CommissionDraftFile thumbnail
+	) {
 
 		return new DraftListResponse.DraftResponse(
 			draft.getId(),
 			thumbnail == null ? null : resolveUrl(thumbnail),
-			thumbnail == null ? null : thumbnail.getWatermarkStatus()
-		);
+			thumbnail == null ? null : thumbnail.getWatermarkStatus());
 	}
 
-	public DraftDetailResponse.FileResponse toFileResponse(CommissionDraftFile file) {
+	private DraftDetailResponse.FileResponse toFileResponse(CommissionDraftFile file) {
 
 		return new DraftDetailResponse.FileResponse(
 			file.getFileOrder(),

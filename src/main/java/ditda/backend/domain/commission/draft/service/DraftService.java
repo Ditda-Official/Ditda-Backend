@@ -46,21 +46,14 @@ public class DraftService {
 			throw new GeneralException(DraftErrorCode.DRAFTS_NOT_READY);
 		}
 
-		if (drafts.isEmpty()) {
-			return new DraftListResponse(commission.getId(), commission.getTitle(), List.of());
-		}
-
-		// 3. 시안별 썸네일(워터마크) (fileOrder = 0) 목록
-		List<Long> draftIds = drafts.stream().map(CommissionDraft::getId).toList();
-		Map<Long, CommissionDraftFile> thumbnailByDraftId = commissionDraftFileRepository.findThumbnails(draftIds)
+		Map<Long, CommissionDraftFile> thumbnailByDraftId = drafts.isEmpty()
+			? Map.of()
+			: commissionDraftFileRepository
+			.findThumbnails(drafts.stream().map(CommissionDraft::getId).toList())
 			.stream()
 			.collect(Collectors.toMap(f -> f.getCommissionDraft().getId(), f -> f));
 
-		List<DraftListResponse.DraftResponse> responses = drafts.stream()
-			.map(d -> draftResponseMapper.toDraftResponse(d, thumbnailByDraftId.get(d.getId())))
-			.toList();
-
-		return new DraftListResponse(commission.getId(), commission.getTitle(), responses);
+		return draftResponseMapper.toDraftListResponse(commission, drafts, thumbnailByDraftId);
 	}
 
 	// 시안 상세 조회
@@ -75,13 +68,10 @@ public class DraftService {
 			throw new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND);
 		}
 
-		// 3. 시안 상세 파일들(워터마크)
-		List<DraftDetailResponse.FileResponse> files = commissionDraftFileRepository
-			.findByCommissionDraftIdOrderByFileOrderAsc(draftId).stream()
-			.map(draftResponseMapper::toFileResponse)
-			.toList();
+		List<CommissionDraftFile> files = commissionDraftFileRepository
+			.findByCommissionDraftIdOrderByFileOrderAsc(draftId);
 
-		return new DraftDetailResponse(commissionId, draftId, files);
+		return draftResponseMapper.toDraftDetailResponse(commissionId, draftId, files);
 	}
 
 	// 1차 시안
