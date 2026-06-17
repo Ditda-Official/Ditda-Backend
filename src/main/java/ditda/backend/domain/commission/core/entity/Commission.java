@@ -23,7 +23,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -95,10 +94,6 @@ public class Commission extends BaseEntity {
 
 	@Column(name = "selected_at")
 	private LocalDateTime selectedAt;
-
-	@Version
-	@Column(name = "version", nullable = false)
-	private Long version;
 
 	public static Commission create(
 		Instructor instructor,

@@ -77,9 +77,9 @@ public class Designer extends BaseEntity implements Persistable<Long> {
 
 	public void gainExp(int amount) {
 		this.exp += amount;
-		if (level.canLevelUp(this.exp)) {
+		while (level.canLevelUp(this.exp)) {
+			this.exp -= level.getRequiredExp();
 			this.level = level.next();
-			this.exp = 0;
 		}
 	}
 }
