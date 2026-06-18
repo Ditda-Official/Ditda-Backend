@@ -43,7 +43,7 @@ public record DraftSubmissionCommissionResponse(
 		@Schema(description = "1차 시안 마감일", example = "2026-06-23")
 		LocalDate firstDraftDeadline
 	) {
-		public static CommissionItem from(Commission commission, long submitted, LocalDate today) {
+		private static CommissionItem from(Commission commission, long submitted, LocalDate today) {
 
 			return new CommissionItem(
 				commission.getId(),
