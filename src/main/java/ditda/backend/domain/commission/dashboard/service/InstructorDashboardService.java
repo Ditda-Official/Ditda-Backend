@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,8 @@ public class InstructorDashboardService {
 		// 시안 제출 중인 외주 조회
 		List<Commission> commissions = commissionService.getCommissionByInstructorAndStatus(
 			instructorId,
-			CommissionStatus.IN_PROGRESS
+			CommissionStatus.IN_PROGRESS,
+			Sort.by("firstDraftDeadline").ascending()
 		);
 
 		// 외주 Id 추출
@@ -64,7 +66,8 @@ public class InstructorDashboardService {
 		// 모집 중인 외주 조회
 		List<Commission> commissions = commissionService.getCommissionByInstructorAndStatus(
 			instructorId,
-			CommissionStatus.RECRUITING
+			CommissionStatus.RECRUITING,
+			Sort.by("applicationDeadline").ascending()
 		);
 
 		// 외주 Id 추출
@@ -100,7 +103,8 @@ public class InstructorDashboardService {
 		// 수정 중인 외주 조회
 		List<Commission> commissions = commissionService.getCommissionByInstructorAndStatus(
 			instructorId,
-			CommissionStatus.EDITING
+			CommissionStatus.EDITING,
+			Sort.by("finalDeadline").ascending()
 		);
 
 		// 외주 Id 추출

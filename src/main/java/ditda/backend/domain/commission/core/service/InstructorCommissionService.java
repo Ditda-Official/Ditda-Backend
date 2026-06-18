@@ -3,6 +3,7 @@ package ditda.backend.domain.commission.core.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,8 +94,8 @@ public class InstructorCommissionService {
 	}
 
 	// status인 commission 조회
-	public List<Commission> getCommissionByInstructorAndStatus(Long instructorId, CommissionStatus status) {
-		return commissionRepository.findByInstructorIdAndStatus(instructorId, status);
+	public List<Commission> getCommissionByInstructorAndStatus(Long instructorId, CommissionStatus status, Sort sort) {
+		return commissionRepository.findByInstructorIdAndStatus(instructorId, status, sort);
 	}
 
 	// 외주 조회 + 강사 확인

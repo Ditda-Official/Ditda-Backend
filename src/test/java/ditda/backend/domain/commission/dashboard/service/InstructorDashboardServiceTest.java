@@ -57,7 +57,7 @@ class InstructorDashboardServiceTest {
 
 		List<Long> commissionIds = List.of(1L, 2L);
 
-		given(commissionService.getCommissionByInstructorAndStatus(INSTRUCTOR_ID, CommissionStatus.RECRUITING))
+		given(commissionService.getCommissionByInstructorAndStatus(INSTRUCTOR_ID, CommissionStatus.RECRUITING, null))
 			.willReturn(List.of(max, basic));
 		given(commissionApplicationService.countDistinctLevelByStatus(commissionIds, ApplicationStatus.PENDING))
 			.willReturn(Map.of(1L, 3L, 2L, 2L));    // max -> 레벨 3종류 / basic -> 레벨 2종류
@@ -73,7 +73,7 @@ class InstructorDashboardServiceTest {
 		MatchingCommissionResponse.CommissionItem maxItem = response.commissions().getFirst();
 		assertThat(maxItem.commissionId()).isEqualTo(1L);
 		assertThat(maxItem.title()).isEqualTo("MAX 외주");
-		assertThat(maxItem.finalDeadline()).isEqualTo(deadline);
+		assertThat(maxItem.applicationsDeadline()).isEqualTo(deadline);
 		assertThat(maxItem.matching().matched()).isEqualTo(4);
 		assertThat(maxItem.matching().total()).isEqualTo(5);
 
@@ -88,7 +88,7 @@ class InstructorDashboardServiceTest {
 	void getMatchingCommissions_emptyList() {
 
 		// given
-		given(commissionService.getCommissionByInstructorAndStatus(INSTRUCTOR_ID, CommissionStatus.RECRUITING))
+		given(commissionService.getCommissionByInstructorAndStatus(INSTRUCTOR_ID, CommissionStatus.RECRUITING, null))
 			.willReturn(List.of());
 		given(commissionApplicationService.countDistinctLevelByStatus(List.of(), ApplicationStatus.PENDING))
 			.willReturn(Map.of());
