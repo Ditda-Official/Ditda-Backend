@@ -11,7 +11,8 @@ import ditda.backend.domain.commission.revision.repository.projection.RevisionSt
 
 public interface RevisionRequestRepository extends JpaRepository<RevisionRequest, Long> {
 
-	// 수정 요청만 있고 응답이 없으면 submitted=false, 미열람 응답이 하나라도 있으면 hasUpdated=true
+	// 답변이 없는 수정 요청이 하나라도 있으면 submitted=true (전송 완료)
+	// 미열람 답변이 하나라도 있으면 hasUpdated=true
 	@Query("SELECT rr.commission.id AS commissionId,"
 		+ "CASE WHEN COUNT(CASE WHEN resp.id IS NULL THEN 1 END) > 0 THEN true ELSE false END AS submitted, "
 		+ "CASE WHEN COUNT(CASE WHEN resp.id IS NOT NULL AND resp.checked = false THEN 1 END) > 0 "
