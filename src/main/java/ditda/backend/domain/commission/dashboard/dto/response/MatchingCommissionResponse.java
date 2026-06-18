@@ -30,8 +30,8 @@ public record MatchingCommissionResponse(
 		@Schema(description = "매칭 현황")
 		MatchStatusResponse matching,
 
-		@Schema(description = "최종 마감일", example = "2026-06-23")
-		LocalDate finalDeadline
+		@Schema(description = "디자이너 모집 마감일", example = "2026-06-23")
+		LocalDate applicationsDeadline
 	) {
 		private static CommissionItem from(Commission commission, long matched) {
 
@@ -39,7 +39,7 @@ public record MatchingCommissionResponse(
 				commission.getId(),
 				commission.getTitle(),
 				new MatchStatusResponse((int)matched, commission.getDesignerCount()),
-				commission.getFinalDeadline()
+				commission.getApplicationDeadline()
 			);
 		}
 
