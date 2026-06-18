@@ -47,7 +47,15 @@ public class InstructorDashboardService {
 			ApplicationStatus.DRAFT_SUBMITTED
 		);
 
-		return DraftSubmissionCommissionResponse.of(commissions, draftSubmissionCount, LocalDate.now());
+		// 외주별 시안 확인 가능 여부
+		LocalDate today = LocalDate.now();
+		Map<Long, Boolean> viewable = commissions.stream()
+			.collect(Collectors.toMap(
+				Commission::getId,
+				c -> c.isDraftListViewable(draftSubmissionCount.get(c.getId()).intValue(), today)
+			));
+
+		return DraftSubmissionCommissionResponse.of(commissions, draftSubmissionCount, viewable);
 	}
 
 	// 매칭 중인 외주 조회

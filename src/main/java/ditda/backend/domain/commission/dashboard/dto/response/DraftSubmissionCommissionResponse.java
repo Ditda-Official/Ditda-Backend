@@ -15,10 +15,14 @@ public record DraftSubmissionCommissionResponse(
 	public static DraftSubmissionCommissionResponse of(
 		List<Commission> commissions,
 		Map<Long, Long> draftSubmissionCount,
-		LocalDate today
+		Map<Long, Boolean> viewable
 	) {
 		List<CommissionItem> items = commissions.stream()
-			.map(c -> CommissionItem.from(c, draftSubmissionCount.get(c.getId()), today))
+			.map(c -> CommissionItem.from(
+				c,
+				draftSubmissionCount.get(c.getId()),
+				viewable.get(c.getId())
+			))
 			.toList();
 
 		return new DraftSubmissionCommissionResponse(items);
@@ -43,14 +47,14 @@ public record DraftSubmissionCommissionResponse(
 		@Schema(description = "1차 시안 마감일", example = "2026-06-23")
 		LocalDate firstDraftDeadline
 	) {
-		private static CommissionItem from(Commission commission, long submitted, LocalDate today) {
+		private static CommissionItem from(Commission commission, long submitted, boolean isViewable) {
 
 			return new CommissionItem(
 				commission.getId(),
 				commission.getTitle(),
 				commission.getCategoryType(),
 				new DraftSubmissionStatus((int)submitted, commission.getDesignerCount()),
-				commission.isDraftListViewable((int)submitted, today),
+				isViewable,
 				commission.getFirstDraftDeadline()
 			);
 		}
