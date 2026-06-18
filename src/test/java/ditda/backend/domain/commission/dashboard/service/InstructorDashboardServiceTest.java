@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 
 import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
 import ditda.backend.domain.commission.application.service.CommissionApplicationService;
@@ -46,18 +47,21 @@ class InstructorDashboardServiceTest {
 			.id(1L)
 			.title("MAX 외주")
 			.planCode(PlanCode.MAX)
+			.applicationDeadline(deadline)
 			.finalDeadline(deadline)
 			.build();
 		Commission basic = Commission.builder()
 			.id(2L)
 			.title("BASIC 외주")
 			.planCode(PlanCode.BASIC)
+			.applicationDeadline(deadline)
 			.finalDeadline(deadline)
 			.build();
 
 		List<Long> commissionIds = List.of(1L, 2L);
 
-		given(commissionService.getCommissionByInstructorAndStatus(INSTRUCTOR_ID, CommissionStatus.RECRUITING, null))
+		given(commissionService.getCommissionByInstructorAndStatus(INSTRUCTOR_ID, CommissionStatus.RECRUITING,
+			Sort.by("applicationDeadline").ascending()))
 			.willReturn(List.of(max, basic));
 		given(commissionApplicationService.countDistinctLevelByStatus(commissionIds, ApplicationStatus.PENDING))
 			.willReturn(Map.of(1L, 3L, 2L, 2L));    // max -> 레벨 3종류 / basic -> 레벨 2종류
@@ -88,7 +92,8 @@ class InstructorDashboardServiceTest {
 	void getMatchingCommissions_emptyList() {
 
 		// given
-		given(commissionService.getCommissionByInstructorAndStatus(INSTRUCTOR_ID, CommissionStatus.RECRUITING, null))
+		given(commissionService.getCommissionByInstructorAndStatus(INSTRUCTOR_ID, CommissionStatus.RECRUITING,
+			Sort.by("applicationDeadline").ascending()))
 			.willReturn(List.of());
 		given(commissionApplicationService.countDistinctLevelByStatus(List.of(), ApplicationStatus.PENDING))
 			.willReturn(Map.of());
