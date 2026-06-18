@@ -18,6 +18,12 @@ public interface CommissionDraftRepository extends JpaRepository<CommissionDraft
 		+ "order by d.id asc")
 	List<CommissionDraft> findFirstRoundDrafts(@Param("commissionId") Long commissionId);
 
+	@Query("select count(d) from CommissionDraft d "
+		+ "join d.commissionApplication ca "
+		+ "where ca.commission.id = :commissionId "
+		+ "and d.round = 0")
+	int countFirstRoundDrafts(@Param("commissionId") Long commissionId);
+
 	@Query("select d from CommissionDraft d "
 		+ "join d.commissionApplication ca "
 		+ "where d.id = :draftId "

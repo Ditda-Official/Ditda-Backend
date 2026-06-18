@@ -41,7 +41,7 @@ public class DraftFacade {
 
 		Commission commission = commissionService.getOwnedCommission(commissionId, instructorId);
 
-		CommissionApplication selected = draftService.getApplicationForSelection(commissionId, draftId);
+		CommissionApplication selected = draftService.getApplicationForSelection(commission, draftId);
 		Designer designer = selected.getDesigner();
 
 		LocalDateTime now = LocalDateTime.now();

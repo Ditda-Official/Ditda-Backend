@@ -56,12 +56,26 @@ public class DraftService {
 		return draftResponseMapper.toDraftListResponse(commission, drafts, thumbnailByDraftId);
 	}
 
-	// 시안 상세 조회
+	// 시안 상세 조회 (1차 시안 및 수정본 포함)
 	@Transactional(readOnly = true)
 	public DraftDetailResponse getDraftDetail(Long instructorId, Long commissionId, Long draftId) {
 
 		// 1. 외주 조회 + 강사 확인
-		commissionService.getOwnedCommission(commissionId, instructorId);
+		Commission commission = commissionService.getOwnedCommission(commissionId, instructorId);
+
+		CommissionDraft draft = commissionDraftRepository.findById(draftId)
+			.orElseThrow(() -> new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND));
+
+		// 1차 시안의 경우에만
+		if (draft.isDraftFirstRound()) {
+			// 마감 전에는 요구 인원이 다 차야 조회 가능, 마감 후에는 덜 차도 조회 가능
+			int draftCount = commissionDraftRepository.countFirstRoundDrafts(commissionId);
+			if (!commission.isDraftListViewable(draftCount, LocalDate.now())) {
+				throw new GeneralException(DraftErrorCode.DRAFTS_NOT_READY);
+			}
+		}
+
+		// TODO: 수정본 상세 조회 제약조건 필요
 
 		// 2. 시안 조회
 		if (!commissionDraftRepository.existsDraftInCommission(draftId, commissionId)) {
@@ -75,10 +89,16 @@ public class DraftService {
 	}
 
 	// 1차 시안
-	public CommissionApplication getApplicationForSelection(Long commissionId, Long draftId) {
+	public CommissionApplication getApplicationForSelection(Commission commission, Long draftId) {
+
+		// 마감 전에는 요구 인원이 다 차야 조회 가능, 마감 후에는 덜 차도 조회 가능
+		int draftCount = commissionDraftRepository.countFirstRoundDrafts(commission.getId());
+		if (!commission.isDraftListViewable(draftCount, LocalDate.now())) {
+			throw new GeneralException(DraftErrorCode.DRAFTS_NOT_READY);
+		}
 
 		CommissionDraft draft = commissionDraftRepository
-			.findDraftInCommission(draftId, commissionId)
+			.findDraftInCommission(draftId, commission.getId())
 			.orElseThrow(() -> new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND));
 
 		if (!draft.isDraftFirstRound()) {
