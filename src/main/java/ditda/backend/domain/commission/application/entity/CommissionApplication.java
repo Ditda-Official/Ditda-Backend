@@ -1,8 +1,10 @@
 package ditda.backend.domain.commission.application.entity;
 
 import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
+import ditda.backend.domain.commission.application.exception.ApplicationErrorCode;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.designer.entity.Designer;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -62,5 +64,19 @@ public class CommissionApplication extends BaseEntity {
 			.designer(designer)
 			.status(ApplicationStatus.PENDING)
 			.build();
+	}
+
+	public void markDraftSelected() {
+		if (status != ApplicationStatus.DRAFT_SUBMITTED) {
+			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_DRAFT_SELECTION);
+		}
+		this.status = ApplicationStatus.DRAFT_SELECTED;
+	}
+
+	public void markDraftRejected() {
+		if (status != ApplicationStatus.DRAFT_SUBMITTED) {
+			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_DRAFT_REJECTION);
+		}
+		this.status = ApplicationStatus.DRAFT_REJECTED;
 	}
 }

@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum PaymenErrorCode implements BaseErrorCode {
+public enum PaymentErrorCode implements BaseErrorCode {
 
 	PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_01", "결제 정보를 찾을 수 없습니다."),
 	PAYMENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "PAYMENT_403_01", "해당 외주에 대한 권한이 없습니다."),

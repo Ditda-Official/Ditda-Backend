@@ -11,7 +11,7 @@ import ditda.backend.domain.payment.dto.response.DepositNotifyResponse;
 import ditda.backend.domain.payment.entity.Payment;
 import ditda.backend.domain.payment.entity.enums.PaymentStatus;
 import ditda.backend.domain.payment.event.DepositNotifiedEvent;
-import ditda.backend.domain.payment.exception.PaymenErrorCode;
+import ditda.backend.domain.payment.exception.PaymentErrorCode;
 import ditda.backend.domain.payment.repository.PaymentRepository;
 import ditda.backend.domain.term.service.TermService;
 import ditda.backend.global.apipayload.exception.GeneralException;
@@ -47,20 +47,20 @@ public class PaymentService {
 	public DepositNotifyResponse notifyDeposit(Long instructorId, Long commissionId) {
 
 		Payment payment = paymentRepository.findByCommissionId(commissionId)
-			.orElseThrow(() -> new GeneralException(PaymenErrorCode.PAYMENT_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(PaymentErrorCode.PAYMENT_NOT_FOUND));
 
 		Commission commission = payment.getCommission();
 
 		if (!Objects.equals(commission.getInstructor().getId(), instructorId)) {
-			throw new GeneralException(PaymenErrorCode.PAYMENT_ACCESS_DENIED);
+			throw new GeneralException(PaymentErrorCode.PAYMENT_ACCESS_DENIED);
 		}
 
 		if (payment.getStatus() != PaymentStatus.PENDING) {
-			throw new GeneralException(PaymenErrorCode.DEPOSIT_NOTIFY_NOT_ALLOWED);
+			throw new GeneralException(PaymentErrorCode.DEPOSIT_NOTIFY_NOT_ALLOWED);
 		}
 
 		if (payment.getDepositNotifiedAt() != null) {
-			throw new GeneralException(PaymenErrorCode.DEPOSIT_NOTIFY_NOT_ALLOWED);
+			throw new GeneralException(PaymentErrorCode.DEPOSIT_NOTIFY_NOT_ALLOWED);
 		}
 
 		payment.markDepositNotified();
