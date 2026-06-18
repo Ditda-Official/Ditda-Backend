@@ -52,6 +52,7 @@ public class CommissionApplicationService {
 			));
 
 		return commissionIds.stream()
+			.distinct()
 			.collect(Collectors.toMap(id -> id, id -> countByCommissionId.getOrDefault(id, 0L)));
 	}
 }
