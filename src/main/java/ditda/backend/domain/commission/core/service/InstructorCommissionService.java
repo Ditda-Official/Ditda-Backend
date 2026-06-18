@@ -1,5 +1,6 @@
 package ditda.backend.domain.commission.core.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -14,13 +15,16 @@ import ditda.backend.domain.commission.core.entity.CommissionColor;
 import ditda.backend.domain.commission.core.entity.CommissionConcept;
 import ditda.backend.domain.commission.core.entity.enums.ColorSelectionMode;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
+import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.commission.core.handler.CommissionCategoryHandler;
 import ditda.backend.domain.commission.core.repository.CommissionColorRepository;
 import ditda.backend.domain.commission.core.repository.CommissionConceptRepository;
 import ditda.backend.domain.commission.core.repository.CommissionRepository;
+import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.instructor.entity.Instructor;
 import ditda.backend.domain.instructor.service.InstructorService;
 import ditda.backend.domain.payment.service.PaymentService;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -91,6 +95,36 @@ public class InstructorCommissionService {
 	// status인 commission 조회
 	public List<Commission> getCommissionByInstructorAndStatus(Long instructorId, CommissionStatus status) {
 		return commissionRepository.findByInstructorIdAndStatus(instructorId, status);
+	}
+
+	// 외주 조회 + 강사 확인
+	@Transactional(readOnly = true)
+	public Commission getOwnedCommission(Long commissionId, Long instructorId) {
+
+		Commission commission = commissionRepository.findById(commissionId)
+			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
+
+		if (!commission.isOwnedBy(instructorId)) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_ACCESS_DENIED);
+		}
+		return commission;
+	}
+
+	// 디자이너 선택
+	@Transactional
+	public void selectDesigner(Commission commission, Designer designer, LocalDateTime now) {
+
+		if (commission.isDesignerSelected()) {
+			throw new GeneralException(CommissionErrorCode.DESIGNER_ALREADY_SELECTED);
+		}
+		if (!commission.isSelectable()) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_STATUS_INVALID);
+		}
+
+		int updated = commissionRepository.selectDesignerIfAvailable(commission.getId(), designer, now);
+		if (updated == 0) {
+			throw new GeneralException(CommissionErrorCode.DESIGNER_ALREADY_SELECTED);
+		}
 	}
 
 	// 컨셉 저장
