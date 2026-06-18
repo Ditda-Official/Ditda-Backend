@@ -24,15 +24,34 @@ public class CommissionApplicationService {
 		}
 
 		// 집계 결과
-		Map<Long, Long> counts = commissionApplicationRepository
-			.countByCommissionIdsAndStatus(commissionIds, status).stream()
+		List<ApplicationSubmissionCount> counts =
+			commissionApplicationRepository.countByCommissionIdsAndStatus(commissionIds, status);
+
+		return toCountMap(counts, commissionIds);
+	}
+
+	// commission별 지원자가 존재하는 디자이너 레벨 종류 수
+	public Map<Long, Long> countDistinctLevelByStatus(List<Long> commissionIds, ApplicationStatus status) {
+		if (commissionIds.isEmpty()) {
+			return Map.of();
+		}
+
+		// 집계 결과
+		List<ApplicationSubmissionCount> counts =
+			commissionApplicationRepository.countDistinctLevelByCommissionIdsAndStatus(commissionIds, status);
+
+		return toCountMap(counts, commissionIds);
+	}
+
+	// 집계 결과를 Map으로 변환 + 0 보정
+	private Map<Long, Long> toCountMap(List<ApplicationSubmissionCount> counts, List<Long> commissionIds) {
+		Map<Long, Long> countByCommissionId = counts.stream()
 			.collect(Collectors.toMap(
 				ApplicationSubmissionCount::getCommissionId,
 				ApplicationSubmissionCount::getCount
 			));
 
-		// 0 보정
 		return commissionIds.stream()
-			.collect(Collectors.toMap(id -> id, id -> counts.getOrDefault(id, 0L)));
+			.collect(Collectors.toMap(id -> id, id -> countByCommissionId.getOrDefault(id, 0L)));
 	}
 }

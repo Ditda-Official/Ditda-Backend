@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ditda.backend.domain.commission.dashboard.dto.response.DraftSubmissionCommissionResponse;
+import ditda.backend.domain.commission.dashboard.dto.response.MatchingCommissionResponse;
 import ditda.backend.domain.commission.dashboard.service.InstructorDashboardService;
 import ditda.backend.global.apipayload.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +27,17 @@ public class InstructorDashboardController {
 		@AuthenticationPrincipal Long instructorId
 	) {
 		DraftSubmissionCommissionResponse response = instructorDashboardService.getDraftSubmissions(instructorId);
+
 		return ApiResponse.onSuccess("시안 제출 현황 조회 성공", response);
+	}
+
+	@Operation(summary = "매칭 중인 외주 조회", description = "**[대시보드]** 매칭 중인 외주를 조회합니다.")
+	@GetMapping("/matchings")
+	public ApiResponse<MatchingCommissionResponse> getMatchingCommissions(
+		@AuthenticationPrincipal Long instructorId
+	) {
+		MatchingCommissionResponse response = instructorDashboardService.getMatchingCommissions(instructorId);
+
+		return ApiResponse.onSuccess("매칭 중인 외주 조회 성공", response);
 	}
 }

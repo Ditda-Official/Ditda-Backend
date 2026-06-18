@@ -21,4 +21,12 @@ public interface CommissionApplicationRepository extends JpaRepository<Commissio
 	List<ApplicationSubmissionCount> countByCommissionIdsAndStatus(
 		@Param("commissionIds") List<Long> commissionIds,
 		@Param("status") ApplicationStatus status);
+
+	@Query("SELECT a.commission.id AS commissionId, COUNT(DISTINCT a.designer.level) AS count "
+		+ "FROM CommissionApplication a "
+		+ "WHERE a.commission.id IN :commissionIds AND a.status = :status "
+		+ "GROUP BY a.commission.id")
+	List<ApplicationSubmissionCount> countDistinctLevelByCommissionIdsAndStatus(
+		@Param("commissionIds") List<Long> commissionIds,
+		@Param("status") ApplicationStatus status);
 }

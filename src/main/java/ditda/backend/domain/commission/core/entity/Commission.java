@@ -10,6 +10,7 @@ import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.entity.enums.PageSize;
 import ditda.backend.domain.commission.core.entity.enums.PlanCode;
 import ditda.backend.domain.designer.entity.Designer;
+import ditda.backend.domain.designer.entity.enums.DesignerLevel;
 import ditda.backend.domain.instructor.entity.Instructor;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -155,5 +156,14 @@ public class Commission extends BaseEntity {
 	// 디자이너 모집 정원
 	public int getDesignerCount() {
 		return planCode.getDesignerCount();
+	}
+
+	// 마감 전 매칭 확정 인원
+	// 레벨별 1명 보장 슬롯은 비어있는 레벨만큼 비워두고, 잉여 인원은 선착순(designerCount - 레벨 종류 수)만 채운다
+	public int matchedCount(int distinctLevels, int totalApplicants) {
+
+		int firstComeSlots = getDesignerCount() - DesignerLevel.values().length;
+		int capacity = distinctLevels + firstComeSlots;
+		return Math.min(capacity, totalApplicants);
 	}
 }
