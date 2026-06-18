@@ -40,6 +40,10 @@ public class RevisionResponse extends BaseEntity {
 	@Column(name = "designer_comment", length = 500, nullable = false)
 	private String designerComment;
 
+	@Builder.Default
+	@Column(name = "checked", nullable = false)
+	private boolean checked = false;
+
 	public static RevisionResponse create(
 		RevisionRequest revisionRequest,
 		CommissionDraft commissionDraft,

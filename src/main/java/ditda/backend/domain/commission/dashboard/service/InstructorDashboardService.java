@@ -15,6 +15,9 @@ import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.service.InstructorCommissionService;
 import ditda.backend.domain.commission.dashboard.dto.response.DraftSubmissionCommissionResponse;
 import ditda.backend.domain.commission.dashboard.dto.response.MatchingCommissionResponse;
+import ditda.backend.domain.commission.dashboard.dto.response.RevisingCommissionResponse;
+import ditda.backend.domain.commission.revision.dto.RevisionStatus;
+import ditda.backend.domain.commission.revision.service.RevisionService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,6 +27,7 @@ public class InstructorDashboardService {
 
 	private final InstructorCommissionService commissionService;
 	private final CommissionApplicationService commissionApplicationService;
+	private final RevisionService revisionService;
 
 	// 시안 제출 현황 조회
 	public DraftSubmissionCommissionResponse getDraftSubmissions(Long instructorId) {
@@ -80,5 +84,23 @@ public class InstructorDashboardService {
 			));
 
 		return MatchingCommissionResponse.of(commissions, matchedCount);
+	}
+
+	// 수정 중인 외주 조회
+	public RevisingCommissionResponse getRevisingCommissions(Long instructorId) {
+
+		// 수정 중인 외주 조회
+		List<Commission> commissions = commissionService.getCommissionByInstructorAndStatus(
+			instructorId,
+			CommissionStatus.EDITING
+		);
+
+		// 외주 Id 추출
+		List<Long> commissionIds = commissions.stream().map(Commission::getId).toList();
+
+		// 수정 관련 데이터 조회 (submitted/hasUpdated)
+		Map<Long, RevisionStatus> statuses = revisionService.getRevisionStatuses(commissionIds);
+
+		return RevisingCommissionResponse.of(commissions, statuses);
 	}
 }
