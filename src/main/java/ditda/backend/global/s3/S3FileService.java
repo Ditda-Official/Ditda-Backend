@@ -37,6 +37,12 @@ public class S3FileService {
 	// temp key 및 파일 사이즈 검증
 	public void validateUploadedKeys(UploadTarget target, List<String> keys) {
 
+		// 빈 키 여부 검증
+		if (keys == null) {
+			throw new GeneralException(GeneralErrorCode.INVALID_FILE);
+		}
+
+		// 중복 키 검증
 		if (keys.size() != keys.stream().distinct().count()) {
 			throw new GeneralException(GeneralErrorCode.INVALID_FILE);
 		}
