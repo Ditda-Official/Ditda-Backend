@@ -14,7 +14,7 @@ import ditda.backend.domain.commission.core.entity.enums.FileKind;
 import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.commission.core.repository.CommissionFileRepository;
 import ditda.backend.global.apipayload.exception.GeneralException;
-import ditda.backend.global.s3.S3Properties;
+import ditda.backend.global.s3.S3FileService;
 import ditda.backend.global.s3.S3UploadManager;
 import ditda.backend.global.s3.enums.BucketType;
 import ditda.backend.global.s3.enums.UploadTarget;
@@ -26,9 +26,9 @@ public class CommissionCreateFileService {
 
 	private static final BucketType BUCKET = BucketType.PRIVATE;
 
-	private final S3UploadManager s3UploadManager;
 	private final CommissionFileRepository commissionFileRepository;
-	private final S3Properties s3Properties;
+	private final S3UploadManager s3UploadManager;
+	private final S3FileService s3FileService;
 
 	// 첨부 파일의 종류별로 keys 합산하여 검증
 	// 클라이언트가 같은 종류 여러번 보내도 종류별 총량을 기준으로 검사
@@ -70,10 +70,6 @@ public class CommissionCreateFileService {
 		s3UploadManager.deleteAll(BUCKET, keys);
 	}
 
-	private String directoryOf(FileKind fileKind) {
-		return targetOf(fileKind).getDir();
-	}
-
 	private static UploadTarget targetOf(FileKind fileKind) {
 		return switch (fileKind) {
 			case MATERIAL -> UploadTarget.COMMISSION_MATERIAL;
@@ -91,26 +87,6 @@ public class CommissionCreateFileService {
 			);
 		}
 
-		// distinct key 검증
-		if (keys.size() != keys.stream().distinct().count()) {
-			throw new GeneralException(CommissionErrorCode.INVALID_COMMISSION_FILE);
-		}
-
-		String dir = directoryOf(fileKind);
-		for (String key : keys) {
-			// 파일 key 형식 검증
-			if (!s3UploadManager.isTempKey(key, dir)) {
-				throw new GeneralException(CommissionErrorCode.INVALID_COMMISSION_FILE);
-			}
-
-			// 파일 크기 검증
-			Long size = s3UploadManager.getObjectSize(BUCKET, key);
-			if (size == null) {
-				throw new GeneralException(CommissionErrorCode.INVALID_COMMISSION_FILE);
-			}
-			if (size > s3Properties.getMaxFileSize().toBytes()) {
-				throw new GeneralException(CommissionErrorCode.COMMISSION_FILE_SIZE_EXCEEDED);
-			}
-		}
+		s3FileService.validateUploadedKeys(targetOf(fileKind), keys);
 	}
 }
