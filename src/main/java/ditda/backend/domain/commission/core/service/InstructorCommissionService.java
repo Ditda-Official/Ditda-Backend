@@ -3,7 +3,6 @@ package ditda.backend.domain.commission.core.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +14,6 @@ import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.CommissionColor;
 import ditda.backend.domain.commission.core.entity.CommissionConcept;
 import ditda.backend.domain.commission.core.entity.enums.ColorSelectionMode;
-import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.commission.core.handler.CommissionCategoryHandler;
 import ditda.backend.domain.commission.core.repository.CommissionColorRepository;
@@ -91,11 +89,6 @@ public class InstructorCommissionService {
 		);
 
 		return CommissionCreateResponse.from(commission);
-	}
-
-	// status인 commission 조회
-	public List<Commission> getCommissionByInstructorAndStatus(Long instructorId, CommissionStatus status, Sort sort) {
-		return commissionRepository.findByInstructorIdAndStatus(instructorId, status, sort);
 	}
 
 	// 외주 조회 + 강사 확인
