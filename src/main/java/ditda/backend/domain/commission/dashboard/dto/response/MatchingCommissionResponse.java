@@ -31,7 +31,7 @@ public record MatchingCommissionResponse(
 		MatchStatusResponse matching,
 
 		@Schema(description = "디자이너 모집 마감일", example = "2026-06-23")
-		LocalDate applicationsDeadline
+		LocalDate applicationDeadline
 	) {
 		private static CommissionItem from(Commission commission, long matched) {
 
