@@ -2,9 +2,9 @@ package ditda.backend.domain.commission.dashboard.dto.response;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 import ditda.backend.domain.commission.core.entity.Commission;
+import ditda.backend.domain.commission.dashboard.repository.projection.MatchingView;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "매칭 중인 외주 응답")
@@ -12,9 +12,10 @@ public record MatchingCommissionResponse(
 
 	List<CommissionItem> commissions
 ) {
-	public static MatchingCommissionResponse of(List<Commission> commissions, Map<Long, Long> matchedCount) {
-		List<CommissionItem> items = commissions.stream()
-			.map(c -> CommissionItem.from(c, matchedCount.get(c.getId())))
+	public static MatchingCommissionResponse of(List<MatchingView> views) {
+
+		List<CommissionItem> items = views.stream()
+			.map(CommissionItem::from)
 			.toList();
 
 		return new MatchingCommissionResponse(items);
@@ -33,12 +34,18 @@ public record MatchingCommissionResponse(
 		@Schema(description = "디자이너 모집 마감일", example = "2026-06-23")
 		LocalDate applicationDeadline
 	) {
-		private static CommissionItem from(Commission commission, long matched) {
+		private static CommissionItem from(MatchingView view) {
+
+			Commission commission = view.getCommission();
+			int matched = commission.matchedCount(
+				view.getDistinctLevelCount().intValue(),
+				view.getTotalCount().intValue()
+			);
 
 			return new CommissionItem(
 				commission.getId(),
 				commission.getTitle(),
-				new MatchStatusResponse((int)matched, commission.getDesignerCount()),
+				new MatchStatusResponse(matched, commission.getDesignerCount()),
 				commission.getApplicationDeadline()
 			);
 		}

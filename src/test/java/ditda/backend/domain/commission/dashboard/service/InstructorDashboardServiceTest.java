@@ -5,7 +5,6 @@ import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,15 +12,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Sort;
 
 import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
-import ditda.backend.domain.commission.application.service.CommissionApplicationService;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.entity.enums.PlanCode;
-import ditda.backend.domain.commission.core.service.InstructorCommissionService;
 import ditda.backend.domain.commission.dashboard.dto.response.MatchingCommissionResponse;
+import ditda.backend.domain.commission.dashboard.repository.DashboardCommissionRepository;
+import ditda.backend.domain.commission.dashboard.repository.projection.MatchingView;
 
 @ExtendWith(MockitoExtension.class)
 class InstructorDashboardServiceTest {
@@ -29,10 +27,7 @@ class InstructorDashboardServiceTest {
 	private static final Long INSTRUCTOR_ID = 100L;
 
 	@Mock
-	private InstructorCommissionService commissionService;
-
-	@Mock
-	private CommissionApplicationService commissionApplicationService;
+	private DashboardCommissionRepository dashboardCommissionRepository;
 
 	@InjectMocks
 	private InstructorDashboardService instructorDashboardService;
@@ -58,15 +53,19 @@ class InstructorDashboardServiceTest {
 			.finalDeadline(deadline)
 			.build();
 
-		List<Long> commissionIds = List.of(1L, 2L);
+		MatchingView maxView = mock(MatchingView.class);
+		given(maxView.getCommission()).willReturn(max);
+		given(maxView.getDistinctLevelCount()).willReturn(3L);   // 레벨 3종류
+		given(maxView.getTotalCount()).willReturn(4L);           // 지원자 4명
 
-		given(commissionService.getCommissionByInstructorAndStatus(INSTRUCTOR_ID, CommissionStatus.RECRUITING,
-			Sort.by("applicationDeadline").ascending()))
-			.willReturn(List.of(max, basic));
-		given(commissionApplicationService.countDistinctLevelByStatus(commissionIds, ApplicationStatus.PENDING))
-			.willReturn(Map.of(1L, 3L, 2L, 2L));    // max -> 레벨 3종류 / basic -> 레벨 2종류
-		given(commissionApplicationService.countApplicationByStatus(commissionIds, ApplicationStatus.PENDING))
-			.willReturn(Map.of(1L, 4L, 2L, 4L));    // max -> 지원자 4명 / basic -> 지원자 4명
+		MatchingView basicView = mock(MatchingView.class);
+		given(basicView.getCommission()).willReturn(basic);
+		given(basicView.getDistinctLevelCount()).willReturn(2L); // 레벨 2종류
+		given(basicView.getTotalCount()).willReturn(4L);         // 지원자 4명
+
+		given(dashboardCommissionRepository.findMatchingViews(
+			INSTRUCTOR_ID, CommissionStatus.RECRUITING, ApplicationStatus.PENDING
+		)).willReturn(List.of(maxView, basicView));
 
 		// when
 		MatchingCommissionResponse response = instructorDashboardService.getMatchingCommissions(INSTRUCTOR_ID);
@@ -77,7 +76,7 @@ class InstructorDashboardServiceTest {
 		MatchingCommissionResponse.CommissionItem maxItem = response.commissions().getFirst();
 		assertThat(maxItem.commissionId()).isEqualTo(1L);
 		assertThat(maxItem.title()).isEqualTo("MAX 외주");
-		assertThat(maxItem.applicationsDeadline()).isEqualTo(deadline);
+		assertThat(maxItem.applicationDeadline()).isEqualTo(deadline);
 		assertThat(maxItem.matching().matched()).isEqualTo(4);
 		assertThat(maxItem.matching().total()).isEqualTo(5);
 
@@ -92,13 +91,9 @@ class InstructorDashboardServiceTest {
 	void getMatchingCommissions_emptyList() {
 
 		// given
-		given(commissionService.getCommissionByInstructorAndStatus(INSTRUCTOR_ID, CommissionStatus.RECRUITING,
-			Sort.by("applicationDeadline").ascending()))
-			.willReturn(List.of());
-		given(commissionApplicationService.countDistinctLevelByStatus(List.of(), ApplicationStatus.PENDING))
-			.willReturn(Map.of());
-		given(commissionApplicationService.countApplicationByStatus(List.of(), ApplicationStatus.PENDING))
-			.willReturn(Map.of());
+		given(dashboardCommissionRepository.findMatchingViews(
+			INSTRUCTOR_ID, CommissionStatus.RECRUITING, ApplicationStatus.PENDING
+		)).willReturn(List.of());
 
 		// when
 		MatchingCommissionResponse response = instructorDashboardService.getMatchingCommissions(INSTRUCTOR_ID);

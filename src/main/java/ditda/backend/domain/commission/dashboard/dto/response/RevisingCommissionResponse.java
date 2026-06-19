@@ -2,10 +2,9 @@ package ditda.backend.domain.commission.dashboard.dto.response;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 import ditda.backend.domain.commission.core.entity.Commission;
-import ditda.backend.domain.commission.revision.dto.RevisionStatus;
+import ditda.backend.domain.commission.dashboard.repository.projection.RevisingView;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "수정 중인 외주 응답")
@@ -13,9 +12,10 @@ public record RevisingCommissionResponse(
 
 	List<CommissionItem> commissions
 ) {
-	public static RevisingCommissionResponse of(List<Commission> commissions, Map<Long, RevisionStatus> statuses) {
-		List<CommissionItem> items = commissions.stream()
-			.map(c -> CommissionItem.from(c, statuses.get(c.getId())))
+	public static RevisingCommissionResponse of(List<RevisingView> views) {
+
+		List<CommissionItem> items = views.stream()
+			.map(CommissionItem::from)
 			.toList();
 
 		return new RevisingCommissionResponse(items);
@@ -38,13 +38,15 @@ public record RevisingCommissionResponse(
 		LocalDate finalDeadline
 	) {
 
-		private static CommissionItem from(Commission commission, RevisionStatus status) {
+		private static CommissionItem from(RevisingView view) {
+
+			Commission commission = view.getCommission();
 
 			return new CommissionItem(
 				commission.getId(),
 				commission.getTitle(),
-				status.submitted(),
-				status.hasUpdated(),
+				view.getSubmitted(),
+				view.getHasUpdated(),
 				commission.getFinalDeadline()
 			);
 		}
