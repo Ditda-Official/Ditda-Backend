@@ -19,8 +19,8 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 	@Query("SELECT c AS commission, "
 		+ "COUNT(a.id) AS submissionCount "
 		+ "FROM Commission c "
-		+ "LEFT JOIN CommissionApplication a ON a.commission = c AND a.status = :appStatus "
-		+ "WHERE c.instructor.id = :instructorId AND c.status = :status "
+		+ "LEFT JOIN CommissionApplication a ON a.commission = c AND a.status = :applicationStatus "
+		+ "WHERE c.instructor.id = :instructorId AND c.status = :commissionStatus "
 		+ "GROUP BY c.id "
 		+ "ORDER BY c.firstDraftDeadline ASC")
 	List<DraftSubmissionView> findDraftSubmissionViews(
@@ -34,8 +34,8 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 		+ "COUNT(DISTINCT a.designer.level) AS distinctLevelCount, "
 		+ "COUNT(a.id) AS totalCount "
 		+ "FROM Commission c "
-		+ "LEFT JOIN CommissionApplication a ON a.commission = c AND a.status = :appStatus "
-		+ "WHERE c.instructor.id = :instructorId AND c.status = :status "
+		+ "LEFT JOIN CommissionApplication a ON a.commission = c AND a.status = :applicationStatus "
+		+ "WHERE c.instructor.id = :instructorId AND c.status = :commissionStatus "
 		+ "GROUP BY c.id "
 		+ "ORDER BY c.applicationDeadline ASC")
 	List<MatchingView> findMatchingViews(
@@ -53,7 +53,7 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 		+ "FROM Commission c "
 		+ "LEFT JOIN RevisionRequest rr ON rr.commission = c "
 		+ "LEFT JOIN RevisionResponse resp ON resp.revisionRequest = rr "
-		+ "WHERE c.instructor.id = :instructorId AND c.status = :status "
+		+ "WHERE c.instructor.id = :instructorId AND c.status = :commissionStatus "
 		+ "GROUP BY c.id "
 		+ "ORDER BY c.finalDeadline ASC")
 	List<RevisingView> findRevisingViews(
