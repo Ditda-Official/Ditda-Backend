@@ -8,9 +8,7 @@ import org.springframework.stereotype.Component;
 import ditda.backend.domain.commission.core.dto.CommissionFileToSave;
 import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest;
 import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest.FileInfo;
-import ditda.backend.domain.commission.core.dto.request.CommissionFilePresignRequest;
 import ditda.backend.domain.commission.core.dto.response.CommissionCreateResponse;
-import ditda.backend.domain.commission.core.dto.response.CommissionFilePresignResponse;
 import ditda.backend.domain.commission.core.dto.response.PlanListResponse;
 import ditda.backend.domain.commission.core.handler.CommissionCategoryHandler;
 import ditda.backend.domain.commission.core.service.CommissionCreateFileService;
@@ -18,7 +16,6 @@ import ditda.backend.domain.commission.core.service.CommissionService;
 import ditda.backend.domain.commission.core.validator.CommissionCreateValidator;
 import ditda.backend.domain.payment.dto.response.DepositNotifyResponse;
 import ditda.backend.domain.payment.service.PaymentService;
-import ditda.backend.global.s3.PresignedUpload;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -32,16 +29,6 @@ public class CommissionFacade {
 
 	public PlanListResponse getPlans() {
 		return commissionService.getPlans();
-	}
-
-	public CommissionFilePresignResponse issueFilePresignedUrls(CommissionFilePresignRequest request) {
-
-		PresignedUpload presignedUpload = commissionCreateFileService.generatePresignedUpload(
-			request.fileKind(),
-			request.contentType()
-		);
-
-		return new CommissionFilePresignResponse(presignedUpload.key(), presignedUpload.presignedUrl());
 	}
 
 	public CommissionCreateResponse createCommission(

@@ -1,9 +1,7 @@
 package ditda.backend.domain.commission.core.service;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -16,35 +14,21 @@ import ditda.backend.domain.commission.core.entity.enums.FileKind;
 import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.commission.core.repository.CommissionFileRepository;
 import ditda.backend.global.apipayload.exception.GeneralException;
-import ditda.backend.global.s3.PresignedUpload;
 import ditda.backend.global.s3.S3Properties;
 import ditda.backend.global.s3.S3UploadManager;
 import ditda.backend.global.s3.enums.BucketType;
-import ditda.backend.global.s3.enums.S3ContentType;
+import ditda.backend.global.s3.enums.UploadTarget;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class CommissionCreateFileService {
 
-	private static final String DIR = "commission";
 	private static final BucketType BUCKET = BucketType.PRIVATE;
-	private static final Set<S3ContentType> ALLOWED = EnumSet.of(S3ContentType.PNG);
 
 	private final S3UploadManager s3UploadManager;
 	private final CommissionFileRepository commissionFileRepository;
 	private final S3Properties s3Properties;
-
-	public PresignedUpload generatePresignedUpload(FileKind fileKind, String contentType) {
-
-		// 파일 타입 검증
-		S3ContentType type = S3ContentType.from(contentType);
-		if (type == null || !ALLOWED.contains(type)) {
-			throw new GeneralException(CommissionErrorCode.INVALID_COMMISSION_FILE);
-		}
-
-		return s3UploadManager.issueTempUpload(BUCKET, directoryOf(fileKind), type.getExtension(), contentType);
-	}
 
 	// 첨부 파일의 종류별로 keys 합산하여 검증
 	// 클라이언트가 같은 종류 여러번 보내도 종류별 총량을 기준으로 검사
@@ -87,7 +71,14 @@ public class CommissionCreateFileService {
 	}
 
 	private String directoryOf(FileKind fileKind) {
-		return DIR + "/" + fileKind.name().toLowerCase();
+		return targetOf(fileKind).getDir();
+	}
+
+	private static UploadTarget targetOf(FileKind fileKind) {
+		return switch (fileKind) {
+			case MATERIAL -> UploadTarget.COMMISSION_MATERIAL;
+			case REFERENCE -> UploadTarget.COMMISSION_REFERENCE;
+		};
 	}
 
 	private void validateKeys(FileKind fileKind, List<String> keys) {
