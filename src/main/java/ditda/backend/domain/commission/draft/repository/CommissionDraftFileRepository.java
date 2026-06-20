@@ -1,6 +1,7 @@
 package ditda.backend.domain.commission.draft.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,9 @@ public interface CommissionDraftFileRepository extends JpaRepository<CommissionD
 	List<CommissionDraftFile> findThumbnails(@Param("draftIds") List<Long> draftIds);
 
 	List<CommissionDraftFile> findByCommissionDraftIdOrderByFileOrderAsc(Long draftId);
+
+	@Query("SELECT f from CommissionDraftFile f "
+		+ "WHERE f.commissionDraft.id = :draftId "
+		+ "AND f.fileOrder = 0")
+	Optional<CommissionDraftFile> findThumbnail(@Param("draftId") Long draftId);
 }

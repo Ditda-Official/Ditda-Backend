@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.application.entity.CommissionApplication;
+import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.service.InstructorCommissionService;
 import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
@@ -106,5 +107,20 @@ public class DraftService {
 		}
 
 		return draft.getCommissionApplication();
+	}
+
+	// 시안 썸네일 조회
+	@Transactional(readOnly = true)
+	public CommissionDraftFile getThumbnail(Long draftId) {
+		return commissionDraftFileRepository.findThumbnail(draftId).orElse(null);
+	}
+
+	// 선택된 디자이너의 가장 최근 round 시안 조회
+	@Transactional(readOnly = true)
+	public CommissionDraft getLatestDraftOfSelectedApplication(Long commissionId) {
+		return commissionDraftRepository.findLatestDraftInCommissionByStatus(
+				commissionId,
+				ApplicationStatus.DRAFT_SELECTED)
+			.orElseThrow(() -> new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND));
 	}
 }
