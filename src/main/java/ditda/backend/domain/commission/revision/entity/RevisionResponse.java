@@ -34,8 +34,8 @@ public class RevisionResponse extends BaseEntity {
 	private RevisionRequest revisionRequest;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "commission_draft_id", nullable = false, unique = true)
-	private CommissionDraft commissionDraft;
+	@JoinColumn(name = "produced_draft_id", nullable = false)
+	private CommissionDraft producedDraft;
 
 	@Column(name = "designer_comment", length = 500, nullable = false)
 	private String designerComment;
@@ -46,12 +46,12 @@ public class RevisionResponse extends BaseEntity {
 
 	public static RevisionResponse create(
 		RevisionRequest revisionRequest,
-		CommissionDraft commissionDraft,
+		CommissionDraft producedDraft,
 		String designerComment
 	) {
 		return RevisionResponse.builder()
 			.revisionRequest(revisionRequest)
-			.commissionDraft(commissionDraft)
+			.producedDraft(producedDraft)
 			.designerComment(designerComment)
 			.build();
 	}

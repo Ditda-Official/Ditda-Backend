@@ -8,5 +8,5 @@ import ditda.backend.domain.commission.revision.entity.RevisionResponse;
 
 public interface RevisionResponseRepository extends JpaRepository<RevisionResponse, Long> {
 
-	Optional<RevisionResponse> findByCommissionDraftId(Long commissionDraftId);
+	Optional<RevisionResponse> findByProducedDraftId(Long producedDraftId);
 }

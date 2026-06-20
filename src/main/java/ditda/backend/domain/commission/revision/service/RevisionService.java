@@ -19,7 +19,7 @@ public class RevisionService {
 
 	// 시안에 달린 디자이너 코멘트 조회
 	public String getDesignerComment(Long draftId) {
-		return revisionResponseRepository.findByCommissionDraftId(draftId)
+		return revisionResponseRepository.findByProducedDraftId(draftId)
 			.map(RevisionResponse::getDesignerComment)
 			.orElse(null);
 	}
