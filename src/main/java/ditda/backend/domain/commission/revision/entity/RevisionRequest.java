@@ -11,8 +11,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,16 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-// 한 시안에 대한 수정요청 1개만
-@Table(
-	name = "revision_requests",
-	uniqueConstraints = {
-		@UniqueConstraint(
-			name = "uk_revision_request_target_draft",
-			columnNames = {"target_draft_id"}
-		)
-	}
-)
+@Table(name = "revision_requests")
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -45,7 +36,7 @@ public class RevisionRequest extends BaseEntity {
 	@JoinColumn(name = "commission_id", nullable = false)
 	private Commission commission;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "target_draft_id", nullable = false)
 	private CommissionDraft targetDraft;
 
