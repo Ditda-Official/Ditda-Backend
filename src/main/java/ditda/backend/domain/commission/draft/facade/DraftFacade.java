@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ditda.backend.domain.commission.application.entity.CommissionApplication;
 import ditda.backend.domain.commission.application.service.ApplicationService;
 import ditda.backend.domain.commission.core.entity.Commission;
-import ditda.backend.domain.commission.core.service.CommissionService;
+import ditda.backend.domain.commission.core.service.InstructorCommissionService;
 import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftSelectResponse;
@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DraftFacade {
 
-	private final CommissionService commissionService;
+	private final InstructorCommissionService instructorCommissionService;
 	private final DraftService draftService;
 	private final ApplicationService applicationService;
 
@@ -39,13 +39,13 @@ public class DraftFacade {
 	@Transactional
 	public DraftSelectResponse selectDraft(Long instructorId, Long commissionId, Long draftId) {
 
-		Commission commission = commissionService.getOwnedCommission(commissionId, instructorId);
+		Commission commission = instructorCommissionService.getOwnedCommission(commissionId, instructorId);
 
 		CommissionApplication selected = draftService.getApplicationForSelection(commission, draftId);
 		Designer designer = selected.getDesigner();
 
 		LocalDateTime now = LocalDateTime.now();
-		commissionService.selectDesigner(commission, designer, now);
+		instructorCommissionService.selectDesigner(commission, designer, now);
 
 		applicationService.applySelection(commissionId, selected.getId());
 

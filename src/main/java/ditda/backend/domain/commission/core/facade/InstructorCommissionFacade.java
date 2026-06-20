@@ -14,7 +14,7 @@ import ditda.backend.domain.commission.core.dto.response.CommissionFilePresignRe
 import ditda.backend.domain.commission.core.dto.response.PlanListResponse;
 import ditda.backend.domain.commission.core.handler.CommissionCategoryHandler;
 import ditda.backend.domain.commission.core.service.CommissionCreateFileService;
-import ditda.backend.domain.commission.core.service.CommissionService;
+import ditda.backend.domain.commission.core.service.InstructorCommissionService;
 import ditda.backend.domain.commission.core.validator.CommissionCreateValidator;
 import ditda.backend.domain.payment.dto.response.DepositNotifyResponse;
 import ditda.backend.domain.payment.service.PaymentService;
@@ -23,15 +23,15 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class CommissionFacade {
+public class InstructorCommissionFacade {
 
-	private final CommissionService commissionService;
+	private final InstructorCommissionService instructorCommissionService;
 	private final CommissionCreateFileService commissionCreateFileService;
 	private final CommissionCreateValidator commissionCreateValidator;
 	private final PaymentService paymentService;
 
 	public PlanListResponse getPlans() {
-		return commissionService.getPlans();
+		return instructorCommissionService.getPlans();
 	}
 
 	public CommissionFilePresignResponse issueFilePresignedUrls(CommissionFilePresignRequest request) {
@@ -72,7 +72,7 @@ public class CommissionFacade {
 				promotedKeys.addAll(permanent);
 			}
 
-			return commissionService.createCommission(instructorId, request, handler, commissionFiles);
+			return instructorCommissionService.createCommission(instructorId, request, handler, commissionFiles);
 		} catch (Exception original) {
 			try {
 				commissionCreateFileService.deleteFiles(promotedKeys);

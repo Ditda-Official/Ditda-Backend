@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.application.entity.CommissionApplication;
 import ditda.backend.domain.commission.core.entity.Commission;
-import ditda.backend.domain.commission.core.service.CommissionService;
+import ditda.backend.domain.commission.core.service.InstructorCommissionService;
 import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DraftService {
 
-	private final CommissionService commissionService;
+	private final InstructorCommissionService instructorCommissionService;
 	private final CommissionDraftRepository commissionDraftRepository;
 	private final CommissionDraftFileRepository commissionDraftFileRepository;
 	private final DraftResponseMapper draftResponseMapper;
@@ -36,7 +36,7 @@ public class DraftService {
 	public DraftListResponse getFirstRoundDrafts(Long instructorId, Long commissionId) {
 
 		// 1. 외주 조회 + 강사 확인
-		Commission commission = commissionService.getOwnedCommission(commissionId, instructorId);
+		Commission commission = instructorCommissionService.getOwnedCommission(commissionId, instructorId);
 
 		// 2. 1차 시안 (round = 0) 목록 확인
 		List<CommissionDraft> drafts = commissionDraftRepository.findFirstRoundDrafts(commissionId);
@@ -61,7 +61,7 @@ public class DraftService {
 	public DraftDetailResponse getDraftDetail(Long instructorId, Long commissionId, Long draftId) {
 
 		// 1. 외주 조회 + 강사 확인
-		Commission commission = commissionService.getOwnedCommission(commissionId, instructorId);
+		Commission commission = instructorCommissionService.getOwnedCommission(commissionId, instructorId);
 
 		CommissionDraft draft = commissionDraftRepository.findById(draftId)
 			.orElseThrow(() -> new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND));
