@@ -53,7 +53,7 @@ public class InstructorAuthService {
 		// 왜인지 모르겠지만 save로 했을때는 user만 저장. Instructor는 저장 X
 		instructorRepository.saveAndFlush(Instructor.createInstructor(user));
 
-		TokenResult tokens = authService.issueTokens(user.getId());
+		TokenResult tokens = authService.issueTokens(user);
 
 		return new AuthResult(
 			user.getId(),
