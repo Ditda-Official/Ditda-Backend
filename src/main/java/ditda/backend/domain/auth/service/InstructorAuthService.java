@@ -57,6 +57,7 @@ public class InstructorAuthService {
 
 		return new AuthResult(
 			user.getId(),
+			user.getRole(),
 			user.getName(),
 			user.getProfileImage(),
 			tokens.accessToken(),
