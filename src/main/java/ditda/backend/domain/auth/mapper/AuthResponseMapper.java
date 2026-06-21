@@ -17,6 +17,7 @@ public class AuthResponseMapper {
 	public LoginResponse toLoginResponse(AuthResult result) {
 		return new LoginResponse(
 			result.userId(),
+			result.userRole(),
 			result.name(),
 			s3UrlResolver.toPublicS3Url(result.profileImage()),
 			result.accessToken()
@@ -26,6 +27,7 @@ public class AuthResponseMapper {
 	public SignupResponse toSignupResponse(AuthResult result) {
 		return new SignupResponse(
 			result.userId(),
+			result.userRole(),
 			result.name(),
 			s3UrlResolver.toPublicS3Url(result.profileImage()),
 			result.accessToken()
