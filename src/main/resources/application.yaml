@@ -31,12 +31,6 @@ spring:
           starttls:
             enable: true
 
-  servlet:
-    multipart:
-      max-file-size: 30MB
-      max-request-size: 100MB
-      enabled: true
-
 jwt:
   secret: ${JWT_SECRET_KEY}
   access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
@@ -53,6 +47,7 @@ admin:
 
 app:
   s3:
+    max-file-size: 30MB
     public-bucket: ${S3_PUBLIC_BUCKET}
     private-bucket: ${S3_PRIVATE_BUCKET}
     presigned-url-ttl-minutes: ${S3_PRESIGNED_URL_TTL_MINUTES:10}

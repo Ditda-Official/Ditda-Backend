@@ -12,8 +12,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import ditda.backend.global.jwt.JwtTokenProvider;
+import ditda.backend.global.jwt.dto.AccessTokenPayload;
 import ditda.backend.global.jwt.exceptions.JwtErrorType;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -41,14 +41,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
 		if (StringUtils.hasText(token)) {
 			try {
-				Claims claims = jwtTokenProvider.validateAccessToken(token);
-				Long memberId = Long.parseLong(claims.getSubject());
+				AccessTokenPayload payload = jwtTokenProvider.getAccessTokenPayload(token);
 
 				Authentication authentication =
 					new UsernamePasswordAuthenticationToken(
-						memberId,
+						payload.userId(),
 						null,
-						List.of(new SimpleGrantedAuthority("ROLE_USER"))
+						List.of(new SimpleGrantedAuthority("ROLE_" + payload.role().name()))
 					);
 
 				SecurityContextHolder.getContext().setAuthentication(authentication);

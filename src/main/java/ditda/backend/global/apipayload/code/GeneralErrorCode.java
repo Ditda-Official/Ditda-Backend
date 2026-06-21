@@ -21,8 +21,8 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "REQ_400_02", "파라미터 형식이 잘못되었습니다."),
 	INVALID_BODY_TYPE(HttpStatus.BAD_REQUEST, "REQ_400_03", "요청 본문의 형식이 잘못되었거나, 허용되지 않은 값이 포함되어 있습니다."),
 	UNSUPPORTED_CONTENT_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "REQ_415_01", "지원하지 않는 Content-Type입니다."),
-	DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "REQ_409_01", "이미 존재하는 데이터입니다."),
 	FILE_SIZE_EXCEEDED(HttpStatus.CONTENT_TOO_LARGE, "REQ_413_01", "파일 크기가 제한을 초과했습니다."),
+	DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "REQ_409_01", "이미 존재하는 데이터입니다."),
 
 	// API/라우팅 에러
 	API_NOT_FOUND(HttpStatus.NOT_FOUND, "API_404_01", "존재하지 않는 API입니다."),

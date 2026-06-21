@@ -1,0 +1,13 @@
+package ditda.backend.domain.auth.dto.response;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
+public record PortfolioPresignResponse(
+
+	@Schema(description = "S3 객체 key", example = "portfolio/tmp/5a5237a7-674a-47c2-91ca-6fdb28ba6b2d.pdf")
+	String key,
+
+	@Schema(description = "S3 직접 업로드용 presigned PUT URL", example = "https://{bucket}.s3.{region}.amazonaws.com/portfolio/tmp/{uuid}.pdf?X-Amz-Signature=...")
+	String presignedUrl
+) {
+}
