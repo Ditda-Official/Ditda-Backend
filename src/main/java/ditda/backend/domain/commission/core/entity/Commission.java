@@ -9,9 +9,11 @@ import ditda.backend.domain.commission.core.entity.enums.ColorSelectionMode;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.entity.enums.PageSize;
 import ditda.backend.domain.commission.core.entity.enums.PlanCode;
+import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.designer.entity.enums.DesignerLevel;
 import ditda.backend.domain.instructor.entity.Instructor;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -137,12 +139,22 @@ public class Commission extends BaseEntity {
 		return status == CommissionStatus.IN_PROGRESS;
 	}
 
-	public boolean isRevisable() {
-		return status == CommissionStatus.EDITING;
-	}
-
 	public boolean isDesignerSelected() {
 		return assignedDesigner != null;
+	}
+
+	// 수정 단계 검증
+	public void validateRevisable() {
+		if (status != CommissionStatus.EDITING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_REVISABLE);
+		}
+	}
+
+	// 추가 수정 가능 여부 검증
+	public void validateCanCreateRevision(int currentRevisionCount) {
+		if (currentRevisionCount >= maxRevision) {
+			throw new GeneralException(CommissionErrorCode.REVISION_LIMIT_EXCEEDED);
+		}
 	}
 
 	// 디자이너 모집 정원
@@ -159,8 +171,4 @@ public class Commission extends BaseEntity {
 		return Math.min(capacity, totalApplicants);
 	}
 
-	// 추가 수정 가능 여부
-	public boolean canCreateRevision(int currentRevisionCount) {
-		return currentRevisionCount < maxRevision;
-	}
 }

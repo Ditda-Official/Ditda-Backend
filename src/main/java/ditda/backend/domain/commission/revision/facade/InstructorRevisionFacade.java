@@ -33,9 +33,7 @@ public class InstructorRevisionFacade {
 		Commission commission = instructorCommissionService.getOwnedCommission(commissionId, instructorId);
 
 		// 수정 단계인지 검증
-		if (!commission.isRevisable()) {
-			throw new GeneralException(RevisionErrorCode.COMMISSION_NOT_REVISABLE);
-		}
+		commission.validateRevisable();
 
 		// 선택된 디자이너의 가장 최근 시안
 		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);
@@ -65,18 +63,14 @@ public class InstructorRevisionFacade {
 		Commission commission = instructorCommissionService.getOwnedCommission(commissionId, instructorId);
 
 		// 수정 단계인지 검증
-		if (!commission.isRevisable()) {
-			throw new GeneralException(RevisionErrorCode.COMMISSION_NOT_REVISABLE);
-		}
+		commission.validateRevisable();
 
 		// 카테고리 중복 검증
 		validateDistinctCategories(request);
 
 		// 수정 횟수 한도 검증
 		int current = revisionService.calculateCurrentRevisionCount(commission);
-		if (!commission.canCreateRevision(current)) {
-			throw new GeneralException(RevisionErrorCode.REVISION_LIMIT_EXCEEDED);
-		}
+		commission.validateCanCreateRevision(current);
 
 		// 선택된 디자이너의 가장 최근 시안
 		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);
