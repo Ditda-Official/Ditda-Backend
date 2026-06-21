@@ -12,9 +12,12 @@ import ditda.backend.domain.commission.core.service.InstructorCommissionService;
 import ditda.backend.domain.commission.draft.dto.response.DraftDetailResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftSelectResponse;
+import ditda.backend.domain.commission.draft.entity.CommissionDraft;
+import ditda.backend.domain.commission.draft.exception.DraftErrorCode;
 import ditda.backend.domain.commission.draft.service.DraftService;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.designer.entity.enums.ExpReward;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -58,5 +61,25 @@ public class DraftFacade {
 			commission.getMaxRevision(),
 			now
 		);
+	}
+
+	// 최종 시안 확정
+	@Transactional
+	public void finalizeDraft(Long instructorId, Long commissionId, Long draftId) {
+
+		// 외주 조회 + 강사 확인
+		Commission commission = instructorCommissionService.getOwnedCommission(commissionId, instructorId);
+
+		// 최종 확정 가능 단계인지 검증
+		commission.validateFinalizable();
+
+		// 가장 최근 시안과 일치하는지 검증
+		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);
+		if (!latestDraft.getId().equals(draftId)) {
+			throw new GeneralException(DraftErrorCode.DRAFT_NOT_LATEST);
+		}
+
+		// 외주 최종 확정 처리
+		commission.complete();
 	}
 }
