@@ -55,4 +55,9 @@ public class RevisionResponse extends BaseEntity {
 			.designerComment(designerComment)
 			.build();
 	}
+
+	// 수정 답변을 확인 처리
+	public void check() {
+		this.checked = true;
+	}
 }

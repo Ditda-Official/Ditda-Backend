@@ -10,7 +10,6 @@ import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.revision.dto.request.RevisionCreateRequest;
 import ditda.backend.domain.commission.revision.entity.RevisionDetail;
 import ditda.backend.domain.commission.revision.entity.RevisionRequest;
-import ditda.backend.domain.commission.revision.entity.RevisionResponse;
 import ditda.backend.domain.commission.revision.repository.RevisionDetailRepository;
 import ditda.backend.domain.commission.revision.repository.RevisionRequestRepository;
 import ditda.backend.domain.commission.revision.repository.RevisionResponseRepository;
@@ -25,10 +24,14 @@ public class RevisionService {
 	private final RevisionResponseRepository revisionResponseRepository;
 	private final RevisionDetailRepository revisionDetailRepository;
 
-	// 시안에 달린 디자이너 코멘트 조회
-	public String getDesignerComment(Long draftId) {
+	// 시안에 달린 디자이너 코멘트 조회 + 확인 처리
+	@Transactional
+	public String getDesignerCommentAndCheck(Long draftId) {
 		return revisionResponseRepository.findByProducedDraftId(draftId)
-			.map(RevisionResponse::getDesignerComment)
+			.map(response -> {
+				response.check();
+				return response.getDesignerComment();
+			})
 			.orElse(null);
 	}
 

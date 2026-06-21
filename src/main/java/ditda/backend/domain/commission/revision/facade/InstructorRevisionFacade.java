@@ -26,6 +26,7 @@ public class InstructorRevisionFacade {
 	private final DraftService draftService;
 	private final RevisionMapper revisionMapper;
 
+	@Transactional
 	public InstructorRevisionDetailResponse getRevisionDetail(Long instructorId, Long commissionId) {
 
 		// 외주 조회 + 강사 확인
@@ -39,8 +40,8 @@ public class InstructorRevisionFacade {
 		// 선택된 디자이너의 가장 최근 시안
 		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);
 
-		// 시안에 달린 디자이너 코멘트
-		String designerComment = revisionService.getDesignerComment(latestDraft.getId());
+		// 시안에 달린 디자이너 코멘트 조회 + 확인 처리
+		String designerComment = revisionService.getDesignerCommentAndCheck(latestDraft.getId());
 
 		// 썸네일
 		CommissionDraftFile thumbnail = draftService.getThumbnail(latestDraft.getId());
