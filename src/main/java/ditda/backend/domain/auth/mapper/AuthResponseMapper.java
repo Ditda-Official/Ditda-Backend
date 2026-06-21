@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import ditda.backend.domain.auth.dto.AuthResult;
 import ditda.backend.domain.auth.dto.response.LoginResponse;
 import ditda.backend.domain.auth.dto.response.SignupResponse;
-import ditda.backend.global.s3.S3UrlResolver;
+import ditda.backend.global.s3.manager.S3UrlResolver;
 import lombok.RequiredArgsConstructor;
 
 @Component

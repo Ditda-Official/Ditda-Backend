@@ -9,7 +9,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import ditda.backend.domain.auth.event.DesignerSignedUpEvent;
 import ditda.backend.global.config.AdminProperties;
-import ditda.backend.global.s3.S3PresignedUrlGenerator;
+import ditda.backend.global.s3.manager.S3PresignedUrlGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
