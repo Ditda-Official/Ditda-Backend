@@ -14,10 +14,10 @@ import ditda.backend.domain.commission.core.entity.enums.FileKind;
 import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.commission.core.repository.CommissionFileRepository;
 import ditda.backend.global.apipayload.exception.GeneralException;
-import ditda.backend.global.s3.S3FileService;
-import ditda.backend.global.s3.S3UploadManager;
 import ditda.backend.global.s3.enums.BucketType;
 import ditda.backend.global.s3.enums.UploadTarget;
+import ditda.backend.global.s3.manager.S3UploadManager;
+import ditda.backend.global.s3.service.S3FileService;
 import lombok.RequiredArgsConstructor;
 
 @Service

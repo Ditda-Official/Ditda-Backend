@@ -1,6 +1,6 @@
 package ditda.backend.global.s3.dto.response;
 
-import ditda.backend.global.s3.PresignedUpload;
+import ditda.backend.global.s3.dto.PresignedUpload;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "파일 업로드 presigned URL 발급 응답")

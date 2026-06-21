@@ -1,7 +1,8 @@
-package ditda.backend.global.s3;
+package ditda.backend.global.s3.manager;
 
 import org.springframework.stereotype.Component;
 
+import ditda.backend.global.s3.config.S3Properties;
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.services.s3.S3Client;
 

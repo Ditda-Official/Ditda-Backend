@@ -10,11 +10,11 @@ import ditda.backend.domain.designer.entity.Portfolio;
 import ditda.backend.domain.designer.exception.DesignerErrorCode;
 import ditda.backend.domain.designer.repository.PortfolioRepository;
 import ditda.backend.global.apipayload.exception.GeneralException;
-import ditda.backend.global.s3.PresignedUpload;
-import ditda.backend.global.s3.S3FileService;
-import ditda.backend.global.s3.S3UploadManager;
+import ditda.backend.global.s3.dto.PresignedUpload;
 import ditda.backend.global.s3.enums.BucketType;
 import ditda.backend.global.s3.enums.UploadTarget;
+import ditda.backend.global.s3.manager.S3UploadManager;
+import ditda.backend.global.s3.service.S3FileService;
 import lombok.RequiredArgsConstructor;
 
 @Service

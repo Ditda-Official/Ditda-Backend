@@ -1,4 +1,4 @@
-package ditda.backend.global.s3;
+package ditda.backend.global.s3.manager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
+import ditda.backend.global.s3.dto.PresignedUpload;
 import ditda.backend.global.s3.enums.BucketType;
 import lombok.RequiredArgsConstructor;
 

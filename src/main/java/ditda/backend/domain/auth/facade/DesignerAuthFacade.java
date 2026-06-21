@@ -12,7 +12,7 @@ import ditda.backend.domain.auth.service.DesignerAuthService;
 import ditda.backend.domain.auth.service.EmailVerificationService;
 import ditda.backend.domain.designer.service.PortfolioService;
 import ditda.backend.domain.user.service.UserService;
-import ditda.backend.global.s3.PresignedUpload;
+import ditda.backend.global.s3.dto.PresignedUpload;
 import lombok.RequiredArgsConstructor;
 
 @Component

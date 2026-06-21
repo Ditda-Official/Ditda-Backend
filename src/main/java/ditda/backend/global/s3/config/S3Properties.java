@@ -1,4 +1,4 @@
-package ditda.backend.global.s3;
+package ditda.backend.global.s3.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

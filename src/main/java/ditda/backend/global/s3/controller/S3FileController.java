@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ditda.backend.global.apipayload.response.ApiResponse;
-import ditda.backend.global.s3.PresignedUpload;
-import ditda.backend.global.s3.S3FileService;
+import ditda.backend.global.s3.dto.PresignedUpload;
 import ditda.backend.global.s3.dto.request.PresignRequest;
 import ditda.backend.global.s3.dto.response.PresignResponse;
+import ditda.backend.global.s3.service.S3FileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
