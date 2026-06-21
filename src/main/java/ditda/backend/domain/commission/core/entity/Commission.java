@@ -158,4 +158,9 @@ public class Commission extends BaseEntity {
 		int capacity = distinctLevels + firstComeSlots;
 		return Math.min(capacity, totalApplicants);
 	}
+
+	// 추가 수정 가능 여부
+	public boolean canCreateRevision(int currentRevisionCount) {
+		return currentRevisionCount < maxRevision;
+	}
 }

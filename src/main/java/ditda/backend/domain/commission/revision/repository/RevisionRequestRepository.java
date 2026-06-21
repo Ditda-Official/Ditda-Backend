@@ -7,4 +7,6 @@ import ditda.backend.domain.commission.revision.entity.RevisionRequest;
 public interface RevisionRequestRepository extends JpaRepository<RevisionRequest, Long> {
 
 	int countByCommissionId(Long commissionId);
+
+	boolean existsByTargetDraftId(Long targetDraftId);
 }

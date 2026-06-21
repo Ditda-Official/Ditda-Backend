@@ -8,6 +8,7 @@ import ditda.backend.domain.commission.core.service.InstructorCommissionService;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.service.DraftService;
+import ditda.backend.domain.commission.revision.dto.request.RevisionCreateRequest;
 import ditda.backend.domain.commission.revision.dto.response.InstructorRevisionDetailResponse;
 import ditda.backend.domain.commission.revision.exception.RevisionErrorCode;
 import ditda.backend.domain.commission.revision.mapper.RevisionMapper;
@@ -54,6 +55,50 @@ public class InstructorRevisionFacade {
 			designerComment,
 			currentRevisionCount
 		);
+	}
 
+	@Transactional
+	public void createRevision(Long instructorId, Long commissionId, RevisionCreateRequest request) {
+
+		// 외주 조회 + 강사 확인
+		Commission commission = instructorCommissionService.getOwnedCommission(commissionId, instructorId);
+
+		// 수정 단계인지 검증
+		if (!commission.isRevisable()) {
+			throw new GeneralException(RevisionErrorCode.COMMISSION_NOT_REVISABLE);
+		}
+
+		// 카테고리 중복 검증
+		validateDistinctCategories(request);
+
+		// 수정 횟수 한도 검증
+		int current = revisionService.calculateCurrentRevisionCount(commission);
+		if (!commission.canCreateRevision(current)) {
+			throw new GeneralException(RevisionErrorCode.REVISION_LIMIT_EXCEEDED);
+		}
+
+		// 선택된 디자이너의 가장 최근 시안
+		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);
+
+		// 시안에 이미 수정 요청이 존재하는지 검증
+		if (revisionService.hasRevisionRequestOnDraft(latestDraft.getId())) {
+			throw new GeneralException(RevisionErrorCode.REVISION_ALREADY_REQUESTED);
+		}
+
+		// 수정 요청 저장
+		revisionService.createRevisionRequest(commission, latestDraft, request);
+	}
+
+	// 카테고리 중복 검증
+	private void validateDistinctCategories(RevisionCreateRequest request) {
+
+		long distinctCount = request.categories().stream()
+			.map(RevisionCreateRequest.RevisionCreateCategory::category)
+			.distinct()
+			.count();
+
+		if (distinctCount != request.categories().size()) {
+			throw new GeneralException(RevisionErrorCode.DUPLICATE_REVISION_CATEGORY);
+		}
 	}
 }
