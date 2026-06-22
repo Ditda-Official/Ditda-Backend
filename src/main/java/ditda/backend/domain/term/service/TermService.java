@@ -22,45 +22,53 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TermService {
 
-	private static final Set<TermType> REQUIRED_TERMS = Set.of(
-		TermType.SERVICE,
-		TermType.USERINFO,
-		TermType.SETTLEMENT,
-		TermType.DISINTERMEDIATION
+	private static final Set<TermType> DESIGNER_REQUIRED = Set.of(
+		TermType.DESIGNER_SERVICE,
+		TermType.USERINFO
 	);
+	private static final Set<TermType> INSTRUCTOR_REQUIRED = Set.of(
+		TermType.INSTRUCTOR_SERVICE,
+		TermType.USERINFO
+	);
+
 	private final UserTermRepository userTermRepository;
 	private final PaymentTermRepository paymentTermRepository;
 
 	@Transactional
 	public void savePaymentTerm(Payment payment, String version, boolean isAgreed) {
 
-		PaymentTerm paymentTerm = PaymentTerm.create(
-			payment,
-			version,
-			isAgreed
-		);
+		PaymentTerm paymentTerm = PaymentTerm.create(payment, version, isAgreed);
 		paymentTermRepository.save(paymentTerm);
 	}
 
 	@Transactional
-	public void saveTerms(User user, List<TermAgreement> agreements) {
-		validateRequiredAgreements(agreements);
+	public void saveDesignerTerms(User user, List<TermAgreement> agreements) {
+		validateRequiredAgreements(agreements, DESIGNER_REQUIRED);
+		saveAllTerms(user, agreements);
+	}
 
+	@Transactional
+	public void saveInstructorTerms(User user, List<TermAgreement> agreements) {
+		validateRequiredAgreements(agreements, INSTRUCTOR_REQUIRED);
+		saveAllTerms(user, agreements);
+	}
+
+	private void validateRequiredAgreements(List<TermAgreement> agreements, Set<TermType> required) {
+		for (TermType type : required) {
+			boolean agreed = agreements.stream()
+				.anyMatch(a -> a.type() == type && a.isAgreed());
+			if (!agreed) {
+				throw new GeneralException(TermErrorCode.REQUIRED_TERMS_NOT_AGREED);
+			}
+		}
+	}
+
+	private void saveAllTerms(User user, List<TermAgreement> agreements) {
 		List<UserTerm> terms = agreements.stream()
 			.map(a -> UserTerm.createTerm(user, a.type(), a.version(), a.isAgreed()))
 			.toList();
 
 		userTermRepository.saveAll(terms);
-	}
-
-	private void validateRequiredAgreements(List<TermAgreement> agreements) {
-		for (TermType required : REQUIRED_TERMS) {
-			boolean agreed = agreements.stream()
-				.anyMatch(a -> a.type() == required && a.isAgreed());
-			if (!agreed) {
-				throw new GeneralException(TermErrorCode.REQUIRED_TERMS_NOT_AGREED);
-			}
-		}
 	}
 }
 

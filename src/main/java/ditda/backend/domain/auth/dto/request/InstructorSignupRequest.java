@@ -22,22 +22,12 @@ public record InstructorSignupRequest(
 		example = """
 			[
 				{
-					"type": "SERVICE",
+					"type": "INSTRUCTOR_SERVICE",
 					"version": "V1.0",
 					"isAgreed": true
 				},
 				{
 					"type": "USERINFO",
-					"version": "V1.0",
-					"isAgreed": true
-				},
-				{
-					"type": "SETTLEMENT",
-					"version": "V1.0",
-					"isAgreed": true
-				},
-				{
-					"type": "DISINTERMEDIATION",
 					"version": "V1.0",
 					"isAgreed": true
 				}
@@ -84,7 +74,7 @@ public record InstructorSignupRequest(
 
 	public record TermRequest(
 
-		@Schema(description = "약관 종류", example = "SERVICE")
+		@Schema(description = "약관 종류", example = "INSTRUCTOR_SERVICE")
 		@NotNull(message = "약관 종류 필수입니다.")
 		TermType type,
 
