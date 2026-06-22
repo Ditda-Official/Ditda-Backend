@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +18,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "revision_responses")
+@Table(
+	name = "revision_responses",
+	uniqueConstraints = {
+		@UniqueConstraint(
+			name = "uk_revision_response_produced_draft",
+			columnNames = {"produced_draft_id"}
+		)
+	}
+)
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

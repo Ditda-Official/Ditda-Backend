@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "revision_requests")
+@Table(
+	name = "revision_requests",
+	uniqueConstraints = {
+		@UniqueConstraint(
+			name = "uk_revision_request_target_draft",
+			columnNames = {"target_draft_id"}
+		)
+	}
+)
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
