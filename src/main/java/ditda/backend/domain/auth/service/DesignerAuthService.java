@@ -56,7 +56,7 @@ public class DesignerAuthService {
 		);
 
 		// 약관 동의 여부 DB 저장
-		termService.saveTerms(user, toAgreements(request.terms()));
+		termService.saveDesignerTerms(user, toAgreements(request.terms()));
 
 		// Designer 생성 및 DB 저장
 		Designer designer = Designer.createDesigner(

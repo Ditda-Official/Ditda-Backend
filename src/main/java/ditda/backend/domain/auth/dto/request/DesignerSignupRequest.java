@@ -23,22 +23,12 @@ public record DesignerSignupRequest(
 		example = """
 			[
 				{
-					"type": "SERVICE",
+					"type": "DESIGNER_SERVICE",
 					"version": "V1.0",
 					"isAgreed": true
 				},
 				{
 					"type": "USERINFO",
-					"version": "V1.0",
-					"isAgreed": true
-				},
-				{
-					"type": "SETTLEMENT",
-					"version": "V1.0",
-					"isAgreed": true
-				},
-				{
-					"type": "DISINTERMEDIATION",
 					"version": "V1.0",
 					"isAgreed": true
 				}
