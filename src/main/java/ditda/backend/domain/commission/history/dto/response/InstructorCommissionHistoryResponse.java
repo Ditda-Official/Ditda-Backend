@@ -2,6 +2,7 @@ package ditda.backend.domain.commission.history.dto.response;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 
@@ -29,10 +30,15 @@ public record InstructorCommissionHistoryResponse(
 	@Schema(description = "전체 페이지 수", example = "3")
 	int totalPages
 ) {
-	public static InstructorCommissionHistoryResponse from(Page<Commission> page) {
+	public static InstructorCommissionHistoryResponse from(
+		Page<Commission> page,
+		Map<Long, Integer> paidAmounts
+	) {
 
 		List<CommissionItem> items = page.getContent().stream()
-			.map(CommissionItem::from)
+			.map(commission -> CommissionItem.from(
+				commission,
+				paidAmounts.get(commission.getId())))
 			.toList();
 
 		return new InstructorCommissionHistoryResponse(
@@ -63,19 +69,19 @@ public record InstructorCommissionHistoryResponse(
 		PlanCode plan,
 
 		@Schema(description = "결제 금액", example = "400000")
-		int totalAmount,
+		Integer paidAmount,
 
 		@Schema(description = "상태", example = "COMPLETED")
 		CommissionStatus status
 	) {
-		private static CommissionItem from(Commission commission) {
+		private static CommissionItem from(Commission commission, Integer paidAmount) {
 			return new CommissionItem(
 				commission.getId(),
 				commission.getCategoryType(),
 				commission.getTitle(),
 				commission.getCreatedAt().toLocalDate(),
 				commission.getPlanCode(),
-				commission.getPlanCode().getPrice(),
+				paidAmount,
 				commission.getStatus()
 			);
 		}

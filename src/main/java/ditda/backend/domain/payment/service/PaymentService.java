@@ -1,6 +1,9 @@
 package ditda.backend.domain.payment.service;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import ditda.backend.domain.payment.entity.enums.PaymentStatus;
 import ditda.backend.domain.payment.event.DepositNotifiedEvent;
 import ditda.backend.domain.payment.exception.PaymentErrorCode;
 import ditda.backend.domain.payment.repository.PaymentRepository;
+import ditda.backend.domain.payment.repository.projection.CommissionPaidAmount;
 import ditda.backend.domain.term.service.TermService;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +82,22 @@ public class PaymentService {
 			commission.getId(),
 			payment.getStatus(),
 			payment.getDepositNotifiedAt()
+		);
+	}
+
+	// 결제 완료된 외주들의 결제 금액 조회
+	@Transactional(readOnly = true)
+	public Map<Long, Integer> getPaidAmounts(Collection<Long> commissionIds) {
+
+		if (commissionIds.isEmpty()) {
+			return Map.of();
+		}
+
+		return paymentRepository.findPaidAmounts(commissionIds, PaymentStatus.COMPLETED).stream()
+			.collect(Collectors.toMap(
+				CommissionPaidAmount::getCommissionId,
+				CommissionPaidAmount::getAmount
+			)
 		);
 	}
 
