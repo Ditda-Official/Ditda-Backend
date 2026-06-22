@@ -80,4 +80,10 @@ public class PaymentService {
 			payment.getDepositNotifiedAt()
 		);
 	}
+
+	// 결제 완료된 외주 카운트
+	@Transactional(readOnly = true)
+	public long countPaidCommissions(Long instructorId) {
+		return paymentRepository.countByInstructorIdAndStatus(instructorId, PaymentStatus.COMPLETED);
+	}
 }
