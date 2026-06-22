@@ -38,12 +38,6 @@ public class InstructorCommissionService {
 	private final CommissionCreateFileService commissionCreateFileService;
 	private final PaymentService paymentService;
 
-	private static final List<CommissionStatus> ONGOING_STATUSES = List.of(
-		CommissionStatus.RECRUITING,
-		CommissionStatus.IN_PROGRESS,
-		CommissionStatus.EDITING
-	);
-
 	// 외주 플랜 정보 조회
 	public PlanListResponse getPlans() {
 		return PlanListResponse.from();
@@ -131,7 +125,10 @@ public class InstructorCommissionService {
 	// 진행 중인 외주 건수
 	@Transactional(readOnly = true)
 	public long countOngoingCommissions(Long instructorId) {
-		return commissionRepository.countByInstructorIdAndStatusIn(instructorId, ONGOING_STATUSES);
+		return commissionRepository.countByInstructorIdAndStatusIn(
+			instructorId,
+			CommissionStatus.ongoingStatuses()
+		);
 	}
 
 	// 컨셉 저장
