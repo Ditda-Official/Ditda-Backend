@@ -1,9 +1,10 @@
-package ditda.backend.global.s3;
+package ditda.backend.global.s3.manager;
 
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import ditda.backend.global.s3.config.S3Properties;
 import ditda.backend.global.s3.enums.BucketType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

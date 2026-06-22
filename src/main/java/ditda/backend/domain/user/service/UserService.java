@@ -23,6 +23,11 @@ public class UserService {
 		return userRepository.getReferenceById(userId);
 	}
 
+	public User findById(Long userId) {
+		return userRepository.findById(userId)
+			.orElseThrow(() -> new GeneralException(UserErrorCode.USER_NOT_FOUND));
+	}
+
 	public boolean existsByUsername(String username) {
 		return userRepository.existsByUsername(username);
 	}

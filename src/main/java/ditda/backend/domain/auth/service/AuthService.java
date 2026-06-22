@@ -33,28 +33,23 @@ public class AuthService {
 	private final RefreshTokenRepository refreshTokenRepository;
 
 	@Transactional
-	public TokenResult issueTokens(Long userId) {
+	public TokenResult issueTokens(User user) {
+
+		Long userId = user.getId();
 
 		// 1. 만료된 토큰 삭제
 		refreshTokenRepository.deleteExpiredByUserId(userId, LocalDateTime.now());
 
 		// 2. sessionId(로그인 기기 식별) 및 JWT 토큰 발급
 		String sessionId = UUID.randomUUID().toString();
-		String accessToken = jwtTokenProvider.generateAccessToken(userId);
+		String accessToken = jwtTokenProvider.generateAccessToken(userId, user.getRole());
 		String refreshToken = jwtTokenProvider.generateRefreshToken(userId, sessionId);
 
 		// 3. DB에는 해시 값으로 저장
 		String refreshTokenHash = refreshTokenHasher.hash(refreshToken);
 		LocalDateTime expiresAt = jwtTokenProvider.getExpiration(refreshToken);
 
-		refreshTokenRepository.save(
-			RefreshToken.createRefreshToken(
-				userService.getReferenceById(userId),
-				sessionId,
-				refreshTokenHash,
-				expiresAt
-			)
-		);
+		refreshTokenRepository.save(RefreshToken.createRefreshToken(user, sessionId, refreshTokenHash, expiresAt));
 
 		return new TokenResult(accessToken, refreshToken);
 	}
@@ -71,10 +66,11 @@ public class AuthService {
 		}
 
 		// 3. Access / Refresh 토큰 발급
-		TokenResult tokens = issueTokens(user.getId());
+		TokenResult tokens = issueTokens(user);
 
 		return new AuthResult(
 			user.getId(),
+			user.getRole(),
 			user.getName(),
 			user.getProfileImage(),
 			tokens.accessToken(),
@@ -134,7 +130,8 @@ public class AuthService {
 		}
 
 		// 5. 새 Access / Refresh 토큰 발급. (sessionId는 유지)
-		String newAccessToken = jwtTokenProvider.generateAccessToken(userId);
+		User user = userService.findById(userId);
+		String newAccessToken = jwtTokenProvider.generateAccessToken(userId, user.getRole());
 		String newRefreshToken = jwtTokenProvider.generateRefreshToken(userId, sessionId);
 		String newRefreshTokenHash = refreshTokenHasher.hash(newRefreshToken);
 		LocalDateTime newExpiresAt = jwtTokenProvider.getExpiration(newRefreshToken);

@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest;
-import ditda.backend.domain.commission.core.dto.request.CommissionFilePresignRequest;
 import ditda.backend.domain.commission.core.dto.response.CommissionCreateResponse;
-import ditda.backend.domain.commission.core.dto.response.CommissionFilePresignResponse;
 import ditda.backend.domain.commission.core.dto.response.PlanListResponse;
 import ditda.backend.domain.commission.core.facade.InstructorCommissionFacade;
 import ditda.backend.domain.payment.dto.response.DepositNotifyResponse;
@@ -36,21 +34,6 @@ public class InstructorCommissionController {
 		PlanListResponse response = instructorCommissionFacade.getPlans();
 
 		return ApiResponse.onSuccess("플랜 조회 성공", response);
-	}
-
-	@Operation(
-		summary = "새 외주 작성 파일 업로드 URL 발급",
-		description = "**[새 외주 작성]** 새 외주 작성시 자료 첨부 및 레퍼런스 파일을 S3에 올릴 presigned PUT URL을 발급합니다. "
-			+ "PUT URL로 S3에 직접 업로드한 뒤, 응답의 key를 외주 생성 요청의 keys에 담아 전송합니다."
-	)
-	@PostMapping("/files/presigned-url")
-	public ApiResponse<CommissionFilePresignResponse> issueFilePresignedUrls(
-		@Valid @RequestBody CommissionFilePresignRequest request
-	) {
-
-		CommissionFilePresignResponse response = instructorCommissionFacade.issueFilePresignedUrls(request);
-
-		return ApiResponse.onSuccess("새 외주 작성 파일 업로드 URL 발급 성공", response);
 	}
 
 	@Operation(summary = "새 외주 생성", description = "**[새 외주 작성]** 새로운 외주를 생성합니다.")

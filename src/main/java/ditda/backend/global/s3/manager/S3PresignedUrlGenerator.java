@@ -1,12 +1,13 @@
-package ditda.backend.global.s3;
+package ditda.backend.global.s3.manager;
 
 import java.time.Duration;
 
 import org.springframework.stereotype.Component;
 
-import ditda.backend.global.apipayload.code.GeneralErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
+import ditda.backend.global.s3.config.S3Properties;
 import ditda.backend.global.s3.enums.BucketType;
+import ditda.backend.global.s3.exception.S3ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.core.exception.SdkException;
@@ -46,7 +47,7 @@ public class S3PresignedUrlGenerator {
 			return presignedRequest.url().toString();
 		} catch (SdkException exception) {
 			log.error("Failed to generate private presigned url. key={}", key, exception);
-			throw new GeneralException(GeneralErrorCode.FILE_URL_GENERATION_FAILED);
+			throw new GeneralException(S3ErrorCode.FILE_URL_GENERATION_FAILED);
 		}
 	}
 

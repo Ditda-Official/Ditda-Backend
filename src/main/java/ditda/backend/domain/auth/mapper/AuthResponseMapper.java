@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import ditda.backend.domain.auth.dto.AuthResult;
 import ditda.backend.domain.auth.dto.response.LoginResponse;
 import ditda.backend.domain.auth.dto.response.SignupResponse;
-import ditda.backend.global.s3.S3UrlResolver;
+import ditda.backend.global.s3.manager.S3UrlResolver;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -17,6 +17,7 @@ public class AuthResponseMapper {
 	public LoginResponse toLoginResponse(AuthResult result) {
 		return new LoginResponse(
 			result.userId(),
+			result.userRole(),
 			result.name(),
 			s3UrlResolver.toPublicS3Url(result.profileImage()),
 			result.accessToken()
@@ -26,6 +27,7 @@ public class AuthResponseMapper {
 	public SignupResponse toSignupResponse(AuthResult result) {
 		return new SignupResponse(
 			result.userId(),
+			result.userRole(),
 			result.name(),
 			s3UrlResolver.toPublicS3Url(result.profileImage()),
 			result.accessToken()

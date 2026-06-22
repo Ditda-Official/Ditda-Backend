@@ -72,7 +72,7 @@ public class DesignerAuthService {
 		portfolioService.savePortfolios(designer, portfolioKeys);
 
 		// accessToken&refreshToken 발급
-		TokenResult tokens = authService.issueTokens(user.getId());
+		TokenResult tokens = authService.issueTokens(user);
 
 		// 관리자 알림 이벤트 발행
 		eventPublisher.publishEvent(new DesignerSignedUpEvent(
@@ -84,6 +84,7 @@ public class DesignerAuthService {
 
 		return new AuthResult(
 			user.getId(),
+			user.getRole(),
 			user.getName(),
 			user.getProfileImage(),
 			tokens.accessToken(),

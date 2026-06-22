@@ -9,6 +9,8 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import ditda.backend.domain.user.entity.enums.UserRole;
+import ditda.backend.global.jwt.dto.AccessTokenPayload;
 import ditda.backend.global.jwt.dto.RefreshTokenPayload;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -26,6 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JwtTokenProvider {
 
+	private static final String SESSION_ID_CLAIM = "sid";
+	private static final String TOKEN_TYPE_CLAIM = "type";
+	private static final String ROLE_CLAIM = "role";
+	private static final String ACCESS_TOKEN_TYPE = "access_token";
+	private static final String REFRESH_TOKEN_TYPE = "refresh_token";
+
 	@Value("${jwt.secret}")
 	private String secret;
 
@@ -37,11 +45,6 @@ public class JwtTokenProvider {
 
 	private SecretKey key;
 
-	private static final String SESSION_ID_CLAIM = "sid";
-	private static final String TOKEN_TYPE_CLAIM = "type";
-	private static final String ACCESS_TOKEN_TYPE = "access_token";
-	private static final String REFRESH_TOKEN_TYPE = "refresh_token";
-
 	@PostConstruct
 	public void init() {
 
@@ -49,7 +52,7 @@ public class JwtTokenProvider {
 		key = Keys.hmacShaKeyFor(keyBytes);
 	}
 
-	public String generateAccessToken(Long userId) {
+	public String generateAccessToken(Long userId, UserRole role) {
 
 		Date now = new Date();
 		Date expiryTime = new Date(now.getTime() + accessTokenExpiration);
@@ -57,6 +60,7 @@ public class JwtTokenProvider {
 		return Jwts.builder()
 			.subject(userId.toString())
 			.claim(TOKEN_TYPE_CLAIM, ACCESS_TOKEN_TYPE)
+			.claim(ROLE_CLAIM, role.name())
 			.issuedAt(now)
 			.expiration(expiryTime)
 			.signWith(key, Jwts.SIG.HS256)
@@ -78,7 +82,35 @@ public class JwtTokenProvider {
 			.compact();
 	}
 
-	public String getSessionId(Claims claims) {
+	public AccessTokenPayload getAccessTokenPayload(String token) {
+
+		Claims claims = validateAccessToken(token);
+
+		Long userId = Long.parseLong(claims.getSubject());
+		UserRole role = getRole(claims);
+
+		return new AccessTokenPayload(userId, role);
+	}
+
+	public RefreshTokenPayload getRefreshTokenPayload(String token) {
+
+		Claims claims = validateRefreshToken(token);
+
+		Long userId = Long.parseLong(claims.getSubject());
+		String sessionId = getSessionId(claims);
+
+		return new RefreshTokenPayload(userId, sessionId);
+	}
+
+	public LocalDateTime getExpiration(String token) {
+
+		return getClaims(token).getExpiration()
+			.toInstant()
+			.atZone(ZoneId.systemDefault())
+			.toLocalDateTime();
+	}
+
+	private String getSessionId(Claims claims) {
 
 		String sessionId = claims.get(SESSION_ID_CLAIM, String.class);
 
@@ -89,7 +121,7 @@ public class JwtTokenProvider {
 		return sessionId;
 	}
 
-	public Claims validateAccessToken(String token) {
+	private Claims validateAccessToken(String token) {
 
 		Claims claims = validateToken(token);
 		if (!ACCESS_TOKEN_TYPE.equals(claims.get(TOKEN_TYPE_CLAIM, String.class))) {
@@ -99,7 +131,7 @@ public class JwtTokenProvider {
 		return claims;
 	}
 
-	public Claims validateRefreshToken(String token) {
+	private Claims validateRefreshToken(String token) {
 
 		Claims claims = validateToken(token);
 		if (!REFRESH_TOKEN_TYPE.equals(claims.get(TOKEN_TYPE_CLAIM, String.class))) {
@@ -107,14 +139,6 @@ public class JwtTokenProvider {
 		}
 
 		return claims;
-	}
-
-	public LocalDateTime getExpiration(String token) {
-
-		return getClaims(token).getExpiration()
-			.toInstant()
-			.atZone(ZoneId.systemDefault())
-			.toLocalDateTime();
 	}
 
 	private Claims getClaims(String token) {
@@ -126,14 +150,15 @@ public class JwtTokenProvider {
 			.getPayload();
 	}
 
-	public RefreshTokenPayload getRefreshTokenPayload(String token) {
+	private UserRole getRole(Claims claims) {
 
-		Claims claims = validateRefreshToken(token);
+		String role = claims.get(ROLE_CLAIM, String.class);
 
-		Long userId = Long.parseLong(claims.getSubject());
-		String sessionId = getSessionId(claims);
+		if (role == null || role.isBlank()) {
+			throw new JwtException("Access Token에 role 정보가 없습니다.");
+		}
 
-		return new RefreshTokenPayload(userId, sessionId);
+		return UserRole.valueOf(role);
 	}
 
 	private Claims validateToken(String token) {
