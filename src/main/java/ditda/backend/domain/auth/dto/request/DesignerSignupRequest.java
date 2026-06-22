@@ -84,7 +84,7 @@ public record DesignerSignupRequest(
 
 	public record TermRequest(
 
-		@Schema(description = "약관 종류", example = "SERVICE")
+		@Schema(description = "약관 종류", example = "DESIGNER_SERVICE")
 		@NotNull(message = "약관 종류 필수입니다.")
 		TermType type,
 
