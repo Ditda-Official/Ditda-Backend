@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.core.service.InstructorCommissionService;
-import ditda.backend.domain.instructor.dto.response.InstructorDetailResponse;
+import ditda.backend.domain.instructor.dto.response.InstructorStatsResponse;
 import ditda.backend.domain.instructor.entity.Instructor;
 import ditda.backend.domain.instructor.mapper.InstructorResponseMapper;
 import ditda.backend.domain.instructor.service.InstructorService;
@@ -22,7 +22,7 @@ public class InstructorFacade {
 
 	// 강사 통계 조회
 	@Transactional(readOnly = true)
-	public InstructorDetailResponse getMyStats(Long instructorId) {
+	public InstructorStatsResponse getMyStats(Long instructorId) {
 
 		Instructor instructor = instructorService.getById(instructorId);
 
