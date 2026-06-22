@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -118,9 +119,10 @@ public class DraftService {
 	// 선택된 디자이너의 가장 최근 round 시안 조회
 	@Transactional(readOnly = true)
 	public CommissionDraft getLatestDraftOfSelectedApplication(Long commissionId) {
-		return commissionDraftRepository.findLatestDraftInCommissionByStatus(
+		return commissionDraftRepository.findDraftInCommissionByStatus(
 				commissionId,
-				ApplicationStatus.DRAFT_SELECTED)
+				ApplicationStatus.DRAFT_SELECTED,
+				Limit.of(1))
 			.orElseThrow(() -> new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND));
 	}
 }
