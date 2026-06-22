@@ -9,7 +9,7 @@ import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.exception.DraftErrorCode;
 import ditda.backend.domain.commission.revision.dto.response.InstructorRevisionDetailResponse;
 import ditda.backend.global.apipayload.exception.GeneralException;
-import ditda.backend.global.s3.S3PresignedUrlGenerator;
+import ditda.backend.global.s3.manager.S3PresignedUrlGenerator;
 import lombok.RequiredArgsConstructor;
 
 @Component
