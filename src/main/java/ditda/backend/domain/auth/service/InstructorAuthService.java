@@ -48,7 +48,7 @@ public class InstructorAuthService {
 			LocalDateTime.now()
 		);
 
-		termService.saveTerms(user, toAgreements(request.terms()));
+		termService.saveInstructorTerms(user, toAgreements(request.terms()));
 
 		// 왜인지 모르겠지만 save로 했을때는 user만 저장. Instructor는 저장 X
 		instructorRepository.saveAndFlush(Instructor.createInstructor(user));

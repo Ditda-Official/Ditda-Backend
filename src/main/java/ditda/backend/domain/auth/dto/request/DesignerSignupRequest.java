@@ -23,22 +23,12 @@ public record DesignerSignupRequest(
 		example = """
 			[
 				{
-					"type": "SERVICE",
+					"type": "DESIGNER_SERVICE",
 					"version": "V1.0",
 					"isAgreed": true
 				},
 				{
 					"type": "USERINFO",
-					"version": "V1.0",
-					"isAgreed": true
-				},
-				{
-					"type": "SETTLEMENT",
-					"version": "V1.0",
-					"isAgreed": true
-				},
-				{
-					"type": "DISINTERMEDIATION",
 					"version": "V1.0",
 					"isAgreed": true
 				}
@@ -94,7 +84,7 @@ public record DesignerSignupRequest(
 
 	public record TermRequest(
 
-		@Schema(description = "약관 종류", example = "SERVICE")
+		@Schema(description = "약관 종류", example = "DESIGNER_SERVICE")
 		@NotNull(message = "약관 종류 필수입니다.")
 		TermType type,
 
