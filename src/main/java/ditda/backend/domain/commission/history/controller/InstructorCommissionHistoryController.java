@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/instructors/commissions")
 @RequiredArgsConstructor
-@Tag(name = "Instructor Commission History", description = "강사 외주 내역 API")
+@Tag(name = "Instructor", description = "강사 마이페이지 API")
 public class InstructorCommissionHistoryController {
 
 	private final InstructorCommissionHistoryFacade instructorCommissionHistoryFacade;
