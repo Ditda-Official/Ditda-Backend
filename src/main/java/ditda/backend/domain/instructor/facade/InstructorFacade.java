@@ -24,7 +24,7 @@ public class InstructorFacade {
 	@Transactional(readOnly = true)
 	public InstructorStatsResponse getMyStats(Long instructorId) {
 
-		Instructor instructor = instructorService.getById(instructorId);
+		Instructor instructor = instructorService.getByIdWithUser(instructorId);
 
 		// 외주 이용 횟수 = 외주 결제 완료 (PaymentStatus = COMPLETED) 된 건수
 		long total = paymentService.countPaidCommissions(instructorId);

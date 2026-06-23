@@ -21,4 +21,11 @@ public class InstructorService {
 		return instructorRepository.findById(instructorId)
 			.orElseThrow(() -> new GeneralException(InstructorErrorCode.INSTRUCTOR_NOT_FOUND));
 	}
+
+	@Transactional(readOnly = true)
+	public Instructor getByIdWithUser(Long instructorId) {
+
+		return instructorRepository.findByIdWithUser(instructorId)
+			.orElseThrow(() -> new GeneralException(InstructorErrorCode.INSTRUCTOR_NOT_FOUND));
+	}
 }
