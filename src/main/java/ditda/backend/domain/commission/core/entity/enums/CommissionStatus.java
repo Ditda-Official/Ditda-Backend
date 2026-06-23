@@ -1,5 +1,6 @@
 package ditda.backend.domain.commission.core.entity.enums;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -16,6 +17,6 @@ public enum CommissionStatus {
 		EnumSet.of(RECRUITING, IN_PROGRESS, EDITING);
 
 	public static Set<CommissionStatus> ongoingStatuses() {
-		return ONGOING;
+		return Collections.unmodifiableSet(ONGOING);
 	}
 }
