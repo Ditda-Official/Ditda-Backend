@@ -28,12 +28,12 @@ public class RevisionMapper {
 
 		String thumbnailUrl = resolveUrl(thumbnail);
 
-		return InstructorRevisionDetailResponse.of(
-			commission,
-			draft,
-			thumbnailUrl,
-			designerComment,
-			currentRevisionCount
+		return new InstructorRevisionDetailResponse(
+			commission.getId(),
+			commission.getTitle(),
+			new InstructorRevisionDetailResponse.DraftInfo(draft.getId(), thumbnailUrl, designerComment),
+			currentRevisionCount,
+			commission.getMaxRevision()
 		);
 	}
 

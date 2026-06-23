@@ -1,7 +1,5 @@
 package ditda.backend.domain.commission.revision.dto.response;
 
-import ditda.backend.domain.commission.core.entity.Commission;
-import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "수정 내용 조회 응답")
@@ -23,22 +21,6 @@ public record InstructorRevisionDetailResponse(
 	Integer maxRevisionCount
 
 ) {
-
-	public static InstructorRevisionDetailResponse of(
-		Commission commission,
-		CommissionDraft draft,
-		String thumbnailUrl,
-		String designerComment,
-		int currentRevisionCount
-	) {
-		return new InstructorRevisionDetailResponse(
-			commission.getId(),
-			commission.getTitle(),
-			new DraftInfo(draft.getId(), thumbnailUrl, designerComment),
-			currentRevisionCount,
-			commission.getMaxRevision()
-		);
-	}
 
 	public record DraftInfo(
 
