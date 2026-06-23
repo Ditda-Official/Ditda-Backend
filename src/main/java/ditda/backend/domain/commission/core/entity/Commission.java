@@ -9,9 +9,11 @@ import ditda.backend.domain.commission.core.entity.enums.ColorSelectionMode;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.entity.enums.PageSize;
 import ditda.backend.domain.commission.core.entity.enums.PlanCode;
+import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.designer.entity.enums.DesignerLevel;
 import ditda.backend.domain.instructor.entity.Instructor;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -141,6 +143,25 @@ public class Commission extends BaseEntity {
 		return assignedDesigner != null;
 	}
 
+	// 수정 단계 검증
+	public void validateRevisable() {
+		if (status != CommissionStatus.EDITING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_REVISABLE);
+		}
+	}
+
+	// 최종 확정 가능 단계 검증
+	public void validateFinalizable() {
+		if (status != CommissionStatus.EDITING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_FINALIZABLE);
+		}
+	}
+
+	// 추가 수정 가능 여부 검증
+	public boolean isRevisionLimitExceeded(int currentRevisionCount) {
+		return currentRevisionCount >= maxRevision;
+	}
+
 	// 디자이너 모집 정원
 	public int getDesignerCount() {
 		return planCode.getDesignerCount();
@@ -154,4 +175,10 @@ public class Commission extends BaseEntity {
 		int capacity = distinctLevels + firstComeSlots;
 		return Math.min(capacity, totalApplicants);
 	}
+
+	// 외주 최종 확정
+	public void complete() {
+		this.status = CommissionStatus.COMPLETED;
+	}
+
 }

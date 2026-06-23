@@ -36,7 +36,11 @@ public enum CommissionErrorCode implements BaseErrorCode {
 	COMMISSION_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMISSION_404_01", "외주를 찾을 수 없습니다."),
 	COMMISSION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "COMMISSION_403_01", "해당 외주에 대한 권한이 없습니다."),
 	COMMISSION_STATUS_INVALID(HttpStatus.CONFLICT, "COMMISSION_409_01", "외주 상태가 올바르지 않습니다."),
-	DESIGNER_ALREADY_SELECTED(HttpStatus.CONFLICT, "COMMISSION_409_02", "이미 디자이너가 확정된 외주입니다.");
+	DESIGNER_ALREADY_SELECTED(HttpStatus.CONFLICT, "COMMISSION_409_02", "이미 디자이너가 확정된 외주입니다."),
+
+	// 외주 상태
+	COMMISSION_NOT_REVISABLE(HttpStatus.CONFLICT, "COMMISSION_409_03", "수정 단계의 외주가 아닙니다."),
+	COMMISSION_NOT_FINALIZABLE(HttpStatus.CONFLICT, "COMMISSION_409_04", "최종 확정 가능한 외주 상태가 아닙니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

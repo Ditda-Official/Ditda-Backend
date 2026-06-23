@@ -47,10 +47,6 @@ public class CommissionDraft extends BaseEntity {
 	@Column(name = "round", nullable = false)
 	private int round;
 
-	@Builder.Default
-	@Column(name = "is_final", nullable = false)
-	private boolean isFinal = false;
-
 	public boolean isDraftFirstRound() {
 		return round == 0;
 	}
