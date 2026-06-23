@@ -14,6 +14,7 @@ import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.CommissionColor;
 import ditda.backend.domain.commission.core.entity.CommissionConcept;
 import ditda.backend.domain.commission.core.entity.enums.ColorSelectionMode;
+import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.commission.core.handler.CommissionCategoryHandler;
 import ditda.backend.domain.commission.core.repository.CommissionColorRepository;
@@ -119,6 +120,15 @@ public class InstructorCommissionService {
 		if (updated == 0) {
 			throw new GeneralException(CommissionErrorCode.DESIGNER_ALREADY_SELECTED);
 		}
+	}
+
+	// 진행 중인 외주 건수
+	@Transactional(readOnly = true)
+	public long countOngoingCommissions(Long instructorId) {
+		return commissionRepository.countByInstructorIdAndStatusIn(
+			instructorId,
+			CommissionStatus.ongoingStatuses()
+		);
 	}
 
 	// 컨셉 저장
