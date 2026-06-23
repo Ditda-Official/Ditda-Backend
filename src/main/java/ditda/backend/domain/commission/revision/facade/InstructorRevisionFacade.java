@@ -70,7 +70,9 @@ public class InstructorRevisionFacade {
 
 		// 수정 횟수 한도 검증
 		int current = revisionService.calculateCurrentRevisionCount(commission);
-		commission.validateCanCreateRevision(current);
+		if (commission.isRevisionLimitExceeded(current)) {
+			throw new GeneralException(RevisionErrorCode.REVISION_LIMIT_EXCEEDED);
+		}
 
 		// 선택된 디자이너의 가장 최근 시안
 		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);

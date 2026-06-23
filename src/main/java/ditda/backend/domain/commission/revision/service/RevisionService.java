@@ -37,9 +37,7 @@ public class RevisionService {
 
 	// 현재 차수 계산 (0부터 시작)
 	public int calculateCurrentRevisionCount(Commission commission) {
-		int used = revisionRequestRepository.countByCommissionId(commission.getId());
-
-		return Math.min(used, commission.getMaxRevision());
+		return revisionRequestRepository.countByCommissionId(commission.getId());
 	}
 
 	// 수정 요청이 존재하는지 여부

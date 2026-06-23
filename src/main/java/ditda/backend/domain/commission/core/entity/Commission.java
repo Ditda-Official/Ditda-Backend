@@ -158,10 +158,8 @@ public class Commission extends BaseEntity {
 	}
 
 	// 추가 수정 가능 여부 검증
-	public void validateCanCreateRevision(int currentRevisionCount) {
-		if (currentRevisionCount >= maxRevision) {
-			throw new GeneralException(CommissionErrorCode.REVISION_LIMIT_EXCEEDED);
-		}
+	public boolean isRevisionLimitExceeded(int currentRevisionCount) {
+		return currentRevisionCount >= maxRevision;
 	}
 
 	// 디자이너 모집 정원
