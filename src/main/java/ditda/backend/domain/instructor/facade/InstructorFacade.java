@@ -31,7 +31,7 @@ public class InstructorFacade {
 		// 진행 중인 외주 건수 = 외주 Status가 모집(RECRUITING), 진행(IN_PROGRESS), 수정(EDITING) 건수
 		long ongoing = instructorCommissionService.countOngoingCommissions(instructorId);
 
-		return instructorResponseMapper.toInstructorDetailResponse(
+		return instructorResponseMapper.toInstructorStatsResponse(
 			instructor.getName(),
 			instructor.getUser().getProfileImage(),
 			total,

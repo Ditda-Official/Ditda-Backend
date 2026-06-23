@@ -12,7 +12,7 @@ public class InstructorResponseMapper {
 
 	private final S3UrlResolver s3UrlResolver;
 
-	public InstructorStatsResponse toInstructorDetailResponse(
+	public InstructorStatsResponse toInstructorStatsResponse(
 		String name,
 		String profileImageKey,
 		long totalCount,
