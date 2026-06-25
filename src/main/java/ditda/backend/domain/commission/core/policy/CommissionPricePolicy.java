@@ -22,6 +22,12 @@ public class CommissionPricePolicy {
 		};
 	}
 
+	// 지원 마감 정원 미달 환불 금액
+	public int calculateApplicationShortfallRefund(CategoryType categoryType, int shortfallCount) {
+		int level3Reward = calculateDraftSubmissionReward(categoryType, DesignerLevel.LEVEL_3);
+		return level3Reward * shortfallCount * 4 / 3;
+	}
+
 	private int textbookCoverInnerReward(DesignerLevel level) {
 		return switch (level) {
 			case LEVEL_1 -> 40_000;
