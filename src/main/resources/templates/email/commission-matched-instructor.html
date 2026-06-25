@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div style="font-family: 'Apple SD Gothic Neo', sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
+
+    <div style="text-align: center; margin-bottom: 24px;">
+        <img alt="ditda" src="cid:logoImage" style="height: 48px;">
+    </div>
+
+    <div style="text-align: center;">
+        <h2 style="color: #874fff;">디자이너 매칭 완료!</h2>
+        <p style="color: #222; font-weight: 600; font-size: 16px;" th:text="${instructorName} + ' 강사님'"></p>
+        <p style="color: #666; line-height: 1.5;">
+            신청하신 외주의 디자이너 모집 기간이 마감되어 매칭이 성공적으로 완료되었습니다.<br>
+            디자이너들의 1차 시안 제작이 완료되는 대로 알림을 보내드리겠습니다.
+        </p>
+    </div>
+
+    <div style="margin-top: 24px; padding: 16px 20px; background: #f5f5f7; border-radius: 8px;">
+        <div style="margin: 8px 0;">
+            <span style="display: inline-block; width: 130px; color: #888; font-size: 14px;">외주명</span>
+            <span style="font-weight: 600;" th:text="${commissionTitle}"></span>
+        </div>
+        <div style="margin: 8px 0;">
+            <span style="display: inline-block; width: 130px; color: #888; font-size: 14px;">모집 디자이너 수</span>
+            <span style="font-weight: 600;" th:text="${requiredCount} + '명'"></span>
+        </div>
+        <div style="margin: 8px 0;">
+            <span style="display: inline-block; width: 130px; color: #888; font-size: 14px;">매칭 디자이너 수</span>
+            <span style="font-weight: 600; color: #874fff;" th:text="${designerCount} + '명'"></span>
+        </div>
+    </div>
+
+    <!-- 부분 환불 안내 (정원 미달 시에만 표시) -->
+    <div style="margin-top: 24px; padding: 16px 20px; background: #fff8e1; border-radius: 8px; border-left: 4px solid #ff9800;"
+         th:if="${refundAmount > 0}">
+        <p style="color: #222; font-weight: 600; margin: 0 0 12px 0;">📌 부분 환불 안내</p>
+        <p style="color: #555; line-height: 1.6; margin: 0;">
+            모집 정원 <strong th:text="${requiredCount} + '명'"></strong> 중
+            <strong th:text="${designerCount} + '명'"></strong>이 매칭되어,
+            미달 인원 <strong style="color: #e53e3e;" th:text="${shortfallCount} + '명'"></strong>에 해당하는
+            <strong style="color: #874fff;"
+                    th:text="${#numbers.formatInteger(refundAmount, 3, 'COMMA')} + '원'"></strong>이
+            부분 환불됩니다.<br><br>
+            본 메일의 <span style="color: #874fff; font-weight: bold;">답장으로 환불받으실 은행과 계좌번호, 예금주명</span>을 보내주시면,<br>
+            확인 후 영업일 기준 2~3일 이내에 환불해 드릴 예정입니다.
+        </p>
+    </div>
+
+    <div style="margin-top: 24px; text-align: center;">
+        <a href="https://ditda.kr/instructor"
+           style="display: inline-block; padding: 12px 24px; background: #874fff; color: #fff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px;">
+            대시보드 바로가기
+        </a>
+    </div>
+
+    <p style="color: #999; margin-top: 32px; font-size: 12px; text-align: center; border-top: 1px solid #eee; padding-top: 16px;">
+        ※ 환불 계좌 회신용으로 답장 수신이 가능합니다.<br>
+        환불 계좌 외의 일반 문의사항은 고객센터로 연락 바랍니다.
+    </p>
+</div>
+</body>
+</html>
