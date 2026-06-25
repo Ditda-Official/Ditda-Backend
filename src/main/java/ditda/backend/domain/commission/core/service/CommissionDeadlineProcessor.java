@@ -62,7 +62,7 @@ public class CommissionDeadlineProcessor {
 
 		} else if (applicantCount < requiredCount) {    // 지원자 < 모집 인원 -> 매칭 진행 및 미달 인원 환불
 
-			// 외주 IN_PROGRESS 처리
+			// 외주 DRAFT_SUBMITTING 처리
 			commission.startProgress();
 
 			// 지원자 상태를 ASSIGNED로 변경
@@ -77,7 +77,7 @@ public class CommissionDeadlineProcessor {
 			paymentService.requestPartialRefund(commissionId, refundAmount);
 		} else {        // 인원 충족 -> 매칭 진행
 
-			// 외주 IN_PROGRESS 처리
+			// 외주 DRAFT_SUBMITTING 처리
 			commission.startProgress();
 
 			// 지원자 상태를 ASSIGNED로 변경

@@ -190,12 +190,12 @@ public class Commission extends BaseEntity {
 		this.status = CommissionStatus.CANCELLED;
 	}
 
-	// 시안 제출 단계(IN_PROGRESS)로 이동
+	// 시안 제출 단계(DRAFT_SUBMITTING)로 이동
 	public void startProgress() {
 		if (status != CommissionStatus.RECRUITING) {
 			throw new GeneralException(CommissionErrorCode.COMMISSION_STATUS_INVALID);
 		}
 
-		this.status = CommissionStatus.IN_PROGRESS;
+		this.status = CommissionStatus.DRAFT_SUBMITTING;
 	}
 }
