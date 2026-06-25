@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.payment.entity.enums.PaymentStatus;
+import ditda.backend.domain.payment.exception.PaymentErrorCode;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -66,5 +68,27 @@ public class Payment extends BaseEntity {
 
 	public void markDepositNotified() {
 		this.depositNotifiedAt = LocalDateTime.now();
+	}
+
+	// 전액 환불
+	public void markFullRefundRequested() {
+		if (status == PaymentStatus.REFUNDED) {
+			throw new GeneralException(PaymentErrorCode.REFUND_NOT_ALLOWED);
+		}
+
+		this.status = PaymentStatus.REFUNDED;
+	}
+
+	// 부분 환불 (amount 차감)
+	public void markPartialRefundRequested(int refundAmount) {
+		if (status == PaymentStatus.REFUNDED) {
+			throw new GeneralException(PaymentErrorCode.REFUND_NOT_ALLOWED);
+		}
+
+		if (refundAmount > amount) {
+			throw new GeneralException(PaymentErrorCode.INVALID_REFUND_AMOUNT);
+		}
+
+		this.amount -= refundAmount;
 	}
 }
