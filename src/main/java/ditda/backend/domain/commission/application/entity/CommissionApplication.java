@@ -79,4 +79,13 @@ public class CommissionApplication extends BaseEntity {
 		}
 		this.status = ApplicationStatus.DRAFT_REJECTED;
 	}
+
+	// 1차 시안 대상자 선정 처리
+	public void assign() {
+		if (status != ApplicationStatus.PENDING) {
+			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_ASSIGNMENT);
+		}
+
+		this.status = ApplicationStatus.ASSIGNED;
+	}
 }
