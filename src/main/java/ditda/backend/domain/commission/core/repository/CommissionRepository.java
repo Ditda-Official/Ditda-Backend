@@ -23,7 +23,7 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 		+ "c.status = CommissionStatus.EDITING, "
 		+ "c.selectedAt = :now "
 		+ "where c.id = :commissionId "
-		+ "and c.status = CommissionStatus.IN_PROGRESS "
+		+ "and c.status = CommissionStatus.DRAFT_SELECTING "
 		+ "and c.assignedDesigner is null")
 	int selectDesignerIfAvailable(
 		@Param("commissionId") Long id,

@@ -136,7 +136,7 @@ public class Commission extends BaseEntity {
 	}
 
 	public boolean isSelectable() {
-		return status == CommissionStatus.IN_PROGRESS;
+		return status == CommissionStatus.DRAFT_SELECTING;
 	}
 
 	public boolean isDesignerSelected() {

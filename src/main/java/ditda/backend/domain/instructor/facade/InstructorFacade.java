@@ -28,7 +28,7 @@ public class InstructorFacade {
 
 		// 외주 이용 횟수 = 외주 결제 완료 (PaymentStatus = COMPLETED) 된 건수
 		long total = paymentService.countPaidCommissions(instructorId);
-		// 진행 중인 외주 건수 = 외주 Status가 모집(RECRUITING), 진행(IN_PROGRESS), 수정(EDITING) 건수
+		// 진행 중인 외주 건수 = 외주 Status가 모집(RECRUITING), 시안 제출(DRAFT_SUBMITTING), 강사 선택(DRAFT_SELECTING), 수정(EDITING) 건수
 		long ongoing = instructorCommissionService.countOngoingCommissions(instructorId);
 
 		return instructorResponseMapper.toInstructorStatsResponse(
