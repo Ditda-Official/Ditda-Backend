@@ -35,12 +35,14 @@ public class ApplicationDeadlineClosedNotifier {
 		}
 
 		// 정원 미달 -> 외주 진행 + 어드민 환불 요청
-		// 정원 충족 -> 매칭 진행 (환불 없음)
 		if (event.refundAmount() > 0) {
 			registerAdminRefundRequest(event, mailScheduledAt);
+			registerInstructorShortfall(event, mailScheduledAt);
+		} else {
+			// 정원 충족 -> 매칭 진행 (환불 없음)
+			registerInstructorMatchComplete(event, mailScheduledAt);
 		}
 
-		registerInstructorMatchComplete(event, mailScheduledAt);
 		for (ApplicationDeadlineClosedEvent.DesignerMatchInfo designer : event.matchedDesigners()) {
 			registerDesignerMatchComplete(event, designer, mailScheduledAt);
 		}
@@ -74,6 +76,24 @@ public class ApplicationDeadlineClosedNotifier {
 			Map.of(
 				"instructorName", event.instructorName(),
 				"commissionTitle", event.commissionTitle()
+			),
+			mailScheduledAt
+		));
+	}
+
+	// 강사 모집 인원 미달 알림 메일 발송
+	private void registerInstructorShortfall(ApplicationDeadlineClosedEvent event, LocalDateTime mailScheduledAt) {
+		outboxRepository.save(NotificationOutbox.create(
+			event.instructorEmail(),
+			"[DITDA] 신청하신 외주의 모집 인원이 미달되었습니다.",
+			"email/commission-shortfall-instructor",
+			Map.of(
+				"instructorName", event.instructorName(),
+				"commissionTitle", event.commissionTitle(),
+				"requiredCount", event.requiredCount(),
+				"designerCount", event.matchedDesignerCount(),
+				"shortfallCount", event.requiredCount() - event.matchedDesignerCount(),
+				"refundAmount", event.refundAmount()
 			),
 			mailScheduledAt
 		));
