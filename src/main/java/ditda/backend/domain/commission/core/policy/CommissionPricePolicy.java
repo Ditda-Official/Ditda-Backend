@@ -37,6 +37,11 @@ public class CommissionPricePolicy {
 			.sum();
 	}
 
+	// 최종 확정시 선택된 디자이너 정산 금액
+	public int calculateFinalPayout(CategoryType category, DesignerLevel level) {
+		return calculateDraftSubmissionReward(category, level) + calculateFinalSelectionIncentive(category);
+	}
+
 	private int textbookCoverInnerReward(DesignerLevel level) {
 		return switch (level) {
 			case LEVEL_1 -> 40_000;

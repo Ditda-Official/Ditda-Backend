@@ -49,9 +49,25 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 		@Param("today") LocalDate today
 	);
 
+	@Query("SELECT c FROM Commission c "
+		+ "WHERE c.finalDeadline < :today "
+		+ "AND c.status IN :statuses")
+	List<Commission> findByStatusInAndFinalDeadlineBefore(
+		@Param("statuses") Collection<CommissionStatus> statuses,
+		@Param("today") LocalDate today
+	);
+
 	@Query("SELECT c from Commission c "
 		+ "JOIN FETCH c.instructor i "
 		+ "JOIN FETCH i.user "
 		+ "WHERE c.id = :commissionId")
 	Optional<Commission> findWithInstructorAndUserById(@Param("commissionId") Long commissionId);
+
+	@Query("SELECT c FROM Commission c "
+		+ "JOIN FETCH c.instructor i "
+		+ "JOIN FETCH i.user "
+		+ "LEFT JOIN FETCH c.assignedDesigner d "
+		+ "LEFT JOIN FETCH d.user "
+		+ "WHERE c.id = :commissionId")
+	Optional<Commission> findWithInstructorAndAssignedDesignerById(@Param("commissionId") Long commissionId);
 }

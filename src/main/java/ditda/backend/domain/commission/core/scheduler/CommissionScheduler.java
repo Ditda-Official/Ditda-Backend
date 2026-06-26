@@ -28,4 +28,10 @@ public class CommissionScheduler {
 		log.info("외주 1차 시안 마감 DB 상태 처리 완료");
 	}
 
+	@Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+	public void processFinalDeadlines() {
+		log.info("외주 최종 마감 DB 상태 처리 시작");
+		commissionDeadlineService.processFinalDeadlines();
+		log.info("외주 최종 마감 DB 상태 처리 완료");
+	}
 }
