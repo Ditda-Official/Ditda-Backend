@@ -1,5 +1,7 @@
 package ditda.backend.domain.commission.core.policy;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import ditda.backend.domain.commission.core.entity.enums.CategoryType;
@@ -23,9 +25,16 @@ public class CommissionPricePolicy {
 	}
 
 	// 지원 마감 정원 미달 환불 금액
-	public int calculateApplicationShortfallRefund(CategoryType categoryType, int shortfallCount) {
-		int level3Reward = calculateDraftSubmissionReward(categoryType, DesignerLevel.LEVEL_3);
+	public int calculateApplicationShortfallRefund(CategoryType category, int shortfallCount) {
+		int level3Reward = calculateDraftSubmissionReward(category, DesignerLevel.LEVEL_3);
 		return level3Reward * shortfallCount * 4 / 3;
+	}
+
+	// 1차 시안 미제출 디자이너 기본금 합산 환불 금액
+	public int calculateFirstDraftMissedRefund(CategoryType category, List<DesignerLevel> missedLevels) {
+		return missedLevels.stream()
+			.mapToInt(level -> calculateDraftSubmissionReward(category, level))
+			.sum();
 	}
 
 	private int textbookCoverInnerReward(DesignerLevel level) {

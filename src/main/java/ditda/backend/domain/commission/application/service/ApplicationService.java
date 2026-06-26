@@ -40,4 +40,10 @@ public class ApplicationService {
 	public void assignAll(List<CommissionApplication> applications) {
 		applications.forEach(CommissionApplication::assign);
 	}
+
+	// 모든 지원자를 DRAFT_MISSED로 전이
+	@Transactional
+	public void markAllDraftMissed(List<CommissionApplication> applications) {
+		applications.forEach(CommissionApplication::markDraftMissed);
+	}
 }

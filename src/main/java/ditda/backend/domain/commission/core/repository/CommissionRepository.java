@@ -35,8 +35,16 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 
 	@Query("SELECT c from Commission c "
 		+ "WHERE c.applicationDeadline < :today "
-		+ "and c.status = :status")
+		+ "AND c.status = :status")
 	List<Commission> findByStatusAndApplicationDeadlineBefore(
+		@Param("status") CommissionStatus status,
+		@Param("today") LocalDate today
+	);
+
+	@Query("SELECT c from Commission c "
+		+ "WHERE c.firstDraftDeadline < :today "
+		+ "AND c.status = :status")
+	List<Commission> findByStatusAndFirstDraftDeadlineBefore(
 		@Param("status") CommissionStatus status,
 		@Param("today") LocalDate today
 	);
