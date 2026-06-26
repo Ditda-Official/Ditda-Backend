@@ -1,6 +1,7 @@
 package ditda.backend.global.email;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.data.domain.Limit;
@@ -16,13 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationOutboxScheduler {
 
 	private static final int BATCH_SIZE = 100;
+	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final NotificationOutboxRepository outboxRepository;
 	private final EmailSender emailSender;
 
 	@Scheduled(cron = "0 */10 * * * *", zone = "Asia/Seoul")
 	public void dispatchPendingNotifications() {
-		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime now = LocalDateTime.now(ZONE_KST);
 
 		List<NotificationOutbox> pendingAlerts = outboxRepository.findPendingScheduled(
 			OutboxStatus.PENDING,
