@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
+import ditda.backend.domain.commission.core.processor.ApplicationDeadlineProcessor;
 import ditda.backend.domain.commission.core.processor.FirstDraftDeadlineProcessor;
 import ditda.backend.domain.commission.core.repository.CommissionRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class CommissionDeadlineService {
 	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final CommissionRepository commissionRepository;
-	private final CommissionDeadlineProcessor commissionDeadlineProcessor;
+	private final ApplicationDeadlineProcessor applicationDeadlineProcessor;
 	private final FirstDraftDeadlineProcessor firstDraftDeadlineProcessor;
 
 	public void processApplicationDeadlines() {
@@ -41,7 +42,7 @@ public class CommissionDeadlineService {
 
 		for (Commission commission : commissions) {
 			try {
-				commissionDeadlineProcessor.processApplicationDeadline(commission.getId(), mailScheduledAt);
+				applicationDeadlineProcessor.process(commission.getId(), mailScheduledAt);
 			} catch (Exception e) {
 				log.error("외주 지원 마감 처리 중 오류 발생. commissionId={}", commission.getId(), e);
 
