@@ -19,7 +19,7 @@ public record CommissionListResponse(
 	int size,
 
 	@Schema(description = "전체 데이터 수", example = "23")
-	Long totalElements,
+	long totalElements,
 
 	@Schema(description = "전체 페이지 수", example = "3")
 	int totalPages
