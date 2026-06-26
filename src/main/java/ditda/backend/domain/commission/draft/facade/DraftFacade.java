@@ -22,7 +22,6 @@ import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.exception.DraftErrorCode;
 import ditda.backend.domain.commission.draft.service.DraftService;
 import ditda.backend.domain.designer.entity.Designer;
-import ditda.backend.domain.designer.entity.enums.ExpReward;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
@@ -62,7 +61,7 @@ public class DraftFacade {
 
 		applicationService.applySelection(commissionId, selected.getId());
 
-		designer.gainExp(ExpReward.DRAFT_SELECTED.getAmount());
+		designer.gainDraftSelectedReward();
 
 		return new DraftSelectResponse(
 			commissionId,
@@ -94,6 +93,8 @@ public class DraftFacade {
 
 		// 어드민 정산 요청 + 강사/디자이너 외주 확정 안내 이벤트 발생
 		Designer assigned = latestDraft.getCommissionApplication().getDesigner();
+		assigned.gainCommissionCompletedReward();
+
 		LocalDateTime mailScheduledAt = LocalDateTime.now(ZONE_KST);
 
 		publishPayoutRequestedEvent(commission, assigned, mailScheduledAt);

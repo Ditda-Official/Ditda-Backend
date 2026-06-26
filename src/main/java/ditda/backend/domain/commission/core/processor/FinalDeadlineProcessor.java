@@ -72,6 +72,9 @@ public class FinalDeadlineProcessor {
 		// CASE2: 수정 진행 중 -> 자동 최종 확정 + 어드민 정산 요청
 		commission.complete();
 
+		Designer assigned = commission.getAssignedDesigner();
+		assigned.gainCommissionCompletedReward();
+
 		publishFinalCompletedPayoutEvent(commission, mailScheduledAt);
 		publishCommissionCompletedEvent(commission, mailScheduledAt);
 	}
