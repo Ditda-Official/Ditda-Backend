@@ -63,7 +63,7 @@ public class CommissionDeadlineProcessor {
 		} else if (applicantCount < requiredCount) {    // 지원자 < 모집 인원 -> 매칭 진행 및 미달 인원 환불
 
 			// 외주 DRAFT_SUBMITTING 처리
-			commission.startProgress();
+			commission.startDraftSubmitting();
 
 			// 지원자 상태를 ASSIGNED로 변경
 			applicationService.assignAll(applications);
@@ -78,7 +78,7 @@ public class CommissionDeadlineProcessor {
 		} else {        // 인원 충족 -> 매칭 진행
 
 			// 외주 DRAFT_SUBMITTING 처리
-			commission.startProgress();
+			commission.startDraftSubmitting();
 
 			// 지원자 상태를 ASSIGNED로 변경
 			applicationService.assignAll(applications);
@@ -102,13 +102,9 @@ public class CommissionDeadlineProcessor {
 				.toList()
 		));
 
-		log.info("외주 마감 처리 완료. commissionId={}, cancelled={},  지원자 수={}, 환불금액={}",
+		log.info("외주 마감 처리 완료. commissionId={}, cancelled={}, 지원자 수={}, 환불금액={}",
 			commission.getId(), cancelled, applicantCount, refundAmount);
 
 	}
-
-	// ============ 1차 시안 마감 ============
-
-	// ============ 최종 마감 ============
 
 }
