@@ -29,6 +29,6 @@ public enum CommissionAmountPolicy {
 		return Arrays.stream(values())
 			.filter(policy -> policy.level == level)
 			.findFirst()
-			.orElseThrow(() -> new GeneralException(DesignerErrorCode.DESIGNER_LEVEL_POLICY_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(DesignerErrorCode.DESIGNER_LEVEL_POLICY_MISSING));
 	}
 }
