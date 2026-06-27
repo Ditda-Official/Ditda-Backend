@@ -3,6 +3,8 @@ package ditda.backend.domain.commission.core.repository;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -29,4 +31,6 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 	);
 
 	long countByInstructorIdAndStatusIn(Long instructorId, Collection<CommissionStatus> statuses);
+
+	Page<Commission> findByStatus(CommissionStatus status, Pageable pageable);
 }
