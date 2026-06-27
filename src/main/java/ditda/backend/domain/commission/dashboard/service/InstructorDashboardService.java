@@ -29,7 +29,7 @@ public class InstructorDashboardService {
 
 		List<DraftSubmissionView> views = dashboardCommissionRepository.findDraftSubmissionViews(
 			instructorId,
-			CommissionStatus.IN_PROGRESS,
+			CommissionStatus.DRAFT_SUBMITTING,
 			ApplicationStatus.DRAFT_SUBMITTED
 		);
 
