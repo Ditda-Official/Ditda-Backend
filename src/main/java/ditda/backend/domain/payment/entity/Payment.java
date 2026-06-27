@@ -85,7 +85,7 @@ public class Payment extends BaseEntity {
 			throw new GeneralException(PaymentErrorCode.REFUND_NOT_ALLOWED);
 		}
 
-		if (refundAmount > amount) {
+		if (refundAmount <= 0 || refundAmount > amount) {
 			throw new GeneralException(PaymentErrorCode.INVALID_REFUND_AMOUNT);
 		}
 
