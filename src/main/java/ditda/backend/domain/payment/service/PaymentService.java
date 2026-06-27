@@ -95,15 +95,41 @@ public class PaymentService {
 
 		return paymentRepository.findPaidAmounts(commissionIds, PaymentStatus.COMPLETED).stream()
 			.collect(Collectors.toMap(
-				CommissionPaidAmount::getCommissionId,
-				CommissionPaidAmount::getAmount
-			)
-		);
+					CommissionPaidAmount::getCommissionId,
+					CommissionPaidAmount::getAmount
+				)
+			);
 	}
 
 	// 결제 완료된 외주 카운트
 	@Transactional(readOnly = true)
 	public long countPaidCommissions(Long instructorId) {
 		return paymentRepository.countByInstructorIdAndStatus(instructorId, PaymentStatus.COMPLETED);
+	}
+
+	// 전액 환불
+	@Transactional
+	public int requestFullRefund(Long commissionId) {
+
+		// 결제 내역 조회
+		Payment payment = paymentRepository.findByCommissionId(commissionId)
+			.orElseThrow(() -> new GeneralException(PaymentErrorCode.PAYMENT_NOT_FOUND));
+
+		// 전액 환불
+		payment.markFullRefundRequested();
+
+		return payment.getAmount();
+	}
+
+	// 부분 환불
+	@Transactional
+	public void requestPartialRefund(Long commissionId, int refundAmount) {
+
+		// 결제 내역 조회
+		Payment payment = paymentRepository.findByCommissionId(commissionId)
+			.orElseThrow(() -> new GeneralException(PaymentErrorCode.PAYMENT_NOT_FOUND));
+
+		// 부분 환불
+		payment.markPartialRefundRequested(refundAmount);
 	}
 }

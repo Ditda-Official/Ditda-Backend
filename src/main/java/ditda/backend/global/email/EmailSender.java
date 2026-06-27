@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,21 +26,27 @@ public class EmailSender {
 	private final JavaMailSender mailSender;
 	private final SpringTemplateEngine templateEngine;
 
+	public void send(String to, String subject, String templateName, Map<String, Object> variables)
+		throws MessagingException {
+
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+		helper.setTo(to);
+		helper.setSubject(subject);
+		helper.setText(renderTemplate(templateName, variables), true);
+
+		helper.addInline(LOGO_CID, new ClassPathResource(LOGO_PATH));
+
+		mailSender.send(mimeMessage);
+
+		log.info("Email sent. to={}, template={}", to, templateName);
+	}
+
 	@Async
-	public void send(String to, String subject, String templateName, Map<String, Object> variables) {
+	public void sendAsync(String to, String subject, String templateName, Map<String, Object> variables) {
 		try {
-			MimeMessage mimeMessage = mailSender.createMimeMessage();
-			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-
-			helper.setTo(to);
-			helper.setSubject(subject);
-			helper.setText(renderTemplate(templateName, variables), true);
-
-			helper.addInline(LOGO_CID, new ClassPathResource(LOGO_PATH));
-
-			mailSender.send(mimeMessage);
-
-			log.info("Email sent. to={}, template={}", to, templateName);
+			send(to, subject, templateName, variables);
 		} catch (Exception e) {
 			log.error("Email send failed. to={}, template={}", to, templateName, e);
 		}

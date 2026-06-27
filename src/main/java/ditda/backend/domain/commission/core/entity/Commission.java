@@ -139,6 +139,10 @@ public class Commission extends BaseEntity {
 		return status == CommissionStatus.DRAFT_SELECTING;
 	}
 
+	public boolean isCancelled() {
+		return status == CommissionStatus.CANCELLED;
+	}
+
 	public boolean isDesignerSelected() {
 		return assignedDesigner != null;
 	}
@@ -181,4 +185,29 @@ public class Commission extends BaseEntity {
 		this.status = CommissionStatus.COMPLETED;
 	}
 
+	// 외주 취소
+	public void cancel() {
+		if (status == CommissionStatus.COMPLETED || status == CommissionStatus.CANCELLED) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_STATUS_INVALID);
+		}
+
+		this.status = CommissionStatus.CANCELLED;
+	}
+
+	// 시안 제출 단계(DRAFT_SUBMITTING)로 이동
+	public void startDraftSubmitting() {
+		if (status != CommissionStatus.RECRUITING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_STATUS_INVALID);
+		}
+
+		this.status = CommissionStatus.DRAFT_SUBMITTING;
+	}
+
+	public void startDraftSelecting() {
+		if (status != CommissionStatus.DRAFT_SUBMITTING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_STATUS_INVALID);
+		}
+
+		this.status = CommissionStatus.DRAFT_SELECTING;
+	}
 }

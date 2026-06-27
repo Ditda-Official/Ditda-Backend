@@ -4,6 +4,7 @@ import org.springframework.data.domain.Persistable;
 
 import ditda.backend.domain.designer.entity.enums.BankName;
 import ditda.backend.domain.designer.entity.enums.DesignerLevel;
+import ditda.backend.domain.designer.entity.enums.ExpReward;
 import ditda.backend.domain.user.entity.User;
 import ditda.backend.global.encryption.AesEncryptConverter;
 import ditda.backend.global.entity.BaseEntity;
@@ -61,11 +62,6 @@ public class Designer extends BaseEntity implements Persistable<Long> {
 	@Column(name = "account_holder", length = 50, nullable = false)
 	private String accountHolder;
 
-	@Override
-	public boolean isNew() {
-		return getCreatedAt() == null;
-	}
-
 	public static Designer createDesigner(User user, BankName bankName, String accountNumber, String accountHolder) {
 		return Designer.builder()
 			.user(user)
@@ -75,7 +71,28 @@ public class Designer extends BaseEntity implements Persistable<Long> {
 			.build();
 	}
 
-	public void gainExp(int amount) {
+	@Override
+	public boolean isNew() {
+		return getCreatedAt() == null;
+	}
+
+	public void gainPortfolioReward() {
+		gainExp(ExpReward.PORTFOLIO.getAmount());
+	}
+
+	public void gainFirstDraftSubmitReward() {
+		gainExp(ExpReward.FIRST_DRAFT_SUBMIT.getAmount());
+	}
+
+	public void gainDraftSelectedReward() {
+		gainExp(ExpReward.DRAFT_SELECTED.getAmount());
+	}
+
+	public void gainCommissionCompletedReward() {
+		gainExp(ExpReward.COMMISSION_COMPLETED.getAmount());
+	}
+
+	private void gainExp(int amount) {
 		this.exp += amount;
 		while (level.canLevelUp(this.exp)) {
 			this.exp -= level.getRequiredExp();
