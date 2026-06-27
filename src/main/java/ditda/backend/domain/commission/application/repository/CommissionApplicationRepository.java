@@ -10,8 +10,6 @@ import ditda.backend.domain.commission.application.entity.CommissionApplication;
 
 public interface CommissionApplicationRepository extends JpaRepository<CommissionApplication, Long> {
 
-	List<CommissionApplication> findByCommission_Id(Long commissionId);
-
 	@Query("SELECT ca from CommissionApplication ca "
 		+ "JOIN FETCH ca.designer d "
 		+ "JOIN FETCH d.user "
