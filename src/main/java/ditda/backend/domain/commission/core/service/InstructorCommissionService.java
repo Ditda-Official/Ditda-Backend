@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import ditda.backend.domain.commission.core.dto.CommissionFileToSave;
 import ditda.backend.domain.commission.core.dto.request.CommissionCreateRequest;
@@ -15,6 +16,7 @@ import ditda.backend.domain.commission.core.entity.CommissionColor;
 import ditda.backend.domain.commission.core.entity.CommissionConcept;
 import ditda.backend.domain.commission.core.entity.enums.ColorSelectionMode;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
+import ditda.backend.domain.commission.core.entity.enums.ConceptTag;
 import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.commission.core.handler.CommissionCategoryHandler;
 import ditda.backend.domain.commission.core.repository.CommissionColorRepository;
@@ -56,7 +58,10 @@ public class InstructorCommissionService {
 		CommissionCreateRequest.DateInfo date = request.date();
 		CommissionCreateRequest.TermRequest term = request.term();
 
-		// 1. Commission 저장
+		// 1. 컨셉 검증
+		validateConcepts(design);
+
+		// 2. Commission 저장
 		Instructor instructor = instructorService.getById(instructorId);
 		String title = handler.buildTitle(request);
 		Commission commission = Commission.create(
@@ -72,15 +77,15 @@ public class InstructorCommissionService {
 		);
 		commissionRepository.save(commission);
 
-		// 2. 공통 섹션 저장
+		// 3. 공통 섹션 저장
 		saveConcepts(commission, design);
 		saveColors(commission, design);
 		saveFiles(commission, commissionFiles);
 
-		// 3. 카테고리별 전용 섹션 저장
+		// 4. 카테고리별 전용 섹션 저장
 		handler.saveDetail(commission, request);
 
-		// 4. 결제(입금 대기 [PENDING]) + 결제 약관 저장
+		// 5. 결제(입금 대기 [PENDING]) + 결제 약관 저장
 		String depositorName = instructor.getName();
 		paymentService.createPendingPayment(
 			commission,
@@ -129,6 +134,27 @@ public class InstructorCommissionService {
 			instructorId,
 			CommissionStatus.ongoingStatuses()
 		);
+	}
+
+	// 컨셉 검증
+	private void validateConcepts(CommissionCreateRequest.DesignInfo design) {
+
+		List<ConceptTag> tags = design.concepts();
+		String additionalConcept = design.additionalConcept();
+
+		// 컨셉 0개 + 추가 컨셉 없을 경우
+		if (tags.isEmpty() && !StringUtils.hasText(additionalConcept)) {
+			throw new GeneralException(CommissionErrorCode.CONCEPT_REQUIRED);
+		}
+
+		// 카테고리당 1개만 (같은 카테고리 중복 선택 불가)
+		long distinctCategories = tags.stream()
+			.map(ConceptTag::getCategory)
+			.distinct()
+			.count();
+		if (distinctCategories != tags.size()) {
+			throw new GeneralException(CommissionErrorCode.CONCEPT_CATEGORY_DUPLICATED);
+		}
 	}
 
 	// 컨셉 저장
