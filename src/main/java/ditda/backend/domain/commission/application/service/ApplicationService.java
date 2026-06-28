@@ -44,4 +44,10 @@ public class ApplicationService {
 	public void markAllDraftMissed(List<CommissionApplication> applications) {
 		applications.forEach(CommissionApplication::markDraftMissed);
 	}
+
+	// 모든 지원자를 APPLICATION_REJECTED로 전이
+	@Transactional
+	public void markAllApplicationRejected(List<CommissionApplication> applications) {
+		applications.forEach(CommissionApplication::markApplicationRejected);
+	}
 }

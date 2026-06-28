@@ -1,7 +1,12 @@
 package ditda.backend.domain.commission.core.processor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -15,6 +20,7 @@ import ditda.backend.domain.commission.core.event.ApplicationDeadlineClosedEvent
 import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.commission.core.policy.CommissionPricePolicy;
 import ditda.backend.domain.commission.core.repository.CommissionRepository;
+import ditda.backend.domain.designer.entity.enums.DesignerLevel;
 import ditda.backend.domain.payment.service.PaymentService;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
@@ -106,10 +112,70 @@ public class ApplicationDeadlineProcessor {
 		// 외주 DRAFT_SUBMITTING 처리
 		commission.startDraftSubmitting();
 
-		// 지원자 상태 ASSIGNED로 전이
-		applicationService.assignAll(applications);
+		// 선정/탈락 분리
+		List<CommissionApplication> selected = selectAssignedApplicants(commission, applications);
+
+		Set<Long> selectedIds = selected.stream()
+			.map(CommissionApplication::getId)
+			.collect(Collectors.toSet());
+
+		List<CommissionApplication> rejected = applications.stream()
+			.filter(a -> !selectedIds.contains(a.getId()))
+			.toList();
+
+		// 선정자 상태 ASSIGNED로 전이
+		applicationService.assignAll(selected);
+
+		// 탈락자 상태 APPLICATION_REJECTED로 전이
+		applicationService.markAllApplicationRejected(rejected);
 
 		return 0;
+	}
+
+	private List<CommissionApplication> selectAssignedApplicants(
+		Commission commission,
+		List<CommissionApplication> applications
+	) {
+
+		// 모집 디자이너 수
+		int capacity = commission.getDesignerCount();
+
+		// 지원시간 오름차순 정렬
+		List<CommissionApplication> sorted = applications.stream()
+			.sorted(Comparator.comparing(CommissionApplication::getCreatedAt))
+			.toList();
+
+		List<CommissionApplication> result = new ArrayList<>();
+		Set<Long> selectedIds = new HashSet<>();
+		Set<DesignerLevel> levelGuaranteed = new HashSet<>();
+
+		// 레벨별 1명 보장
+		for (CommissionApplication app : sorted) {
+			DesignerLevel level = app.getDesigner().getLevel();
+			if (!levelGuaranteed.contains(level)) {
+				result.add(app);
+				selectedIds.add(app.getId());
+				levelGuaranteed.add(level);
+
+				if (result.size() == capacity) {
+					break;
+				}
+			}
+		}
+
+		// 남은 슬롯 선착순
+		for (CommissionApplication app : sorted) {
+			if (result.size() == capacity) {
+				break;
+			}
+
+			if (!selectedIds.contains(app.getId())) {
+				result.add(app);
+				selectedIds.add(app.getId());
+			}
+		}
+
+		return result;
 	}
 
 	private void publishEvent(

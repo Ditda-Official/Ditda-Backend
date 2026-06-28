@@ -66,6 +66,13 @@ public class CommissionApplication extends BaseEntity {
 			.build();
 	}
 
+	public void markApplicationRejected() {
+		if (status != ApplicationStatus.PENDING) {
+			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_APP_REJECTED);
+		}
+		this.status = ApplicationStatus.APPLICATION_REJECTED;
+	}
+
 	public void markDraftSelected() {
 		if (status != ApplicationStatus.DRAFT_SUBMITTED) {
 			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_DRAFT_SELECTION);
