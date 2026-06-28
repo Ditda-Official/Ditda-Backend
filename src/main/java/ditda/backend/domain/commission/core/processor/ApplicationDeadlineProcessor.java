@@ -47,49 +47,48 @@ public class ApplicationDeadlineProcessor {
 		// 지원자 조회
 		List<CommissionApplication> applications = applicationService.getApplicantsWithDesignerAndUser(commissionId);
 
-		// 환불 금액
-		int refundAmount = applyApplicationDeadline(commission, applications);
+		applyApplicationDeadline(commission, applications, mailScheduledAt);
 
-		publishEvent(commission, applications, refundAmount, mailScheduledAt);
-
-		log.info("외주 지원 마감 처리 완료. commissionId={}, cancelled={}, 환불금액={}",
-			commission.getId(), commission.isCancelled(), refundAmount);
+		log.info("외주 지원 마감 처리 완료. commissionId={}, cancelled={}",
+			commission.getId(), commission.isCancelled());
 	}
 
-	private int applyApplicationDeadline(Commission commission, List<CommissionApplication> applications) {
+	private void applyApplicationDeadline(
+		Commission commission,
+		List<CommissionApplication> applications,
+		LocalDateTime mailScheduledAt
+	) {
 
 		int requiredCount = commission.getDesignerCount();
 		int applicantCount = applications.size();
 
-		// CASE 1: 지원자 0명
-		if (applicantCount == 0) {
-			return handleNoApplicants(commission);
+		if (applicantCount == 0) {        // CASE 1: 지원자 0명
+			handleNoApplicants(commission, mailScheduledAt);
+		} else if (applicantCount < requiredCount) {        // CASE 2: 정원 미달
+			handleShortfallApplicants(commission, applications, requiredCount - applicantCount, mailScheduledAt);
+		} else {        // CASE 3: 정원 충족
+			handleFullApplicants(commission, applications, mailScheduledAt);
 		}
-
-		// CASE 2: 정원 미달
-		if (applicantCount < requiredCount) {
-			return handleShortfallApplicants(commission, applications, requiredCount - applicantCount);
-		}
-
-		// CASE 3: 정원 충족
-		return handleFullApplicants(commission, applications);
 	}
 
 	// CASE 1: 지원자 0명 -> 외주 취소 + 전액 환불
-	private int handleNoApplicants(Commission commission) {
+	private void handleNoApplicants(Commission commission, LocalDateTime mailScheduledAt) {
 
 		// 외주 취소
 		commission.cancel();
 
-		// 전액 환불
-		return paymentService.requestFullRefund(commission.getId());
+		// 환불 금액
+		int refundAmount = paymentService.requestFullRefund(commission.getId());
+
+		publishEvent(commission, List.of(), refundAmount, mailScheduledAt);
 	}
 
 	// CASE 2: 정원 미달 -> 시안 제출 단계 진입 + 미달 인원 환불
-	private int handleShortfallApplicants(
+	private void handleShortfallApplicants(
 		Commission commission,
 		List<CommissionApplication> applications,
-		int shortfall
+		int shortfall,
+		LocalDateTime mailScheduledAt
 	) {
 
 		// 외주 DRAFT_SUBMITTING 처리
@@ -103,11 +102,15 @@ public class ApplicationDeadlineProcessor {
 			commission.getCategoryType(), shortfall);
 		paymentService.requestPartialRefund(commission.getId(), refundAmount);
 
-		return refundAmount;
+		publishEvent(commission, applications, refundAmount, mailScheduledAt);
 	}
 
 	// CASE 3: 정원 충족 -> 시안 제출 단계 진입
-	private int handleFullApplicants(Commission commission, List<CommissionApplication> applications) {
+	private void handleFullApplicants(
+		Commission commission,
+		List<CommissionApplication> applications,
+		LocalDateTime mailScheduledAt
+	) {
 
 		// 외주 DRAFT_SUBMITTING 처리
 		commission.startDraftSubmitting();
@@ -129,7 +132,7 @@ public class ApplicationDeadlineProcessor {
 		// 탈락자 상태 APPLICATION_REJECTED로 전이
 		applicationService.markAllApplicationRejected(rejected);
 
-		return 0;
+		publishEvent(commission, selected, 0, mailScheduledAt);
 	}
 
 	private List<CommissionApplication> selectAssignedApplicants(
