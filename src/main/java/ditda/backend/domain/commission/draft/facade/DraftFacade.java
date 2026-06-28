@@ -178,9 +178,6 @@ public class DraftFacade {
 		// 외주 조회 + 강사 확인
 		Commission commission = instructorCommissionService.getOwnedCommission(commissionId, instructorId);
 
-		// 최종 확정 가능 단계인지 검증
-		commission.validateFinalizable();
-
 		// 가장 최근 시안과 일치하는지 검증
 		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);
 		if (!latestDraft.getId().equals(draftId)) {

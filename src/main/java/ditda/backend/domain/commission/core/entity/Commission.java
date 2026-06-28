@@ -154,13 +154,6 @@ public class Commission extends BaseEntity {
 		}
 	}
 
-	// 최종 확정 가능 단계 검증
-	public void validateFinalizable() {
-		if (status != CommissionStatus.EDITING) {
-			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_FINALIZABLE);
-		}
-	}
-
 	// 추가 수정 가능 여부 검증
 	public boolean isRevisionLimitExceeded(int currentRevisionCount) {
 		return currentRevisionCount >= maxRevision;
@@ -182,6 +175,10 @@ public class Commission extends BaseEntity {
 
 	// 외주 최종 확정
 	public void complete() {
+		if (status != CommissionStatus.EDITING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_FINALIZABLE);
+		}
+
 		this.status = CommissionStatus.COMPLETED;
 	}
 
