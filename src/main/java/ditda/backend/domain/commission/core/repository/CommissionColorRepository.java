@@ -1,8 +1,12 @@
 package ditda.backend.domain.commission.core.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import ditda.backend.domain.commission.core.entity.CommissionColor;
 
 public interface CommissionColorRepository extends JpaRepository<CommissionColor, Long> {
+
+	List<CommissionColor> findByCommissionId(Long commissionId);
 }
