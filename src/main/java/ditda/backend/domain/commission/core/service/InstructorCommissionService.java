@@ -1,6 +1,7 @@
 package ditda.backend.domain.commission.core.service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -145,6 +146,10 @@ public class InstructorCommissionService {
 		// 컨셉 0개 + 추가 컨셉 없을 경우
 		if (tags.isEmpty() && !StringUtils.hasText(additionalConcept)) {
 			throw new GeneralException(CommissionErrorCode.CONCEPT_REQUIRED);
+		}
+
+		if (tags.size() != new HashSet<>(tags).size()) {
+			throw new GeneralException(CommissionErrorCode.CONCEPT_DUPLICATED);
 		}
 	}
 
