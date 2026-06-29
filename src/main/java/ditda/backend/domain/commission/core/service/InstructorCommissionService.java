@@ -146,15 +146,6 @@ public class InstructorCommissionService {
 		if (tags.isEmpty() && !StringUtils.hasText(additionalConcept)) {
 			throw new GeneralException(CommissionErrorCode.CONCEPT_REQUIRED);
 		}
-
-		// 카테고리당 1개만 (같은 카테고리 중복 선택 불가)
-		long distinctCategories = tags.stream()
-			.map(ConceptTag::getCategory)
-			.distinct()
-			.count();
-		if (distinctCategories != tags.size()) {
-			throw new GeneralException(CommissionErrorCode.CONCEPT_CATEGORY_DUPLICATED);
-		}
 	}
 
 	// 컨셉 저장

@@ -16,7 +16,6 @@ public enum CommissionErrorCode implements BaseErrorCode {
 
 	// 컨셉
 	CONCEPT_REQUIRED(HttpStatus.BAD_REQUEST, "COMMISSION_400_10", "컨셉 또는 추가 컨셉 설명 중 최소 하나는 입력해야 합니다."),
-	CONCEPT_CATEGORY_DUPLICATED(HttpStatus.BAD_REQUEST, "COMMISSION_400_11", "같은 카테고리의 컨셉은 하나만 선택할 수 있습니다."),
 
 	// 색상 선택 (직접 색상 지정)
 	COLORS_REQUIRED(HttpStatus.BAD_REQUEST, "COMMISSION_400_02", "직접 색상 선택 시 색상은 필수입니다."),
