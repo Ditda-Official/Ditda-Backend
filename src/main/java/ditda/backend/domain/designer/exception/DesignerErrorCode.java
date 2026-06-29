@@ -10,7 +10,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum DesignerErrorCode implements BaseErrorCode {
 
-	PORTFOLIO_FILE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "DESIGNER_400_01", "포트폴리오 파일은 최대 3개까지 업로드 가능합니다.");
+	PORTFOLIO_FILE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "DESIGNER_400_01", "포트폴리오 파일은 최대 3개까지 업로드 가능합니다."),
+	DESIGNER_NOT_FOUND(HttpStatus.NOT_FOUND, "DESIGNER_404_01", "디자이너를 찾을 수 없습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;
