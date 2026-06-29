@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div style="font-family: 'Apple SD Gothic Neo', sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
+    <div style="text-align: center; margin-bottom: 24px;">
+        <img alt="ditda" src="cid:logoImage" style="height: 48px;">
+    </div>
+    <div style="text-align: center;">
+        <h2 style="color: #e53e3e;">외주 매칭 취소 안내</h2>
+        <p style="color: #222; font-weight: 600; font-size: 16px;" th:text="${instructorName} + ' 강사님'"></p>
+        <p style="color: #666; line-height: 1.6;">
+            신청하신 외주에 기간 내에 지원한 디자이너가 없어<br>
+            아쉽게도 해당 외주가 자동 <strong style="color: #e53e3e;">취소</strong>되었습니다.<br><br>
+            <strong>[환불 안내]</strong><br>
+            본 메일의 <span style="color: #874fff; font-weight: bold;">답장으로 환불받으실 은행과 계좌번호, 예금주명</span>을 보내주시면,<br>
+            확인 후 영업일 기준 2~3일 이내에 전액 환불해 드릴 예정입니다.
+        </p>
+    </div>
+    <div style="margin-top: 24px; padding: 16px 20px; background: #f5f5f7; border-radius: 8px;">
+        <div style="margin: 8px 0;">
+            <span style="display: inline-block; width: 90px; color: #888; font-size: 14px;">외주명</span>
+            <span style="font-weight: 600; text-decoration: line-through; color: #888;"
+                  th:text="${commissionTitle}"></span>
+        </div>
+        <div style="margin: 8px 0;">
+            <span style="display: inline-block; width: 90px; color: #888; font-size: 14px;">진행 상태</span>
+            <span style="font-weight: 600; color: #e53e3e;">취소 (환불 예정)</span>
+        </div>
+    </div>
+    <p style="color: #999; margin-top: 32px; font-size: 12px; text-align: center; border-top: 1px solid #eee; padding-top: 16px;">
+        ※ 본 메일은 환불 계좌 회신용으로 답장 수신이 가능합니다. <br> 환불 계좌 외의 일반 문의사항이 있으시면 고객센터로 연락 바랍니다.
+    </p>
+</div>
+</body>
+</html>

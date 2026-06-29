@@ -26,7 +26,7 @@ public class DepositMailer {
 		int amount,
 		LocalDateTime notifiedAt
 	) {
-		emailSender.send(adminEmail, SUBJECT, TEMPLATE, Map.of(
+		emailSender.sendAsync(adminEmail, SUBJECT, TEMPLATE, Map.of(
 			"commissionId", commissionId,
 			"title", commissionTitle,
 			"instructorName", instructorName,
