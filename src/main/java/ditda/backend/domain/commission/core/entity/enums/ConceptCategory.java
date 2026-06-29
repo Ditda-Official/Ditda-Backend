@@ -6,11 +6,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ConceptCategory {
-	BRIGHT("밝은"),
-	SOFT("부드러운"),
-	LUXURIOUS("고급스러운"),
-	INTENSE("강렬한"),
-	NEAT("단정한");
+	TEXTURE("질감"),
+	LAYOUT("레이아웃"),
+	SHAPE("형태"),
+	COLOR("색감"),
+	MOOD("무드");
 
 	private final String description;
 }
