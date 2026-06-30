@@ -7,11 +7,11 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import ditda.backend.domain.commission.core.dto.CommissionDetail;
+import ditda.backend.domain.commission.core.dto.PriceInfo;
 import ditda.backend.domain.commission.core.dto.response.CommissionDetailResponse;
 import ditda.backend.domain.commission.core.dto.response.CommissionDetailResponse.DateInfo;
 import ditda.backend.domain.commission.core.dto.response.CommissionDetailResponse.DesignInfo;
 import ditda.backend.domain.commission.core.dto.response.CommissionDetailResponse.FileInfo;
-import ditda.backend.domain.commission.core.dto.response.CommissionDetailResponse.PriceInfo;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.CommissionColor;
 import ditda.backend.domain.commission.core.entity.CommissionConcept;
