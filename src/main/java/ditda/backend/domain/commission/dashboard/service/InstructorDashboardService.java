@@ -2,6 +2,7 @@ package ditda.backend.domain.commission.dashboard.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,7 @@ public class InstructorDashboardService {
 
 		List<DraftSubmissionView> views = dashboardCommissionRepository.findDraftSubmissionViews(
 			instructorId,
-			CommissionStatus.DRAFT_SUBMITTING,
+			Set.of(CommissionStatus.DRAFT_SUBMITTING, CommissionStatus.DRAFT_SELECTING),
 			ApplicationStatus.DRAFT_SUBMITTED
 		);
 

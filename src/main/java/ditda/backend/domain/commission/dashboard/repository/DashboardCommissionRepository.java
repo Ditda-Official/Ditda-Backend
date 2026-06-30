@@ -1,6 +1,7 @@
 package ditda.backend.domain.commission.dashboard.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -15,17 +16,17 @@ import ditda.backend.domain.commission.dashboard.repository.projection.RevisingV
 
 public interface DashboardCommissionRepository extends Repository<Commission, Long> {
 
-	// 시안 제출 현황: commission + DRAFT_SUBMITTED 개수
+	// 시안 제출 현황: commission + DRAFT_SELECTING/DRAFT_SUBMITTED 개수
 	@Query("SELECT c AS commission, "
 		+ "COUNT(a.id) AS submissionCount "
 		+ "FROM Commission c "
 		+ "LEFT JOIN CommissionApplication a ON a.commission = c AND a.status = :applicationStatus "
-		+ "WHERE c.instructor.id = :instructorId AND c.status = :commissionStatus "
+		+ "WHERE c.instructor.id = :instructorId AND c.status = :commissionStatuses "
 		+ "GROUP BY c.id "
 		+ "ORDER BY c.firstDraftDeadline ASC")
 	List<DraftSubmissionView> findDraftSubmissionViews(
 		@Param("instructorId") Long instructorId,
-		@Param("commissionStatus") CommissionStatus commissionStatus,
+		@Param("commissionStatuses") Set<CommissionStatus> commissionStatuses,
 		@Param("applicationStatus") ApplicationStatus applicationStatus
 	);
 
