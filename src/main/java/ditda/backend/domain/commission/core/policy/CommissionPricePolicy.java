@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import ditda.backend.domain.commission.core.dto.PriceInfo;
+import ditda.backend.domain.commission.core.dto.PriceDetail;
 import ditda.backend.domain.commission.core.entity.enums.CategoryType;
 import ditda.backend.domain.designer.entity.enums.DesignerLevel;
 
@@ -44,8 +44,8 @@ public class CommissionPricePolicy {
 	}
 
 	// 기본금 및 최종금액 policy가 만들어서 반환
-	public PriceInfo getPriceInfo(CategoryType category, DesignerLevel level) {
-		return new PriceInfo(
+	public PriceDetail getPriceDetail(CategoryType category, DesignerLevel level) {
+		return new PriceDetail(
 			calculateDraftSubmissionReward(category, level),
 			calculateFinalPayout(category, level)
 		);

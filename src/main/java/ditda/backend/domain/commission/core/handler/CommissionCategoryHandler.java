@@ -17,4 +17,7 @@ public interface CommissionCategoryHandler {
 
 	// 카테고리별 전용 저장
 	void saveDetail(Commission commission, CommissionCreateRequest request);
+
+	// 카테고리별 상세 조회
+	CategoryDetail loadDetail(Long commissionId);
 }
