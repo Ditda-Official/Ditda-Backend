@@ -1,0 +1,64 @@
+package ditda.backend.domain.commission.revision.facade;
+
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import ditda.backend.domain.commission.core.entity.Commission;
+import ditda.backend.domain.commission.core.service.DesignerCommissionService;
+import ditda.backend.domain.commission.draft.entity.CommissionDraft;
+import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
+import ditda.backend.domain.commission.draft.service.DraftService;
+import ditda.backend.domain.commission.revision.dto.response.DesignerRevisionDetailResponse;
+import ditda.backend.domain.commission.revision.entity.RevisionDetail;
+import ditda.backend.domain.commission.revision.entity.RevisionRequest;
+import ditda.backend.domain.commission.revision.mapper.RevisionMapper;
+import ditda.backend.domain.commission.revision.service.RevisionService;
+import lombok.RequiredArgsConstructor;
+
+@Component
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class DesignerRevisionFacade {
+
+	private final DesignerCommissionService designerCommissionService;
+	private final DraftService draftService;
+	private final RevisionService revisionService;
+	private final RevisionMapper revisionMapper;
+
+	@Transactional
+	public DesignerRevisionDetailResponse getRevisionDetail(Long designerId, Long commissionId) {
+
+		// 외주 조회 + 디자이너 확인
+		Commission commission = designerCommissionService.getSelectedCommission(commissionId, designerId);
+
+		// 수정 단계 확인
+		commission.validateRevisable();
+
+		// 가장 최근 시안
+		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);
+
+		// 수정 요청 조회 + 확인 처리
+		RevisionRequest revisionRequest = revisionService.getRevisionRequestAndCheck(latestDraft.getId());
+
+		// 수정 요청 항목
+		List<RevisionDetail> details = revisionService.getRevisionDetails(revisionRequest.getId());
+
+		// 썸네일
+		CommissionDraftFile thumbnail = draftService.getThumbnail(latestDraft.getId());
+
+		int currentRevisionCount = revisionService.calculateCurrentRevisionCount(commission);
+		int remainingRevisionCount = commission.getMaxRevision() - currentRevisionCount;
+
+		return revisionMapper.toDesignerRevisionDetailResponse(
+			commission,
+			revisionRequest,
+			latestDraft,
+			thumbnail,
+			details,
+			remainingRevisionCount
+		);
+
+	}
+}
