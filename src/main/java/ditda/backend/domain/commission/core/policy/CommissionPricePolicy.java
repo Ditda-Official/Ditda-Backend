@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import ditda.backend.domain.commission.core.dto.PriceInfo;
 import ditda.backend.domain.commission.core.entity.enums.CategoryType;
 import ditda.backend.domain.designer.entity.enums.DesignerLevel;
 
@@ -40,6 +41,14 @@ public class CommissionPricePolicy {
 	// 최종 확정시 선택된 디자이너 정산 금액
 	public int calculateFinalPayout(CategoryType category, DesignerLevel level) {
 		return calculateDraftSubmissionReward(category, level) + calculateFinalSelectionIncentive(category);
+	}
+
+	// 기본금 및 최종금액 policy가 만들어서 반환
+	public PriceInfo getPriceInfo(CategoryType category, DesignerLevel level) {
+		return new PriceInfo(
+			calculateDraftSubmissionReward(category, level),
+			calculateFinalPayout(category, level)
+		);
 	}
 
 	private int textbookCoverInnerReward(DesignerLevel level) {

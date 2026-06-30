@@ -2,7 +2,12 @@ package ditda.backend.domain.commission.core.dto.response;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.data.domain.Page;
+
+import ditda.backend.domain.commission.core.dto.PriceInfo;
+import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.CategoryType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -25,6 +30,20 @@ public record CommissionListResponse(
 	int totalPages
 ) {
 
+	public static CommissionListResponse from(Page<Commission> page, Map<Long, PriceInfo> priceInfos) {
+		List<CommissionResponse> items = page.getContent().stream()
+			.map(c -> CommissionResponse.from(c, priceInfos.get(c.getId())))
+			.toList();
+
+		return new CommissionListResponse(
+			items,
+			page.getNumber(),
+			page.getSize(),
+			page.getTotalElements(),
+			page.getTotalPages()
+		);
+	}
+
 	@Schema(description = "외주 정보")
 	public record CommissionResponse(
 
@@ -46,5 +65,16 @@ public record CommissionListResponse(
 		@Schema(description = "최대금액 (원)", example = "210000")
 		int maxAmount
 	) {
+
+		private static CommissionResponse from(Commission commission, PriceInfo priceInfo) {
+			return new CommissionResponse(
+				commission.getId(),
+				commission.getApplicationDeadline(),
+				commission.getCategoryType(),
+				commission.getTitle(),
+				priceInfo.baseAmount(),
+				priceInfo.maxAmount()
+			);
+		}
 	}
 }
