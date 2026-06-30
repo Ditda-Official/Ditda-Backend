@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -70,4 +72,6 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 		+ "LEFT JOIN FETCH d.user "
 		+ "WHERE c.id = :commissionId")
 	Optional<Commission> findWithInstructorAndAssignedDesignerById(@Param("commissionId") Long commissionId);
+
+	Page<Commission> findByStatus(CommissionStatus status, Pageable pageable);
 }
