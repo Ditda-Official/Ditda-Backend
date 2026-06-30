@@ -66,6 +66,13 @@ public class CommissionApplication extends BaseEntity {
 			.build();
 	}
 
+	public void markApplicationRejected() {
+		if (status != ApplicationStatus.PENDING) {
+			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_APP_REJECTED);
+		}
+		this.status = ApplicationStatus.APPLICATION_REJECTED;
+	}
+
 	public void markDraftSelected() {
 		if (status != ApplicationStatus.DRAFT_SUBMITTED) {
 			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_DRAFT_SELECTION);
@@ -78,5 +85,32 @@ public class CommissionApplication extends BaseEntity {
 			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_DRAFT_REJECTION);
 		}
 		this.status = ApplicationStatus.DRAFT_REJECTED;
+	}
+
+	public void markDraftMissed() {
+		if (status != ApplicationStatus.ASSIGNED) {
+			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_DRAFT_MISSED);
+		}
+
+		this.status = ApplicationStatus.DRAFT_MISSED;
+	}
+
+	// 시안 제출 완료 상태 여부
+	public boolean isDraftSubmitted() {
+		return status == ApplicationStatus.DRAFT_SUBMITTED;
+	}
+
+	// 시안 대상자 상태 여부
+	public boolean isAssigned() {
+		return status == ApplicationStatus.ASSIGNED;
+	}
+
+	// 1차 시안 대상자 선정 처리
+	public void assign() {
+		if (status != ApplicationStatus.PENDING) {
+			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_ASSIGNMENT);
+		}
+
+		this.status = ApplicationStatus.ASSIGNED;
 	}
 }

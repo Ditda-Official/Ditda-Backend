@@ -24,7 +24,7 @@ public class DesignerSignupMailer {
 		String designerEmail,
 		List<String> portfolioUrls
 	) {
-		emailSender.send(adminEmail, SUBJECT, TEMPLATE, Map.of(
+		emailSender.sendAsync(adminEmail, SUBJECT, TEMPLATE, Map.of(
 			"userId", userId,
 			"name", designerName,
 			"email", designerEmail,

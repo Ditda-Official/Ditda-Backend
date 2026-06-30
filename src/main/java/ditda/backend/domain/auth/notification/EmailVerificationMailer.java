@@ -17,6 +17,6 @@ public class EmailVerificationMailer {
 	private final EmailSender emailSender;
 
 	public void sendVerificationCode(String to, String code) {
-		emailSender.send(to, SUBJECT, TEMPLATE, Map.of("code", code));
+		emailSender.sendAsync(to, SUBJECT, TEMPLATE, Map.of("code", code));
 	}
 }

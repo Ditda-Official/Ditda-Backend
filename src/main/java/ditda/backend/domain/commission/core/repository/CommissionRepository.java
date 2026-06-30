@@ -1,7 +1,10 @@
 package ditda.backend.domain.commission.core.repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -29,4 +32,42 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 	);
 
 	long countByInstructorIdAndStatusIn(Long instructorId, Collection<CommissionStatus> statuses);
+
+	@Query("SELECT c from Commission c "
+		+ "WHERE c.applicationDeadline < :today "
+		+ "AND c.status = :status")
+	List<Commission> findByStatusAndApplicationDeadlineBefore(
+		@Param("status") CommissionStatus status,
+		@Param("today") LocalDate today
+	);
+
+	@Query("SELECT c from Commission c "
+		+ "WHERE c.firstDraftDeadline < :today "
+		+ "AND c.status = :status")
+	List<Commission> findByStatusAndFirstDraftDeadlineBefore(
+		@Param("status") CommissionStatus status,
+		@Param("today") LocalDate today
+	);
+
+	@Query("SELECT c FROM Commission c "
+		+ "WHERE c.finalDeadline < :today "
+		+ "AND c.status IN :statuses")
+	List<Commission> findByStatusInAndFinalDeadlineBefore(
+		@Param("statuses") Collection<CommissionStatus> statuses,
+		@Param("today") LocalDate today
+	);
+
+	@Query("SELECT c from Commission c "
+		+ "JOIN FETCH c.instructor i "
+		+ "JOIN FETCH i.user "
+		+ "WHERE c.id = :commissionId")
+	Optional<Commission> findWithInstructorAndUserById(@Param("commissionId") Long commissionId);
+
+	@Query("SELECT c FROM Commission c "
+		+ "JOIN FETCH c.instructor i "
+		+ "JOIN FETCH i.user "
+		+ "LEFT JOIN FETCH c.assignedDesigner d "
+		+ "LEFT JOIN FETCH d.user "
+		+ "WHERE c.id = :commissionId")
+	Optional<Commission> findWithInstructorAndAssignedDesignerById(@Param("commissionId") Long commissionId);
 }
