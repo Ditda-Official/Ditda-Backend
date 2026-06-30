@@ -19,6 +19,7 @@ import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.hash.RefreshTokenHasher;
 import ditda.backend.global.jwt.JwtTokenProvider;
 import ditda.backend.global.jwt.dto.RefreshTokenPayload;
+import ditda.backend.global.jwt.enums.AuthRole;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 
@@ -42,7 +43,7 @@ public class AuthService {
 
 		// 2. sessionId(로그인 기기 식별) 및 JWT 토큰 발급
 		String sessionId = UUID.randomUUID().toString();
-		String accessToken = jwtTokenProvider.generateAccessToken(userId, user.getRole());
+		String accessToken = jwtTokenProvider.generateAccessToken(userId, AuthRole.from(user.getRole()));
 		String refreshToken = jwtTokenProvider.generateRefreshToken(userId, sessionId);
 
 		// 3. DB에는 해시 값으로 저장
@@ -131,7 +132,7 @@ public class AuthService {
 
 		// 5. 새 Access / Refresh 토큰 발급. (sessionId는 유지)
 		User user = userService.findById(userId);
-		String newAccessToken = jwtTokenProvider.generateAccessToken(userId, user.getRole());
+		String newAccessToken = jwtTokenProvider.generateAccessToken(userId, AuthRole.from(user.getRole()));
 		String newRefreshToken = jwtTokenProvider.generateRefreshToken(userId, sessionId);
 		String newRefreshTokenHash = refreshTokenHasher.hash(newRefreshToken);
 		LocalDateTime newExpiresAt = jwtTokenProvider.getExpiration(newRefreshToken);
