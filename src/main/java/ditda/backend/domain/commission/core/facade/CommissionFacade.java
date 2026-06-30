@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.core.dto.CommissionDetail;
-import ditda.backend.domain.commission.core.dto.PriceInfo;
+import ditda.backend.domain.commission.core.dto.PriceDetail;
 import ditda.backend.domain.commission.core.dto.response.CommissionDetailResponse;
 import ditda.backend.domain.commission.core.mapper.CommissionDetailMapper;
 import ditda.backend.domain.commission.core.policy.CommissionPricePolicy;
@@ -36,15 +36,15 @@ public class CommissionFacade {
 		// Designer이면 가격 정보 표시
 		User user = userService.findById(userId);
 
-		PriceInfo priceInfo = null;
+		PriceDetail priceDetail = null;
 		if (user.getRole() == UserRole.DESIGNER) {
 			Designer designer = designerService.findById(userId);
-			priceInfo = commissionPricePolicy.getPriceInfo(
+			priceDetail = commissionPricePolicy.getPriceDetail(
 				detail.commission().getCategoryType(),
 				designer.getLevel()
 			);
 		}
 
-		return commissionDetailMapper.toResponse(detail, priceInfo);
+		return commissionDetailMapper.toResponse(detail, priceDetail);
 	}
 }

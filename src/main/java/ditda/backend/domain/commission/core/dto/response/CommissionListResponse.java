@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.springframework.data.domain.Page;
 
-import ditda.backend.domain.commission.core.dto.PriceInfo;
+import ditda.backend.domain.commission.core.dto.PriceDetail;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.CategoryType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,9 +30,9 @@ public record CommissionListResponse(
 	int totalPages
 ) {
 
-	public static CommissionListResponse from(Page<Commission> page, Map<Long, PriceInfo> priceInfos) {
+	public static CommissionListResponse from(Page<Commission> page, Map<Long, PriceDetail> priceDetails) {
 		List<CommissionResponse> items = page.getContent().stream()
-			.map(c -> CommissionResponse.from(c, priceInfos.get(c.getId())))
+			.map(c -> CommissionResponse.from(c, priceDetails.get(c.getId())))
 			.toList();
 
 		return new CommissionListResponse(
@@ -66,14 +66,14 @@ public record CommissionListResponse(
 		int maxAmount
 	) {
 
-		private static CommissionResponse from(Commission commission, PriceInfo priceInfo) {
+		private static CommissionResponse from(Commission commission, PriceDetail priceDetail) {
 			return new CommissionResponse(
 				commission.getId(),
 				commission.getApplicationDeadline(),
 				commission.getCategoryType(),
 				commission.getTitle(),
-				priceInfo.baseAmount(),
-				priceInfo.maxAmount()
+				priceDetail.baseAmount(),
+				priceDetail.maxAmount()
 			);
 		}
 	}

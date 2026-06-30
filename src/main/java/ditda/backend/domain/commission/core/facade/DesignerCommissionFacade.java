@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import ditda.backend.domain.commission.core.dto.PriceInfo;
+import ditda.backend.domain.commission.core.dto.PriceDetail;
 import ditda.backend.domain.commission.core.dto.response.CommissionListResponse;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.policy.CommissionPricePolicy;
@@ -33,12 +33,12 @@ public class DesignerCommissionFacade {
 		DesignerLevel level = designer.getLevel();
 		Page<Commission> commissions = designerCommissionService.getRecruitingCommissions(pageable);
 
-		Map<Long, PriceInfo> priceInfos = commissions.getContent().stream()
+		Map<Long, PriceDetail> priceDetails = commissions.getContent().stream()
 			.collect(Collectors.toMap(
 				Commission::getId,
-				c -> commissionPricePolicy.getPriceInfo(c.getCategoryType(), level)
+				c -> commissionPricePolicy.getPriceDetail(c.getCategoryType(), level)
 			));
 
-		return CommissionListResponse.from(commissions, priceInfos);
+		return CommissionListResponse.from(commissions, priceDetails);
 	}
 }

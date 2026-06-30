@@ -7,11 +7,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import ditda.backend.domain.commission.core.dto.CommissionDetail;
-import ditda.backend.domain.commission.core.dto.PriceInfo;
+import ditda.backend.domain.commission.core.dto.PriceDetail;
 import ditda.backend.domain.commission.core.dto.response.CommissionDetailResponse;
 import ditda.backend.domain.commission.core.dto.response.CommissionDetailResponse.DateInfo;
 import ditda.backend.domain.commission.core.dto.response.CommissionDetailResponse.DesignInfo;
 import ditda.backend.domain.commission.core.dto.response.CommissionDetailResponse.FileInfo;
+import ditda.backend.domain.commission.core.dto.response.CommissionDetailResponse.PriceInfo;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.CommissionColor;
 import ditda.backend.domain.commission.core.entity.CommissionConcept;
@@ -27,7 +28,7 @@ public class CommissionDetailMapper {
 
 	private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
 
-	public CommissionDetailResponse toResponse(CommissionDetail detail, PriceInfo priceInfo) {
+	public CommissionDetailResponse toResponse(CommissionDetail detail, PriceDetail priceDetail) {
 		Commission commission = detail.commission();
 
 		return new CommissionDetailResponse(
@@ -39,7 +40,7 @@ public class CommissionDetailMapper {
 			detail.categoryDetail().toResponse(),
 			toFileInfos(detail.files()),
 			toDateInfo(commission),
-			priceInfo
+			toPriceInfo(priceDetail)
 		);
 	}
 
@@ -88,6 +89,17 @@ public class CommissionDetailMapper {
 			commission.getApplicationDeadline(),
 			commission.getFirstDraftDeadline(),
 			commission.getFinalDeadline()
+		);
+	}
+
+	private PriceInfo toPriceInfo(PriceDetail priceDetail) {
+		if (priceDetail == null) {
+			return null;
+		}
+
+		return new PriceInfo(
+			priceDetail.baseAmount(),
+			priceDetail.maxAmount()
 		);
 	}
 

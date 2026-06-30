@@ -3,7 +3,6 @@ package ditda.backend.domain.commission.core.dto.response;
 import java.time.LocalDate;
 import java.util.List;
 
-import ditda.backend.domain.commission.core.dto.PriceInfo;
 import ditda.backend.domain.commission.core.entity.enums.CategoryType;
 import ditda.backend.domain.commission.core.entity.enums.ColorRole;
 import ditda.backend.domain.commission.core.entity.enums.ColorSelectionMode;
@@ -99,6 +98,17 @@ public record CommissionDetailResponse(
 
 		@Schema(description = "최종 마감일", example = "2026-06-23")
 		LocalDate finalDeadline
+	) {
+	}
+
+	@Schema(description = "가격 정보")
+	public record PriceInfo(
+
+		@Schema(description = "기본금", example = "60000")
+		int baseAmount,
+
+		@Schema(description = "최대 수령액", example = "210000")
+		int maxAmount
 	) {
 	}
 }
