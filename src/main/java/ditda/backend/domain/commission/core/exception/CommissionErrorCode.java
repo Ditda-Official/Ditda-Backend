@@ -14,6 +14,10 @@ public enum CommissionErrorCode implements BaseErrorCode {
 	COMMISSION_FILE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "COMMISSION_400_01", "첨부 파일 개수가 허용 범위를 초과했습니다."),
 	COMMISSION_FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "COMMISSION_500_01", "파일 업로드에 실패했습니다."),
 
+	// 컨셉
+	CONCEPT_REQUIRED(HttpStatus.BAD_REQUEST, "COMMISSION_400_10", "컨셉 또는 추가 컨셉 설명 중 최소 하나는 입력해야 합니다."),
+	CONCEPT_DUPLICATED(HttpStatus.BAD_REQUEST, "COMMISSION_400_11", "중복된 컨셉은 입력하실 수 없습니다."),
+
 	// 색상 선택 (직접 색상 지정)
 	COLORS_REQUIRED(HttpStatus.BAD_REQUEST, "COMMISSION_400_02", "직접 색상 선택 시 색상은 필수입니다."),
 	INVALID_COLOR_COMPOSITION(
@@ -40,7 +44,10 @@ public enum CommissionErrorCode implements BaseErrorCode {
 
 	// 외주 상태
 	COMMISSION_NOT_REVISABLE(HttpStatus.CONFLICT, "COMMISSION_409_03", "수정 단계의 외주가 아닙니다."),
-	COMMISSION_NOT_FINALIZABLE(HttpStatus.CONFLICT, "COMMISSION_409_04", "최종 확정 가능한 외주 상태가 아닙니다.");
+	COMMISSION_NOT_FINALIZABLE(HttpStatus.CONFLICT, "COMMISSION_409_04", "최종 확정 가능한 외주 상태가 아닙니다."),
+	COMMISSION_NOT_DRAFT_SUBMITTABLE(HttpStatus.CONFLICT, "COMMISSION_409_05", "시안 제출 단계로 진입할 수 없는 외주 상태입니다."),
+	COMMISSION_NOT_DRAFT_SELECTABLE(HttpStatus.CONFLICT, "COMMISSION_409_06", "시안 선택 단계로 진입할 수 없는 외주 상태입니다."),
+	COMMISSION_NOT_CANCELLABLE(HttpStatus.CONFLICT, "COMMISSION_409_07", "취소할 수 없는 외주 상태입니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

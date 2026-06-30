@@ -62,9 +62,9 @@ public record CommissionCreateRequest(
 		@NotNull(message = "사이즈는 필수입니다.")
 		PageSize pageSize,
 
-		@Schema(description = "컨셉 태그", example = "[\"CUTE\", \"ELEGANT\"]")
-		@NotNull(message = "컨셉은 필수입니다.")
-		@Size(min = 1, max = 2, message = "컨셉은 1개 이상 2개 이하여야 합니다.")
+		@Schema(description = "컨셉 태그", example = "[\"DIMENSIONAL\", \"ORDERLY\"]")
+		@NotNull(message = "컨셉 목록은 null일 수 없습니다. 선택이 없으면 빈 배열을 보내주세요.")
+		@Size(max = 5, message = "컨셉은 5개까지 선택할 수 있습니다.")
 		List<@NotNull ConceptTag> concepts,
 
 		@Schema(description = "추가 컨셉 설명", example = "초등 저학년 대상이라 너무 무겁지 않게")
