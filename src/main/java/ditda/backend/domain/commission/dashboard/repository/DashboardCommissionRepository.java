@@ -16,12 +16,12 @@ import ditda.backend.domain.commission.dashboard.repository.projection.RevisingV
 
 public interface DashboardCommissionRepository extends Repository<Commission, Long> {
 
-	// 시안 제출 현황: commission + DRAFT_SELECTING/DRAFT_SUBMITTED 개수
+	// 시안 제출 현황: commission + DRAFT_SUBMITTED 개수
 	@Query("SELECT c AS commission, "
 		+ "COUNT(a.id) AS submissionCount "
 		+ "FROM Commission c "
 		+ "LEFT JOIN CommissionApplication a ON a.commission = c AND a.status = :applicationStatus "
-		+ "WHERE c.instructor.id = :instructorId AND c.status = :commissionStatuses "
+		+ "WHERE c.instructor.id = :instructorId AND c.status IN :commissionStatuses "
 		+ "GROUP BY c.id "
 		+ "ORDER BY c.firstDraftDeadline ASC")
 	List<DraftSubmissionView> findDraftSubmissionViews(
