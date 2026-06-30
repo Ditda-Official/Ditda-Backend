@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +18,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "revision_responses")
+@Table(
+	name = "revision_responses",
+	uniqueConstraints = {
+		@UniqueConstraint(
+			name = "uk_revision_response_produced_draft",
+			columnNames = {"produced_draft_id"}
+		)
+	}
+)
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -34,8 +43,8 @@ public class RevisionResponse extends BaseEntity {
 	private RevisionRequest revisionRequest;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "commission_draft_id", nullable = false, unique = true)
-	private CommissionDraft commissionDraft;
+	@JoinColumn(name = "produced_draft_id", nullable = false)
+	private CommissionDraft producedDraft;
 
 	@Column(name = "designer_comment", length = 500, nullable = false)
 	private String designerComment;
@@ -46,13 +55,18 @@ public class RevisionResponse extends BaseEntity {
 
 	public static RevisionResponse create(
 		RevisionRequest revisionRequest,
-		CommissionDraft commissionDraft,
+		CommissionDraft producedDraft,
 		String designerComment
 	) {
 		return RevisionResponse.builder()
 			.revisionRequest(revisionRequest)
-			.commissionDraft(commissionDraft)
+			.producedDraft(producedDraft)
 			.designerComment(designerComment)
 			.build();
+	}
+
+	// 수정 답변을 확인 처리
+	public void check() {
+		this.checked = true;
 	}
 }

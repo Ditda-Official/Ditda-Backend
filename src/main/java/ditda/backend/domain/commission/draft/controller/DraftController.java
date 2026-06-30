@@ -59,4 +59,15 @@ public class DraftController {
 		return ApiResponse.onSuccess("1차 시안 선택 성공", response);
 	}
 
+	@Operation(summary = "외주 최종 확정", description = "**[수정]** 강사가 현재 시안을 최종 시안으로 확정합니다.")
+	@PostMapping("/{commissionId}/drafts/{draftId}/finalize")
+	public ApiResponse<Void> finalizeDraft(
+		@AuthenticationPrincipal Long instructorId,
+		@PathVariable Long commissionId,
+		@PathVariable Long draftId
+	) {
+		draftFacade.finalizeDraft(instructorId, commissionId, draftId);
+
+		return ApiResponse.onSuccess("외주가 최종 확정되었습니다.");
+	}
 }

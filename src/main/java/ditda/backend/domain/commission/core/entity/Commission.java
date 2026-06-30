@@ -9,9 +9,11 @@ import ditda.backend.domain.commission.core.entity.enums.ColorSelectionMode;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.entity.enums.PageSize;
 import ditda.backend.domain.commission.core.entity.enums.PlanCode;
+import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.designer.entity.enums.DesignerLevel;
 import ditda.backend.domain.instructor.entity.Instructor;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -134,11 +136,27 @@ public class Commission extends BaseEntity {
 	}
 
 	public boolean isSelectable() {
-		return status == CommissionStatus.IN_PROGRESS;
+		return status == CommissionStatus.DRAFT_SELECTING;
+	}
+
+	public boolean isCancelled() {
+		return status == CommissionStatus.CANCELLED;
 	}
 
 	public boolean isDesignerSelected() {
 		return assignedDesigner != null;
+	}
+
+	// 수정 단계 검증
+	public void validateRevisable() {
+		if (status != CommissionStatus.EDITING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_REVISABLE);
+		}
+	}
+
+	// 추가 수정 가능 여부 검증
+	public boolean isRevisionLimitExceeded(int currentRevisionCount) {
+		return currentRevisionCount >= maxRevision;
 	}
 
 	// 디자이너 모집 정원
@@ -153,5 +171,40 @@ public class Commission extends BaseEntity {
 		int firstComeSlots = getDesignerCount() - DesignerLevel.values().length;
 		int capacity = distinctLevels + firstComeSlots;
 		return Math.min(capacity, totalApplicants);
+	}
+
+	// 외주 최종 확정
+	public void complete() {
+		if (status != CommissionStatus.EDITING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_FINALIZABLE);
+		}
+
+		this.status = CommissionStatus.COMPLETED;
+	}
+
+	// 외주 취소
+	public void cancel() {
+		if (status == CommissionStatus.COMPLETED || status == CommissionStatus.CANCELLED) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_CANCELLABLE);
+		}
+
+		this.status = CommissionStatus.CANCELLED;
+	}
+
+	// 시안 제출 단계(DRAFT_SUBMITTING)로 이동
+	public void startDraftSubmitting() {
+		if (status != CommissionStatus.RECRUITING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_DRAFT_SUBMITTABLE);
+		}
+
+		this.status = CommissionStatus.DRAFT_SUBMITTING;
+	}
+
+	public void startDraftSelecting() {
+		if (status != CommissionStatus.DRAFT_SUBMITTING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_DRAFT_SELECTABLE);
+		}
+
+		this.status = CommissionStatus.DRAFT_SELECTING;
 	}
 }

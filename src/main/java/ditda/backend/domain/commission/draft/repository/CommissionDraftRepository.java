@@ -3,10 +3,12 @@ package ditda.backend.domain.commission.draft.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 
 public interface CommissionDraftRepository extends JpaRepository<CommissionDraft, Long> {
@@ -40,5 +42,16 @@ public interface CommissionDraftRepository extends JpaRepository<CommissionDraft
 	boolean existsDraftInCommission(
 		@Param("draftId") Long draftId,
 		@Param("commissionId") Long commissionId
+	);
+
+	@Query("select d from CommissionDraft d "
+		+ "join d.commissionApplication ca "
+		+ "where ca.commission.id = :commissionId "
+		+ "and ca.status = :status "
+		+ "order by d.round desc")
+	Optional<CommissionDraft> findDraftInCommissionByStatus(
+		@Param("commissionId") Long commissionId,
+		@Param("status") ApplicationStatus status,
+		Limit limit
 	);
 }

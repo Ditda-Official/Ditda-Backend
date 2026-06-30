@@ -1,0 +1,139 @@
+package ditda.backend.domain.commission.core.notification;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+
+import ditda.backend.domain.commission.core.event.ApplicationDeadlineClosedEvent;
+import ditda.backend.global.config.AdminProperties;
+import ditda.backend.global.email.NotificationOutbox;
+import ditda.backend.global.email.NotificationOutboxRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class ApplicationDeadlineClosedNotifier {
+
+	private final NotificationOutboxRepository outboxRepository;
+	private final AdminProperties adminProperties;
+
+	@EventListener
+	public void onApplicationDeadlineClosed(ApplicationDeadlineClosedEvent event) {
+
+		// 메일 전송 시간
+		LocalDateTime mailScheduledAt = event.mailScheduledAt();
+
+		// 지원자 0명 -> 외주 취소 + 강사 취소 메일 + 어드민 환불 요청
+		if (event.cancelled()) {
+			registerAdminRefundRequest(event, mailScheduledAt);
+			registerInstructorCancellation(event, mailScheduledAt);
+			return;
+		}
+
+		// 정원 미달 -> 외주 진행 + 어드민 환불 요청
+		if (event.refundAmount() > 0) {
+			registerAdminRefundRequest(event, mailScheduledAt);
+			registerInstructorShortfall(event, mailScheduledAt);
+		} else {
+			// 정원 충족 -> 매칭 진행 (환불 없음)
+			registerInstructorMatchComplete(event, mailScheduledAt);
+		}
+
+		for (ApplicationDeadlineClosedEvent.DesignerMatchInfo designer : event.matchedDesigners()) {
+			registerDesignerMatchComplete(event, designer, mailScheduledAt);
+		}
+
+	}
+
+	// 어드민 환불 처리 메일 발송
+	private void registerAdminRefundRequest(ApplicationDeadlineClosedEvent event, LocalDateTime mailScheduledAt) {
+		outboxRepository.save(NotificationOutbox.create(
+			adminProperties.getNotificationEmail(),
+			"[DITDA] 외주 마감에 따른 환불 처리 요망",
+			"email/admin-refund-request",
+			Map.of(
+				"commissionId", event.commissionId(),
+				"commissionTitle", event.commissionTitle(),
+				"instructorName", event.instructorName(),
+				"instructorEmail", event.instructorEmail(),
+				"refundAmount", event.refundAmount(),
+				"isCancelled", event.cancelled()
+			),
+			mailScheduledAt
+		));
+	}
+
+	// 강사 취소 알림 메일 발송
+	private void registerInstructorCancellation(ApplicationDeadlineClosedEvent event, LocalDateTime mailScheduledAt) {
+		outboxRepository.save(NotificationOutbox.create(
+			event.instructorEmail(),
+			"[DITDA] 신청하신 외주가 지원자 부족으로 취소되었습니다.",
+			"email/commission-cancelled",
+			Map.of(
+				"instructorName", event.instructorName(),
+				"commissionTitle", event.commissionTitle()
+			),
+			mailScheduledAt
+		));
+	}
+
+	// 강사 모집 인원 미달 알림 메일 발송
+	private void registerInstructorShortfall(ApplicationDeadlineClosedEvent event, LocalDateTime mailScheduledAt) {
+		outboxRepository.save(NotificationOutbox.create(
+			event.instructorEmail(),
+			"[DITDA] 신청하신 외주의 모집 인원이 미달되었습니다.",
+			"email/commission-shortfall-instructor",
+			Map.of(
+				"instructorName", event.instructorName(),
+				"commissionTitle", event.commissionTitle(),
+				"requiredCount", event.requiredCount(),
+				"designerCount", event.matchedDesignerCount(),
+				"shortfallCount", event.requiredCount() - event.matchedDesignerCount(),
+				"refundAmount", event.refundAmount()
+			),
+			mailScheduledAt
+		));
+	}
+
+	// 강사 매칭 완료 알림 메일 발송
+	private void registerInstructorMatchComplete(ApplicationDeadlineClosedEvent event, LocalDateTime mailScheduledAt) {
+		outboxRepository.save(NotificationOutbox.create(
+			event.instructorEmail(),
+			"[DITDA] 신청하신 외주의 디자이너 매칭이 완료되었습니다.",
+			"email/commission-matched-instructor",
+			Map.of(
+				"instructorName", event.instructorName(),
+				"commissionTitle", event.commissionTitle(),
+				"requiredCount", event.requiredCount(),
+				"designerCount", event.matchedDesignerCount(),
+				"shortfallCount", event.requiredCount() - event.matchedDesignerCount(),
+				"refundAmount", event.refundAmount()
+			),
+			mailScheduledAt
+		));
+	}
+
+	// 디자이너 매칭 완료 알림 메일 발송
+	private void registerDesignerMatchComplete(
+		ApplicationDeadlineClosedEvent event,
+		ApplicationDeadlineClosedEvent.DesignerMatchInfo designer,
+		LocalDateTime mailScheduledAt
+	) {
+		outboxRepository.save(NotificationOutbox.create(
+			designer.email(),
+			"[DITDA] 지원하신 외주의 1차 시안 대상자로 선정되었습니다.",
+			"email/commission-matched-designer",
+			Map.of(
+				"designerName", designer.name(),
+				"commissionTitle", event.commissionTitle(),
+				"firstDraftDeadline", event.firstDraftDeadline()
+			),
+			mailScheduledAt
+		));
+	}
+}
+
