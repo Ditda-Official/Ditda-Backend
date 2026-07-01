@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class DraftService {
+public class InstructorDraftService {
 
 	private final InstructorCommissionService instructorCommissionService;
 	private final CommissionDraftRepository commissionDraftRepository;

@@ -16,7 +16,7 @@ public class DesignerService {
 	private final DesignerRepository designerRepository;
 
 	@Transactional(readOnly = true)
-	public Designer findById(Long designerId) {
+	public Designer getById(Long designerId) {
 		return designerRepository.findById(designerId)
 			.orElseThrow(() -> new GeneralException(DesignerErrorCode.DESIGNER_NOT_FOUND));
 	}
