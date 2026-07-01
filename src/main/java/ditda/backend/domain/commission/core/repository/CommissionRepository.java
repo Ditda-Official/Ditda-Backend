@@ -82,8 +82,6 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "10000")})    // MySQL에서는 hint 무시됨
 	@Query("SELECT c FROM Commission c "
-		+ "JOIN FETCH c.instructor i "
-		+ "JOIN FETCH i.user "
 		+ "WHERE c.id = :commissionId")
 	Optional<Commission> findByIdForUpdate(@Param("commissionId") Long commissionId);
 }

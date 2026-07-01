@@ -53,8 +53,14 @@ public class CommissionService {
 
 	// 외주 조회 + Pessimistic Write 락
 	@Transactional
-	public Commission getWithInstructorAndUserByIdForUpdate(Long commissionId) {
+	public Commission getByIdForUpdate(Long commissionId) {
 		return commissionRepository.findByIdForUpdate(commissionId)
+			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
+	}
+
+	// 외주 조회 + 강사/사용자 fetch join
+	public Commission getWithInstructorAndUserById(Long commissionId) {
+		return commissionRepository.findWithInstructorAndUserById(commissionId)
 			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 	}
 }
