@@ -49,10 +49,18 @@ public class RevisionRequest extends BaseEntity {
 	@JoinColumn(name = "target_draft_id", nullable = false)
 	private CommissionDraft targetDraft;
 
+	@Builder.Default
+	@Column(name = "checked", nullable = false)
+	private boolean checked = false;
+
 	public static RevisionRequest create(Commission commission, CommissionDraft targetDraft) {
 		return RevisionRequest.builder()
 			.commission(commission)
 			.targetDraft(targetDraft)
 			.build();
+	}
+
+	public void check() {
+		this.checked = true;
 	}
 }
