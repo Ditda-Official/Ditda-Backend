@@ -34,7 +34,7 @@ public class DesignerDraftFacade {
 	) {
 
 		// 외주 조회
-		Commission commission = commissionService.getById(commissionId);
+		Commission commission = commissionService.getByIdForUpdate(commissionId);
 
 		// 디자이너 지원 조회 + ASSIGNED 검증
 		CommissionApplication application = designerDraftService

@@ -51,9 +51,10 @@ public class CommissionService {
 		return new CommissionDetail(commission, concepts, colors, files, categoryDetail);
 	}
 
-	// 외주 조회
-	public Commission getById(Long commissionId) {
-		return commissionRepository.findById(commissionId)
+	// 외주 조회 + Pessimistic Write 락
+	@Transactional
+	public Commission getByIdForUpdate(Long commissionId) {
+		return commissionRepository.findByIdForUpdate(commissionId)
 			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 	}
 }
