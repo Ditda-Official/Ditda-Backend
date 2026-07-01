@@ -21,31 +21,31 @@ import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftSelectResponse;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.exception.DraftErrorCode;
-import ditda.backend.domain.commission.draft.service.DraftService;
+import ditda.backend.domain.commission.draft.service.InstructorDraftService;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class DraftFacade {
+public class InstructorDraftFacade {
 
 	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final InstructorCommissionService instructorCommissionService;
-	private final DraftService draftService;
+	private final InstructorDraftService instructorDraftService;
 	private final ApplicationService applicationService;
 	private final CommissionPricePolicy commissionPricePolicy;
 	private final ApplicationEventPublisher eventPublisher;
 
 	// 1차 시안 목록 조회
 	public DraftListResponse getFirstRoundDrafts(Long instructorId, Long commissionId) {
-		return draftService.getFirstRoundDrafts(instructorId, commissionId);
+		return instructorDraftService.getFirstRoundDrafts(instructorId, commissionId);
 	}
 
 	// 시안 상세 조회
 	public DraftDetailResponse getDraftDetail(Long instructorId, Long commissionId, Long draftId) {
-		return draftService.getDraftDetail(instructorId, commissionId, draftId);
+		return instructorDraftService.getDraftDetail(instructorId, commissionId, draftId);
 	}
 
 	// 1차 시안 선택
@@ -59,7 +59,7 @@ public class DraftFacade {
 		List<CommissionApplication> applications = applicationService.getApplicantsWithDesignerAndUser(commissionId);
 
 		// 해당 시안의 디자이너 조회
-		CommissionApplication selected = draftService.getApplicationForSelection(commission, draftId);
+		CommissionApplication selected = instructorDraftService.getApplicationForSelection(commission, draftId);
 
 		// 미선택 디자이너
 		List<CommissionApplication> rejected = filterRejected(applications, selected);
@@ -179,7 +179,7 @@ public class DraftFacade {
 		Commission commission = instructorCommissionService.getOwnedCommission(commissionId, instructorId);
 
 		// 가장 최근 시안과 일치하는지 검증
-		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);
+		CommissionDraft latestDraft = instructorDraftService.getLatestDraftOfSelectedApplication(commissionId);
 		if (!latestDraft.getId().equals(draftId)) {
 			throw new GeneralException(DraftErrorCode.DRAFT_NOT_LATEST);
 		}
