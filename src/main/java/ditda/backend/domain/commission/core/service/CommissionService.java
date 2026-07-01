@@ -32,6 +32,7 @@ public class CommissionService {
 	private final CommissionFileRepository commissionFileRepository;
 	private final CommissionCategoryHandlerResolver handlerResolver;
 
+	// 외주 상세 정보 조회
 	public CommissionDetail getDetail(Long commissionId) {
 
 		// 외주 조회
@@ -48,5 +49,11 @@ public class CommissionService {
 		CategoryDetail categoryDetail = handler.loadDetail(commissionId);
 
 		return new CommissionDetail(commission, concepts, colors, files, categoryDetail);
+	}
+
+	// 외주 조회
+	public Commission getById(Long commissionId) {
+		return commissionRepository.findById(commissionId)
+			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 	}
 }
