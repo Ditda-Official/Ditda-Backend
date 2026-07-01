@@ -49,9 +49,6 @@ public class CommissionDraftFile extends BaseEntity {
 	@Column(name = "file_order", nullable = false)
 	private int fileOrder;
 
-	@Column(name = "file_name", length = 100, nullable = false)
-	private String fileName;
-
 	@Column(name = "file_url", nullable = false)
 	private String fileUrl;
 
@@ -65,13 +62,11 @@ public class CommissionDraftFile extends BaseEntity {
 	public static CommissionDraftFile create(
 		CommissionDraft commissionDraft,
 		int fileOrder,
-		String fileName,
 		String fileUrl
 	) {
 		return CommissionDraftFile.builder()
 			.commissionDraft(commissionDraft)
 			.fileOrder(fileOrder)
-			.fileName(fileName)
 			.fileUrl(fileUrl)
 			.watermarkStatus(WatermarkStatus.PROCESSING)
 			.build();
