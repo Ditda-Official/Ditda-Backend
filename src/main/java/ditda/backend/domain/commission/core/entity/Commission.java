@@ -136,7 +136,7 @@ public class Commission extends BaseEntity {
 	}
 
 	public boolean isSelectedBy(Long designerId) {
-		return Objects.equals(assignedDesigner.getId(), designerId);
+		return isDesignerSelected() && Objects.equals(assignedDesigner.getId(), designerId);
 	}
 
 	public boolean isSelectable() {
