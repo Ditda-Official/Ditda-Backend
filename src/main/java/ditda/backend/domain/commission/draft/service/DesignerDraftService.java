@@ -1,8 +1,11 @@
 package ditda.backend.domain.commission.draft.service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,20 +13,26 @@ import ditda.backend.domain.commission.application.entity.CommissionApplication;
 import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
 import ditda.backend.domain.commission.application.service.ApplicationService;
 import ditda.backend.domain.commission.core.entity.Commission;
+import ditda.backend.domain.commission.core.event.AllFirstDraftsSubmittedEvent;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class DesignerDraftService {
 
+	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
+
 	private final ApplicationService applicationService;
 	private final CommissionDraftRepository commissionDraftRepository;
 	private final CommissionDraftFileRepository commissionDraftFileRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
 	// 디자이너 지원 조회 + 지원 상태 검증
 	public CommissionApplication findApplicationReadyForDraftSubmission(Long commissionId, Long designerId) {
@@ -38,7 +47,7 @@ public class DesignerDraftService {
 		return application;
 	}
 
-	// 시안 저장 + 지원 상태 전이 + 외주 상태 전이
+	// 시안 저장 + 지원 상태 전이 + 외주 상태 전이 및 이벤트 발행
 	@Transactional
 	public CommissionDraft submitDraft(
 		Commission commission,
@@ -67,10 +76,32 @@ public class DesignerDraftService {
 			ApplicationStatus.ASSIGNED
 		);
 		if (remainingAssigned == 0) {
+			// 제출된 시안 수
+			long submittedCount = applicationService.countByCommissionAndStatus(
+				commission.getId(),
+				ApplicationStatus.DRAFT_SUBMITTED
+			);
+
 			commission.startDraftSelecting();
-			// TODO: 이메일 발송
+			publishAllFirstDraftsSubmittedEvent(commission, (int)submittedCount);
+
+			log.info("모든 1차 시안 제출 완료. commissionId={}, submittedCount={}",
+				commission.getId(), submittedCount);
 		}
 
 		return draft;
+	}
+
+	// 모든 1차 시안 제출 완료 이벤트 발행
+	private void publishAllFirstDraftsSubmittedEvent(Commission commission, int submittedCount) {
+
+		eventPublisher.publishEvent(new AllFirstDraftsSubmittedEvent(
+			commission.getId(),
+			commission.getTitle(),
+			commission.getInstructor().getUser().getEmail(),
+			commission.getInstructor().getName(),
+			submittedCount,
+			LocalDateTime.now(ZONE_KST)
+		));
 	}
 }

@@ -53,7 +53,7 @@ public class CommissionService {
 
 	// 외주 조회 + Pessimistic Write 락
 	@Transactional
-	public Commission getByIdForUpdate(Long commissionId) {
+	public Commission getWithInstructorAndUserByIdForUpdate(Long commissionId) {
 		return commissionRepository.findByIdForUpdate(commissionId)
 			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 	}
