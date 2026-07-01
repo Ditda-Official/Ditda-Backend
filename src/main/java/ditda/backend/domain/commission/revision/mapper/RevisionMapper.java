@@ -53,8 +53,8 @@ public class RevisionMapper {
 
 		String thumbnailUrl = resolveUrl(thumbnail);
 
-		List<DesignerRevisionDetailResponse.RevisionDetail> detailDtos = details.stream()
-			.map(d -> new DesignerRevisionDetailResponse.RevisionDetail(d.getCategory(), d.getComment()))
+		List<DesignerRevisionDetailResponse.RevisionItem> detailDtos = details.stream()
+			.map(d -> new DesignerRevisionDetailResponse.RevisionItem(d.getCategory(), d.getComment()))
 			.toList();
 
 		return new DesignerRevisionDetailResponse(

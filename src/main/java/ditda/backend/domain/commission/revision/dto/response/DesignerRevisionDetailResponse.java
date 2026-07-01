@@ -28,7 +28,7 @@ public record DesignerRevisionDetailResponse(
 	TargetDraft targetDraft,
 
 	@Schema(description = "수정 요청 항목 목록")
-	List<RevisionDetail> revisionDetails
+	List<RevisionItem> revisionItems
 ) {
 
 	public record TargetDraft(
@@ -41,7 +41,7 @@ public record DesignerRevisionDetailResponse(
 	) {
 	}
 
-	public record RevisionDetail(
+	public record RevisionItem(
 
 		@Schema(description = "수정 요청 카테고리", example = "LAYOUT")
 		RevisionCategory category,
