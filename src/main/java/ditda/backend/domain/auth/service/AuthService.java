@@ -59,7 +59,8 @@ public class AuthService {
 	public AuthResult login(LoginRequest request) {
 
 		// 1. 유저 조회
-		User user = userService.findByUsername(request.username());
+		User user = userService.findByUsernameIfExists(request.username())
+			.orElseThrow(() -> new GeneralException(GeneralErrorCode.INVALID_LOGIN));
 
 		// 2. 비밀번호 검증
 		if (!passwordEncoder.matches(request.password(), user.getPassword())) {
