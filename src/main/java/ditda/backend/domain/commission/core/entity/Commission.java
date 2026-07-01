@@ -211,4 +211,9 @@ public class Commission extends BaseEntity {
 
 		this.status = CommissionStatus.DRAFT_SELECTING;
 	}
+
+	// 남은 수정 횟수
+	public int getRemainingRevisionCount(int currentRevisionCount) {
+		return maxRevision - currentRevisionCount;
+	}
 }

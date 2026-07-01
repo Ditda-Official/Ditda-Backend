@@ -49,7 +49,7 @@ public class DesignerRevisionFacade {
 		CommissionDraftFile thumbnail = draftService.getThumbnail(latestDraft.getId());
 
 		int currentRevisionCount = revisionService.calculateCurrentRevisionCount(commission);
-		int remainingRevisionCount = commission.getMaxRevision() - currentRevisionCount;
+		int remainingRevisionCount = commission.getRemainingRevisionCount(currentRevisionCount);
 
 		return revisionMapper.toDesignerRevisionDetailResponse(
 			commission,
