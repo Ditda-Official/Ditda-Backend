@@ -125,10 +125,4 @@ public class DraftService {
 				Limit.of(1))
 			.orElseThrow(() -> new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND));
 	}
-
-	// 1차 시안 제출 횟수
-	@Transactional(readOnly = true)
-	public int countFirstDraftSubmissions(Long designerId) {
-		return commissionDraftRepository.countFirstDraftsByDesigner(designerId);
-	}
 }

@@ -54,12 +54,4 @@ public interface CommissionDraftRepository extends JpaRepository<CommissionDraft
 		@Param("status") ApplicationStatus status,
 		Limit limit
 	);
-
-	@Query("select count(d) from CommissionDraft d "
-		+ "join d.commissionApplication ca "
-		+ "where ca.designer.id = :designerId "
-		+ "and d.round = 0")
-	int countFirstDraftsByDesigner(
-		@Param("designerId") Long designerId
-	);
 }

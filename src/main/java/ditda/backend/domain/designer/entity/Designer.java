@@ -96,6 +96,10 @@ public class Designer extends BaseEntity implements Persistable<Long> {
 		return user.getName();
 	}
 
+	public String getProfileImage() {
+		return user.getProfileImage();
+	}
+
 	private void gainExp(int amount) {
 		this.exp += amount;
 		while (level.canLevelUp(this.exp)) {

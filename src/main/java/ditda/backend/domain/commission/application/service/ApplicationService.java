@@ -60,4 +60,13 @@ public class ApplicationService {
 			ApplicationStatus.DRAFT_SELECTED
 		);
 	}
+
+	// 1차 시안 제출 횟수
+	@Transactional(readOnly = true)
+	public int countSubmittedFirstDrafts(Long designerId) {
+		return commissionApplicationRepository.countByDesignerIdAndStatusIn(
+			designerId,
+			ApplicationStatus.draftSubmittedStatuses()
+		);
+	}
 }

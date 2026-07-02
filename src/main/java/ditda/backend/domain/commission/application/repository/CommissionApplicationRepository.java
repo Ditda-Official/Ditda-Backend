@@ -1,5 +1,6 @@
 package ditda.backend.domain.commission.application.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,11 +18,7 @@ public interface CommissionApplicationRepository extends JpaRepository<Commissio
 		+ "WHERE ca.commission.id = :commissionId")
 	List<CommissionApplication> findWithDesignerAndUserByCommissionId(@Param("commissionId") Long commissionId);
 
-	@Query("SELECT count(ca) from CommissionApplication ca "
-		+ "WHERE ca.designer.id = :designerId "
-		+ "AND ca.status = :status")
-	int countByDesignerIdAndStatus(
-		@Param("designerId") Long designerId,
-		@Param("status") ApplicationStatus status
-	);
+	int countByDesignerIdAndStatus(Long designerId, ApplicationStatus status);
+
+	int countByDesignerIdAndStatusIn(Long designerId, Collection<ApplicationStatus> statuses);
 }

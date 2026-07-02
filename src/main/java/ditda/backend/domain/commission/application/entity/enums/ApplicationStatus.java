@@ -1,5 +1,9 @@
 package ditda.backend.domain.commission.application.entity.enums;
 
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -22,4 +26,11 @@ public enum ApplicationStatus {
 	DRAFT_REJECTED("최종 탈락");
 
 	private final String description;
+
+	private static final Set<ApplicationStatus> DRAFT_SUBMITTED_STATUSES =
+		EnumSet.of(DRAFT_SUBMITTED, DRAFT_SELECTED, DRAFT_REJECTED);
+
+	public static Set<ApplicationStatus> draftSubmittedStatuses() {
+		return Collections.unmodifiableSet(DRAFT_SUBMITTED_STATUSES);
+	}
 }
