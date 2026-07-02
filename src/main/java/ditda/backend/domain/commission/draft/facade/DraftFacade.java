@@ -73,6 +73,8 @@ public class DraftFacade {
 		publishRejectedPayoutEvent(commission, rejected, mailScheduledAt);
 		publishDraftSelectedEvent(commission, selected, rejected, mailScheduledAt);
 
+		// TODO: 정산 정보 생성 및 경험치 부여 로직 추가
+
 		return new DraftSelectResponse(
 			commissionId,
 			draftId,
