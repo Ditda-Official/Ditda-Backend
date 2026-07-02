@@ -8,6 +8,9 @@ spring:
         default_batch_fetch_size: 100
     show-sql: false
     open-in-view: false
+  datasource:
+    hikari:
+      connection-init-sql: "SET SESSION innodb_lock_wait_timeout = 10"
 
   cloud:
     aws:

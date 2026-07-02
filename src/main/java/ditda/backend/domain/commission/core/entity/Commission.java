@@ -158,6 +158,13 @@ public class Commission extends BaseEntity {
 		}
 	}
 
+	// 1차 시안 제출 단계 검증
+	public void validateDraftSubmittable() {
+		if (status != CommissionStatus.DRAFT_SUBMITTING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_ACCEPTING_DRAFT);
+		}
+	}
+
 	// 추가 수정 가능 여부 검증
 	public boolean isRevisionLimitExceeded(int currentRevisionCount) {
 		return currentRevisionCount >= maxRevision;

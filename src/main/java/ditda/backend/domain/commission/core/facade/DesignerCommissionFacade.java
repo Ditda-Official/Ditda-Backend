@@ -29,7 +29,7 @@ public class DesignerCommissionFacade {
 	@Transactional(readOnly = true)
 	public CommissionListResponse getRecruitingCommissionList(Long designerId, Pageable pageable) {
 
-		Designer designer = designerService.findById(designerId);
+		Designer designer = designerService.getById(designerId);
 		DesignerLevel level = designer.getLevel();
 		Page<Commission> commissions = designerCommissionService.getRecruitingCommissions(pageable);
 
