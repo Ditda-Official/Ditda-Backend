@@ -9,7 +9,7 @@ import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.service.DesignerCommissionService;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
-import ditda.backend.domain.commission.draft.service.DraftService;
+import ditda.backend.domain.commission.draft.service.DraftQueryService;
 import ditda.backend.domain.commission.revision.dto.response.DesignerRevisionDetailResponse;
 import ditda.backend.domain.commission.revision.entity.RevisionDetail;
 import ditda.backend.domain.commission.revision.entity.RevisionRequest;
@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class DesignerRevisionFacade {
 
 	private final DesignerCommissionService designerCommissionService;
-	private final DraftService draftService;
+	private final DraftQueryService draftQueryService;
 	private final RevisionService revisionService;
 	private final RevisionMapper revisionMapper;
 
@@ -37,7 +37,7 @@ public class DesignerRevisionFacade {
 		commission.validateRevisable();
 
 		// 가장 최근 시안
-		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);
+		CommissionDraft latestDraft = draftQueryService.getLatestDraftOfSelectedApplication(commissionId);
 
 		// 수정 요청 조회 + 확인 처리
 		RevisionRequest revisionRequest = revisionService.getRevisionRequestAndCheck(latestDraft.getId());
@@ -46,7 +46,7 @@ public class DesignerRevisionFacade {
 		List<RevisionDetail> details = revisionService.getRevisionDetails(revisionRequest.getId());
 
 		// 썸네일
-		CommissionDraftFile thumbnail = draftService.getThumbnail(latestDraft.getId());
+		CommissionDraftFile thumbnail = draftQueryService.findThumbnail(latestDraft.getId());
 
 		int currentRevisionCount = revisionService.calculateCurrentRevisionCount(commission);
 		int remainingRevisionCount = commission.getRemainingRevisionCount(currentRevisionCount);
@@ -59,6 +59,5 @@ public class DesignerRevisionFacade {
 			details,
 			remainingRevisionCount
 		);
-
 	}
 }
