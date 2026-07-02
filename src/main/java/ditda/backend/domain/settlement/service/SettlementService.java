@@ -16,7 +16,7 @@ public class SettlementService {
 
 	private final SettlementRepository settlementRepository;
 
-	// 정산 완료된 외주 개수 조회
+	// 디자이너의 정산 완료 금액 합계
 	@Transactional(readOnly = true)
 	public long getTotalIncome(Long designerId) {
 		return settlementRepository.sumAmountByDesignerIdAndStatus(
