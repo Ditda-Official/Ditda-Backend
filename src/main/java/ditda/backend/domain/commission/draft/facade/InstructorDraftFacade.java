@@ -21,6 +21,7 @@ import ditda.backend.domain.commission.draft.dto.response.DraftListResponse;
 import ditda.backend.domain.commission.draft.dto.response.DraftSelectResponse;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.exception.DraftErrorCode;
+import ditda.backend.domain.commission.draft.service.DraftQueryService;
 import ditda.backend.domain.commission.draft.service.InstructorDraftService;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.global.apipayload.exception.GeneralException;
@@ -34,6 +35,7 @@ public class InstructorDraftFacade {
 
 	private final InstructorCommissionService instructorCommissionService;
 	private final InstructorDraftService instructorDraftService;
+	private final DraftQueryService draftQueryService;
 	private final ApplicationService applicationService;
 	private final CommissionPricePolicy commissionPricePolicy;
 	private final ApplicationEventPublisher eventPublisher;
@@ -179,7 +181,7 @@ public class InstructorDraftFacade {
 		Commission commission = instructorCommissionService.getOwnedCommission(commissionId, instructorId);
 
 		// 가장 최근 시안과 일치하는지 검증
-		CommissionDraft latestDraft = instructorDraftService.getLatestDraftOfSelectedApplication(commissionId);
+		CommissionDraft latestDraft = draftQueryService.getLatestDraftOfSelectedApplication(commissionId);
 		if (!latestDraft.getId().equals(draftId)) {
 			throw new GeneralException(DraftErrorCode.DRAFT_NOT_LATEST);
 		}
