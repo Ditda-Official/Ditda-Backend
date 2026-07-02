@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.application.entity.CommissionApplication;
+import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
 import ditda.backend.domain.commission.application.repository.CommissionApplicationRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -49,5 +50,14 @@ public class ApplicationService {
 	@Transactional
 	public void markAllApplicationRejected(List<CommissionApplication> applications) {
 		applications.forEach(CommissionApplication::markApplicationRejected);
+	}
+
+	// 최종 선택된 외주 개수 조회
+	@Transactional(readOnly = true)
+	public int countSelected(Long designerId) {
+		return commissionApplicationRepository.countByDesignerIdAndStatus(
+			designerId,
+			ApplicationStatus.DRAFT_SELECTED
+		);
 	}
 }
