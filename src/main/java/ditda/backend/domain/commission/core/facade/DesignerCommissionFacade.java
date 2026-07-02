@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.core.dto.PriceDetail;
 import ditda.backend.domain.commission.core.dto.response.CommissionListResponse;
+import ditda.backend.domain.commission.core.dto.response.CommissionSummaryResponse;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.policy.CommissionPricePolicy;
 import ditda.backend.domain.commission.core.service.DesignerCommissionService;
@@ -40,5 +41,14 @@ public class DesignerCommissionFacade {
 			));
 
 		return CommissionListResponse.from(commissions, priceDetails);
+	}
+
+	// 시안 제출시 외주 기본 정보 조회
+	@Transactional(readOnly = true)
+	public CommissionSummaryResponse getCommissionSummary(Long designerId, Long commissionId) {
+
+		Commission commission = designerCommissionService.getCommissionForDraftSubmission(commissionId, designerId);
+
+		return CommissionSummaryResponse.from(commission);
 	}
 }
