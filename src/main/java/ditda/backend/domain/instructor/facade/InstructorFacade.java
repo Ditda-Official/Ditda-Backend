@@ -22,7 +22,7 @@ public class InstructorFacade {
 
 	// 강사 통계 조회
 	@Transactional(readOnly = true)
-	public InstructorStatsResponse getMyStats(Long instructorId) {
+	public InstructorStatsResponse getInstructorStats(Long instructorId) {
 
 		Instructor instructor = instructorService.getByIdWithUser(instructorId);
 

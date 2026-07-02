@@ -25,6 +25,6 @@ public class InstructorController {
 	public ApiResponse<InstructorStatsResponse> getMyDetail(
 		@AuthenticationPrincipal Long instructorId
 	) {
-		return ApiResponse.onSuccess("강사 마이페이지 통계 조회 성공", instructorFacade.getMyStats(instructorId));
+		return ApiResponse.onSuccess("강사 마이페이지 통계 조회 성공", instructorFacade.getInstructorStats(instructorId));
 	}
 }
