@@ -35,7 +35,7 @@ public class SettlementController {
 		Pageable fixedPageable = PageRequest.of(
 			pageable.getPageNumber(),
 			pageable.getPageSize(),
-			Sort.by(Sort.Direction.DESC, "settledAt")
+			Sort.by(Sort.Order.desc("settledAt"), Sort.Order.desc("id"))
 		);
 
 		return ApiResponse.onSuccess(
