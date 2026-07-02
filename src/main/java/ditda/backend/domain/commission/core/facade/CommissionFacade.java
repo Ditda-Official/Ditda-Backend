@@ -38,7 +38,7 @@ public class CommissionFacade {
 
 		PriceDetail priceDetail = null;
 		if (user.getRole() == UserRole.DESIGNER) {
-			Designer designer = designerService.findById(userId);
+			Designer designer = designerService.getById(userId);
 			priceDetail = commissionPricePolicy.getPriceDetail(
 				detail.commission().getCategoryType(),
 				designer.getLevel()
