@@ -147,6 +147,10 @@ public class Commission extends BaseEntity {
 		return status == CommissionStatus.CANCELLED;
 	}
 
+	public boolean isDraftSubmitting() {
+		return status == CommissionStatus.DRAFT_SUBMITTING;
+	}
+
 	public boolean isDesignerSelected() {
 		return assignedDesigner != null;
 	}
