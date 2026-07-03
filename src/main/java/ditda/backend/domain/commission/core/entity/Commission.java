@@ -135,6 +135,10 @@ public class Commission extends BaseEntity {
 		return Objects.equals(instructor.getId(), instructorId);
 	}
 
+	public boolean isSelectedBy(Long designerId) {
+		return isDesignerSelected() && Objects.equals(assignedDesigner.getId(), designerId);
+	}
+
 	public boolean isSelectable() {
 		return status == CommissionStatus.DRAFT_SELECTING;
 	}
@@ -206,5 +210,10 @@ public class Commission extends BaseEntity {
 		}
 
 		this.status = CommissionStatus.DRAFT_SELECTING;
+	}
+
+	// 남은 수정 횟수
+	public int getRemainingRevisionCount(int currentRevisionCount) {
+		return Math.max(0, maxRevision - currentRevisionCount);
 	}
 }

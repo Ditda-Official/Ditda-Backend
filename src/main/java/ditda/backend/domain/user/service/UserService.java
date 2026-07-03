@@ -1,6 +1,7 @@
 package ditda.backend.domain.user.service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +20,6 @@ public class UserService {
 
 	private final UserRepository userRepository;
 
-	public User getReferenceById(Long userId) {
-		return userRepository.getReferenceById(userId);
-	}
-
 	public User findById(Long userId) {
 		return userRepository.findById(userId)
 			.orElseThrow(() -> new GeneralException(UserErrorCode.USER_NOT_FOUND));
@@ -32,9 +29,8 @@ public class UserService {
 		return userRepository.existsByUsername(username);
 	}
 
-	public User findByUsername(String username) {
-		return userRepository.findByUsername(username)
-			.orElseThrow(() -> new GeneralException(UserErrorCode.USER_NOT_FOUND));
+	public Optional<User> findByUsernameIfExists(String username) {
+		return userRepository.findByUsername(username);
 	}
 
 	public boolean existsByEmail(String email) {

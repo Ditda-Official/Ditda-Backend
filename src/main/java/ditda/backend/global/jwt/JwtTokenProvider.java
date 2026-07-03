@@ -9,9 +9,9 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import ditda.backend.domain.user.entity.enums.UserRole;
 import ditda.backend.global.jwt.dto.AccessTokenPayload;
 import ditda.backend.global.jwt.dto.RefreshTokenPayload;
+import ditda.backend.global.jwt.enums.AuthRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -52,7 +52,7 @@ public class JwtTokenProvider {
 		key = Keys.hmacShaKeyFor(keyBytes);
 	}
 
-	public String generateAccessToken(Long userId, UserRole role) {
+	public String generateAccessToken(Long userId, AuthRole role) {
 
 		Date now = new Date();
 		Date expiryTime = new Date(now.getTime() + accessTokenExpiration);
@@ -87,7 +87,7 @@ public class JwtTokenProvider {
 		Claims claims = validateAccessToken(token);
 
 		Long userId = Long.parseLong(claims.getSubject());
-		UserRole role = getRole(claims);
+		AuthRole role = getRole(claims);
 
 		return new AccessTokenPayload(userId, role);
 	}
@@ -150,7 +150,7 @@ public class JwtTokenProvider {
 			.getPayload();
 	}
 
-	private UserRole getRole(Claims claims) {
+	private AuthRole getRole(Claims claims) {
 
 		String role = claims.get(ROLE_CLAIM, String.class);
 
@@ -158,7 +158,7 @@ public class JwtTokenProvider {
 			throw new JwtException("Access Token에 role 정보가 없습니다.");
 		}
 
-		return UserRole.valueOf(role);
+		return AuthRole.valueOf(role);
 	}
 
 	private Claims validateToken(String token) {
