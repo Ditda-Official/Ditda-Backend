@@ -73,6 +73,11 @@ public class CommissionApplication extends BaseEntity {
 		this.status = ApplicationStatus.APPLICATION_REJECTED;
 	}
 
+	public void markDraftSubmitted() {
+		validateDraftSubmittable();
+		this.status = ApplicationStatus.DRAFT_SUBMITTED;
+	}
+
 	public void markDraftSelected() {
 		if (status != ApplicationStatus.DRAFT_SUBMITTED) {
 			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_DRAFT_SELECTION);
@@ -112,5 +117,15 @@ public class CommissionApplication extends BaseEntity {
 		}
 
 		this.status = ApplicationStatus.ASSIGNED;
+	}
+
+	// 1차 시안 제출 가능 여부 검증
+	public void validateDraftSubmittable() {
+		if (status == ApplicationStatus.DRAFT_SUBMITTED) {
+			throw new GeneralException(ApplicationErrorCode.APPLICATION_ALREADY_DRAFT_SUBMITTED);
+		}
+		if (status != ApplicationStatus.ASSIGNED) {
+			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_DRAFT_SUBMITTED);
+		}
 	}
 }

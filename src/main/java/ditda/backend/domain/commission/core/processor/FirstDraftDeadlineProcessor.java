@@ -35,8 +35,18 @@ public class FirstDraftDeadlineProcessor {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void process(Long commissionId, LocalDateTime mailScheduledAt) {
 
-		// 외주 조회
-		Commission commission = commissionRepository.findWithInstructorAndUserById(commissionId)
+		// 외주 조회 + Pessimistic Write 락 획득
+		Commission commission = commissionRepository.findByIdForUpdate(commissionId)
+			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
+
+		// 락 획득 대기 중 마지막 제출자가 이미 DRAFT_SELECTING으로 전이시켰다면 조기 종료
+		if (!commission.isDraftSubmitting()) {
+			log.info("이미 처리된 외주로 마감 처리 스킵. commissionId={}, status={}", commission.getId(), commission.getStatus());
+			return;
+		}
+
+		//  외주 조회 + 강사/사용자 fetch join
+		commission = commissionRepository.findWithInstructorAndUserById(commissionId)
 			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 
 		// 지원자 조회

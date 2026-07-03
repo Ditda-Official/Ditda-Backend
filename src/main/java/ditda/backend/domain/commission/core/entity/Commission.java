@@ -147,6 +147,10 @@ public class Commission extends BaseEntity {
 		return status == CommissionStatus.CANCELLED;
 	}
 
+	public boolean isDraftSubmitting() {
+		return status == CommissionStatus.DRAFT_SUBMITTING;
+	}
+
 	public boolean isDesignerSelected() {
 		return assignedDesigner != null;
 	}
@@ -155,6 +159,13 @@ public class Commission extends BaseEntity {
 	public void validateRevisable() {
 		if (status != CommissionStatus.EDITING) {
 			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_REVISABLE);
+		}
+	}
+
+	// 1차 시안 제출 단계 검증
+	public void validateDraftSubmittable() {
+		if (status != CommissionStatus.DRAFT_SUBMITTING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_ACCEPTING_DRAFT);
 		}
 	}
 
