@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.application.entity.CommissionApplication;
-import ditda.backend.domain.commission.application.service.ApplicationService;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
@@ -20,22 +19,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class DesignerDraftService {
 
-	private final ApplicationService applicationService;
 	private final CommissionDraftRepository commissionDraftRepository;
 	private final CommissionDraftFileRepository commissionDraftFileRepository;
-
-	// 디자이너 지원 조회 + 지원 상태 검증
-	public CommissionApplication findApplicationReadyForDraftSubmission(Long commissionId, Long designerId) {
-
-		// 디자이너 조회
-		CommissionApplication application = applicationService
-			.getApplicationByCommissionAndDesigner(commissionId, designerId);
-
-		// 지원 상태 검증
-		application.validateDraftSubmittable();
-
-		return application;
-	}
 
 	// 시안 저장 + 지원 상태 전이
 	@Transactional

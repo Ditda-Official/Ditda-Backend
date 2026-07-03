@@ -46,9 +46,10 @@ public class DesignerDraftFacade {
 		// 외주 조회
 		Commission commission = commissionService.getByIdForUpdate(commissionId);
 
-		// 디자이너 지원 조회 + ASSIGNED 검증
-		CommissionApplication application = designerDraftService
-			.findApplicationReadyForDraftSubmission(commissionId, designerId);
+		// 디자이너 지원 조회 + 시안 제출 가능 상태 검증
+		CommissionApplication application = applicationService
+			.getApplicationByCommissionAndDesigner(commissionId, designerId);
+		application.validateDraftSubmittable();
 
 		// 파일 검증
 		List<String> keys = request.keys();
