@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import ditda.backend.domain.commission.application.entity.CommissionApplication;
+import ditda.backend.domain.commission.application.service.ApplicationService;
 import ditda.backend.domain.commission.core.dto.PriceDetail;
 import ditda.backend.domain.commission.core.dto.response.CommissionListResponse;
 import ditda.backend.domain.commission.core.dto.response.CommissionSummaryResponse;
@@ -25,6 +27,7 @@ public class DesignerCommissionFacade {
 
 	private final DesignerCommissionService designerCommissionService;
 	private final DesignerService designerService;
+	private final ApplicationService applicationService;
 	private final CommissionPricePolicy commissionPricePolicy;
 
 	@Transactional(readOnly = true)
@@ -47,7 +50,13 @@ public class DesignerCommissionFacade {
 	@Transactional(readOnly = true)
 	public CommissionSummaryResponse getCommissionSummary(Long designerId, Long commissionId) {
 
-		Commission commission = designerCommissionService.getCommissionForDraftSubmission(commissionId, designerId);
+		// 외주 조회
+		Commission commission = designerCommissionService.getById(commissionId);
+
+		// 디자이너 지원 조회 + 시안 제출 상태 검증
+		CommissionApplication application = applicationService
+			.getApplicationByCommissionAndDesigner(commissionId, designerId);
+		application.validateDraftSubmittable();
 
 		return CommissionSummaryResponse.from(commission);
 	}
