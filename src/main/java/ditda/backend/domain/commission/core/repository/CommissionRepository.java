@@ -9,13 +9,17 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.designer.entity.Designer;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 
 public interface CommissionRepository extends JpaRepository<Commission, Long> {
 
@@ -72,6 +76,12 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 		+ "LEFT JOIN FETCH d.user "
 		+ "WHERE c.id = :commissionId")
 	Optional<Commission> findWithInstructorAndAssignedDesignerById(@Param("commissionId") Long commissionId);
+
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "10000")})    // MySQL에서는 hint 무시됨
+	@Query("SELECT c FROM Commission c "
+		+ "WHERE c.id = :commissionId")
+	Optional<Commission> findByIdForUpdate(@Param("commissionId") Long commissionId);
 
 	Page<Commission> findByStatusOrderByApplicationDeadlineAscIdAsc(CommissionStatus status, Pageable pageable);
 }

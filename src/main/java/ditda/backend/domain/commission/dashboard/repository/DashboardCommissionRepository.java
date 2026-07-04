@@ -1,6 +1,7 @@
 package ditda.backend.domain.commission.dashboard.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -20,12 +21,12 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 		+ "COUNT(a.id) AS submissionCount "
 		+ "FROM Commission c "
 		+ "LEFT JOIN CommissionApplication a ON a.commission = c AND a.status = :applicationStatus "
-		+ "WHERE c.instructor.id = :instructorId AND c.status = :commissionStatus "
+		+ "WHERE c.instructor.id = :instructorId AND c.status IN :commissionStatuses "
 		+ "GROUP BY c.id "
 		+ "ORDER BY c.firstDraftDeadline ASC")
 	List<DraftSubmissionView> findDraftSubmissionViews(
 		@Param("instructorId") Long instructorId,
-		@Param("commissionStatus") CommissionStatus commissionStatus,
+		@Param("commissionStatuses") Set<CommissionStatus> commissionStatuses,
 		@Param("applicationStatus") ApplicationStatus applicationStatus
 	);
 

@@ -10,6 +10,7 @@ public enum UploadTarget {
 
 	COMMISSION_MATERIAL("commission/material", BucketType.PRIVATE, EnumSet.of(S3ContentType.PNG)),
 	COMMISSION_REFERENCE("commission/reference", BucketType.PRIVATE, EnumSet.of(S3ContentType.PNG)),
+	COMMISSION_DRAFT("commission/draft", BucketType.PRIVATE, EnumSet.of(S3ContentType.PNG)),
 	PORTFOLIO("portfolio", BucketType.PRIVATE, EnumSet.of(S3ContentType.PNG, S3ContentType.PDF));
 
 	private final String dir;

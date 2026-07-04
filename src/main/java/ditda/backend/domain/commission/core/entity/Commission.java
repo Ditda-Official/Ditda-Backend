@@ -135,12 +135,20 @@ public class Commission extends BaseEntity {
 		return Objects.equals(instructor.getId(), instructorId);
 	}
 
+	public boolean isSelectedBy(Long designerId) {
+		return isDesignerSelected() && Objects.equals(assignedDesigner.getId(), designerId);
+	}
+
 	public boolean isSelectable() {
 		return status == CommissionStatus.DRAFT_SELECTING;
 	}
 
 	public boolean isCancelled() {
 		return status == CommissionStatus.CANCELLED;
+	}
+
+	public boolean isDraftSubmitting() {
+		return status == CommissionStatus.DRAFT_SUBMITTING;
 	}
 
 	public boolean isDesignerSelected() {
@@ -151,6 +159,13 @@ public class Commission extends BaseEntity {
 	public void validateRevisable() {
 		if (status != CommissionStatus.EDITING) {
 			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_REVISABLE);
+		}
+	}
+
+	// 1차 시안 제출 단계 검증
+	public void validateDraftSubmittable() {
+		if (status != CommissionStatus.DRAFT_SUBMITTING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_ACCEPTING_DRAFT);
 		}
 	}
 
@@ -206,5 +221,10 @@ public class Commission extends BaseEntity {
 		}
 
 		this.status = CommissionStatus.DRAFT_SELECTING;
+	}
+
+	// 남은 수정 횟수
+	public int getRemainingRevisionCount(int currentRevisionCount) {
+		return Math.max(0, maxRevision - currentRevisionCount);
 	}
 }

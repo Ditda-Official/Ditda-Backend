@@ -7,7 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.application.entity.CommissionApplication;
 import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
+import ditda.backend.domain.commission.application.exception.ApplicationErrorCode;
 import ditda.backend.domain.commission.application.repository.CommissionApplicationRepository;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,6 +34,19 @@ public class ApplicationService {
 	@Transactional(readOnly = true)
 	public List<CommissionApplication> getApplicantsWithDesignerAndUser(Long commissionId) {
 		return commissionApplicationRepository.findWithDesignerAndUserByCommissionId(commissionId);
+	}
+
+	// 특정 외주에 대한 디자이너의 지원 조회
+	@Transactional(readOnly = true)
+	public CommissionApplication getApplicationByCommissionAndDesigner(Long commissionId, Long designerId) {
+		return commissionApplicationRepository.findByCommissionAndDesigner(commissionId, designerId)
+			.orElseThrow(() -> new GeneralException(ApplicationErrorCode.APPLICATION_NOT_FOUND));
+	}
+
+	// 특정 상태의 외주에 대한 지원자 수 조회
+	@Transactional(readOnly = true)
+	public long countByCommissionAndStatus(Long commissionId, ApplicationStatus status) {
+		return commissionApplicationRepository.countByCommissionAndStatus(commissionId, status);
 	}
 
 	// 모든 지원자를 ASSIGNED로 전이

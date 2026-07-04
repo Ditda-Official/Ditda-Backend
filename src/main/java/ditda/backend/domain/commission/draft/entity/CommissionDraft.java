@@ -35,6 +35,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommissionDraft extends BaseEntity {
 
+	private static final int FIRST_ROUND = 0;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "commission_draft_id")
@@ -47,7 +49,18 @@ public class CommissionDraft extends BaseEntity {
 	@Column(name = "round", nullable = false)
 	private int round;
 
+	public static CommissionDraft create(CommissionApplication commissionApplication, int round) {
+		return CommissionDraft.builder()
+			.commissionApplication(commissionApplication)
+			.round(round)
+			.build();
+	}
+
+	public static CommissionDraft createFirstRound(CommissionApplication commissionApplication) {
+		return create(commissionApplication, FIRST_ROUND);
+	}
+
 	public boolean isDraftFirstRound() {
-		return round == 0;
+		return round == FIRST_ROUND;
 	}
 }

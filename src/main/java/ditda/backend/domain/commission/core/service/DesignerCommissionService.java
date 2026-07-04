@@ -7,7 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
+import ditda.backend.domain.commission.core.exception.CommissionErrorCode;
 import ditda.backend.domain.commission.core.repository.CommissionRepository;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,5 +25,17 @@ public class DesignerCommissionService {
 			CommissionStatus.RECRUITING,
 			pageable
 		);
+	}
+
+	@Transactional(readOnly = true)
+	public Commission getSelectedCommission(Long commissionId, Long designerId) {
+
+		Commission commission = commissionRepository.findById(commissionId)
+			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
+
+		if (!commission.isSelectedBy(designerId)) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_ACCESS_DENIED);
+		}
+		return commission;
 	}
 }
