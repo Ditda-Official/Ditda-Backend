@@ -72,7 +72,7 @@ public class DraftFacade {
 		LocalDateTime mailScheduledAt = LocalDateTime.now(ZONE_KST);
 		publishRejectedPayoutEvent(commission, rejected, mailScheduledAt);
 		publishDraftSelectedEvent(commission, selected, rejected, mailScheduledAt);
-		
+
 		return new DraftSelectResponse(
 			commissionId,
 			draftId,

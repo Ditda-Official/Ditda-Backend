@@ -49,4 +49,8 @@ public class CommissionService {
 
 		return new CommissionDetail(commission, concepts, colors, files, categoryDetail);
 	}
+
+	public Commission getReferenceById(Long commissionId) {
+		return commissionRepository.getReferenceById(commissionId);
+	}
 }
