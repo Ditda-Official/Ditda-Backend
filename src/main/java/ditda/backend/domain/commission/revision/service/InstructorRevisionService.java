@@ -10,20 +10,18 @@ import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.revision.dto.request.RevisionCreateRequest;
 import ditda.backend.domain.commission.revision.entity.RevisionDetail;
 import ditda.backend.domain.commission.revision.entity.RevisionRequest;
-import ditda.backend.domain.commission.revision.exception.RevisionErrorCode;
 import ditda.backend.domain.commission.revision.repository.RevisionDetailRepository;
 import ditda.backend.domain.commission.revision.repository.RevisionRequestRepository;
 import ditda.backend.domain.commission.revision.repository.RevisionResponseRepository;
-import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class RevisionService {
+public class InstructorRevisionService {
 
-	private final RevisionRequestRepository revisionRequestRepository;
 	private final RevisionResponseRepository revisionResponseRepository;
+	private final RevisionRequestRepository revisionRequestRepository;
 	private final RevisionDetailRepository revisionDetailRepository;
 
 	// 시안에 달린 디자이너 코멘트 조회 + 확인 처리
@@ -35,28 +33,6 @@ public class RevisionService {
 				return response.getDesignerComment();
 			})
 			.orElse(null);
-	}
-
-	@Transactional
-	public RevisionRequest getRevisionRequestAndCheck(Long draftId) {
-		RevisionRequest request = revisionRequestRepository.findByTargetDraftId(draftId)
-			.orElseThrow(() -> new GeneralException(RevisionErrorCode.REVISION_REQUEST_NOT_FOUND));
-		request.check();
-		return request;
-	}
-
-	public List<RevisionDetail> getRevisionDetails(Long revisionRequestId) {
-		return revisionDetailRepository.findAllByRevisionRequest_Id(revisionRequestId);
-	}
-
-	// 현재 차수 계산 (0부터 시작)
-	public int calculateCurrentRevisionCount(Commission commission) {
-		return revisionRequestRepository.countByCommissionId(commission.getId());
-	}
-
-	// 수정 요청이 존재하는지 여부
-	public boolean hasRevisionRequestOnDraft(Long draftId) {
-		return revisionRequestRepository.existsByTargetDraftId(draftId);
 	}
 
 	@Transactional
