@@ -73,5 +73,5 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 		+ "WHERE c.id = :commissionId")
 	Optional<Commission> findWithInstructorAndAssignedDesignerById(@Param("commissionId") Long commissionId);
 
-	Page<Commission> findByStatus(CommissionStatus status, Pageable pageable);
+	Page<Commission> findByStatusOrderByApplicationDeadlineAscIdAsc(CommissionStatus status, Pageable pageable);
 }

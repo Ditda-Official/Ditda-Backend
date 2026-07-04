@@ -19,7 +19,7 @@ public class DesignerCommissionService {
 	// 모집 중 외주 목록 조회
 	@Transactional(readOnly = true)
 	public Page<Commission> getRecruitingCommissions(Pageable pageable) {
-		return commissionRepository.findByStatus(
+		return commissionRepository.findByStatusOrderByApplicationDeadlineAscIdAsc(
 			CommissionStatus.RECRUITING,
 			pageable
 		);
