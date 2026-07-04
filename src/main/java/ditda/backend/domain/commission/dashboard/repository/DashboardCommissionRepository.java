@@ -32,10 +32,11 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 
 	// 매칭 중인 외주: commission + distinct level 수 + PENDING 지원자 수
 	@Query("SELECT c AS commission, "
-		+ "COUNT(DISTINCT a.designer.level) AS distinctLevelCount, "
+		+ "COUNT(DISTINCT d.level) AS distinctLevelCount, "
 		+ "COUNT(a.id) AS totalCount "
 		+ "FROM Commission c "
 		+ "LEFT JOIN CommissionApplication a ON a.commission = c AND a.status = :applicationStatus "
+		+ "LEFT JOIN a.designer d "
 		+ "WHERE c.instructor.id = :instructorId AND c.status = :commissionStatus "
 		+ "GROUP BY c.id "
 		+ "ORDER BY c.applicationDeadline ASC")
