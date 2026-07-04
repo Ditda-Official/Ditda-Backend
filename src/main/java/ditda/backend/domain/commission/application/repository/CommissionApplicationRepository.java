@@ -1,5 +1,6 @@
 package ditda.backend.domain.commission.application.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,4 +34,8 @@ public interface CommissionApplicationRepository extends JpaRepository<Commissio
 		@Param("commissionId") Long commissionId,
 		@Param("status") ApplicationStatus status
 	);
+
+	int countByDesignerIdAndStatus(Long designerId, ApplicationStatus status);
+
+	int countByDesignerIdAndStatusIn(Long designerId, Collection<ApplicationStatus> statuses);
 }

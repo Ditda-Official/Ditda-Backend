@@ -77,11 +77,11 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 		+ "WHERE c.id = :commissionId")
 	Optional<Commission> findWithInstructorAndAssignedDesignerById(@Param("commissionId") Long commissionId);
 
-	Page<Commission> findByStatus(CommissionStatus status, Pageable pageable);
-
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "10000")})    // MySQL에서는 hint 무시됨
 	@Query("SELECT c FROM Commission c "
 		+ "WHERE c.id = :commissionId")
 	Optional<Commission> findByIdForUpdate(@Param("commissionId") Long commissionId);
+
+	Page<Commission> findByStatusOrderByApplicationDeadlineAscIdAsc(CommissionStatus status, Pageable pageable);
 }

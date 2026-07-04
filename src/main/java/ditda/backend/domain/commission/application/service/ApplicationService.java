@@ -66,4 +66,22 @@ public class ApplicationService {
 	public void markAllApplicationRejected(List<CommissionApplication> applications) {
 		applications.forEach(CommissionApplication::markApplicationRejected);
 	}
+
+	// 최종 선택된 외주 개수 조회
+	@Transactional(readOnly = true)
+	public int countSelected(Long designerId) {
+		return commissionApplicationRepository.countByDesignerIdAndStatus(
+			designerId,
+			ApplicationStatus.DRAFT_SELECTED
+		);
+	}
+
+	// 1차 시안 제출 횟수
+	@Transactional(readOnly = true)
+	public int countSubmittedFirstDrafts(Long designerId) {
+		return commissionApplicationRepository.countByDesignerIdAndStatusIn(
+			designerId,
+			ApplicationStatus.draftSubmittedStatuses()
+		);
+	}
 }
