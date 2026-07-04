@@ -24,8 +24,8 @@ public class DesignerResponseMapper {
 			: (double)selectedDraftCount / submittedDraftCount * 100;
 
 		return new DesignerStatsResponse(
-			designer.getName(),
-			s3UrlResolver.toPublicS3Url(designer.getProfileImage()),
+			designer.getUser().getName(),
+			s3UrlResolver.toPublicS3Url(designer.getUser().getProfileImage()),
 			new DesignerStatsResponse.LevelInfo(
 				designer.getLevel(),
 				designer.getExp(),
