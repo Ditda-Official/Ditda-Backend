@@ -45,15 +45,5 @@ public record DesignerStatsResponse(
 		@Schema(description = "당첨률(%)", example = "80.0")
 		double winRate
 	) {
-
-		public static DesignerStats of(
-			long income,
-			int submittedDraftCount,
-			int selectedDraftCount
-		) {
-			double winRate = submittedDraftCount == 0 ? 0.0
-				: (double) selectedDraftCount / submittedDraftCount * 100;
-			return new DesignerStats(income, submittedDraftCount, winRate);
-		}
 	}
 }

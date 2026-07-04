@@ -15,8 +15,13 @@ public class DesignerResponseMapper {
 
 	public DesignerStatsResponse toDesignerStatsResponse(
 		Designer designer,
-		DesignerStatsResponse.DesignerStats stats
+		long income,
+		int submittedDraftCount,
+		int selectedDraftCount
 	) {
+
+		double winRate = submittedDraftCount == 0 ? 0.0
+			: (double)selectedDraftCount / submittedDraftCount * 100;
 
 		return new DesignerStatsResponse(
 			designer.getName(),
@@ -25,7 +30,12 @@ public class DesignerResponseMapper {
 				designer.getLevel(),
 				designer.getExp(),
 				designer.getLevel().getRequiredExp()),
-			stats
+			new DesignerStatsResponse.DesignerStats(
+				income,
+				submittedDraftCount,
+				winRate
+			)
 		);
 	}
+
 }
