@@ -63,4 +63,8 @@ public class CommissionService {
 		return commissionRepository.findWithInstructorAndUserById(commissionId)
 			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 	}
+
+	public Commission getReferenceById(Long commissionId) {
+		return commissionRepository.getReferenceById(commissionId);
+	}
 }
