@@ -1,11 +1,11 @@
 package ditda.backend.global.jwt.dto;
 
-import ditda.backend.domain.user.entity.enums.UserRole;
+import ditda.backend.global.jwt.enums.AuthRole;
 
 public record AccessTokenPayload(
 
 	Long userId,
 
-	UserRole role
+	AuthRole role
 ) {
 }

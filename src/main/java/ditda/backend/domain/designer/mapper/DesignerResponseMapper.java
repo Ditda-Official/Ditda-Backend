@@ -15,17 +15,27 @@ public class DesignerResponseMapper {
 
 	public DesignerStatsResponse toDesignerStatsResponse(
 		Designer designer,
-		DesignerStatsResponse.DesignerStats stats
+		long income,
+		int submittedDraftCount,
+		int selectedDraftCount
 	) {
 
+		double winRate = submittedDraftCount == 0 ? 0.0
+			: (double)selectedDraftCount / submittedDraftCount * 100;
+
 		return new DesignerStatsResponse(
-			designer.getName(),
-			s3UrlResolver.toPublicS3Url(designer.getProfileImage()),
+			designer.getUser().getName(),
+			s3UrlResolver.toPublicS3Url(designer.getUser().getProfileImage()),
 			new DesignerStatsResponse.LevelInfo(
 				designer.getLevel(),
 				designer.getExp(),
 				designer.getLevel().getRequiredExp()),
-			stats
+			new DesignerStatsResponse.DesignerStats(
+				income,
+				submittedDraftCount,
+				winRate
+			)
 		);
 	}
+
 }

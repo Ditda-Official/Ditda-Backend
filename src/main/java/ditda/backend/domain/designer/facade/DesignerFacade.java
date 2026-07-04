@@ -26,7 +26,8 @@ public class DesignerFacade {
 
 		Designer designer = designerService.getByIdWithUser(designerId);
 
-		DesignerStatsResponse.DesignerStats stats = DesignerStatsResponse.DesignerStats.of(
+		return designerResponseMapper.toDesignerStatsResponse(
+			designer,
 			// 지급 받은 금액
 			settlementService.getTotalIncome(designerId),
 			// 제출한 1차 시안 수
@@ -34,7 +35,5 @@ public class DesignerFacade {
 			// 선택된 1차 시안 수
 			applicationService.countSelected(designerId)
 		);
-
-		return designerResponseMapper.toDesignerStatsResponse(designer, stats);
 	}
 }

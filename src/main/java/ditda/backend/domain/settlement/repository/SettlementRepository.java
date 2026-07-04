@@ -22,7 +22,8 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
 	@Query(value = "SELECT s from Settlement s "
 		+ "JOIN FETCH s.commission c "
 		+ "WHERE s.designer.id = :designerId "
-		+ "AND s.status = :status",
+		+ "AND s.status = :status "
+		+ "ORDER BY s.settledAt DESC, s.id ASC",
 		countQuery = "SELECT COUNT(s) FROM Settlement s "
 		+ "WHERE s.designer.id = :designerId "
 		+ "AND s.status = :status")

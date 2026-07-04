@@ -7,7 +7,7 @@ import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.service.InstructorCommissionService;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
-import ditda.backend.domain.commission.draft.service.DraftService;
+import ditda.backend.domain.commission.draft.service.DraftQueryService;
 import ditda.backend.domain.commission.revision.dto.request.RevisionCreateRequest;
 import ditda.backend.domain.commission.revision.dto.response.InstructorRevisionDetailResponse;
 import ditda.backend.domain.commission.revision.exception.RevisionErrorCode;
@@ -23,7 +23,7 @@ public class InstructorRevisionFacade {
 
 	private final InstructorCommissionService instructorCommissionService;
 	private final RevisionService revisionService;
-	private final DraftService draftService;
+	private final DraftQueryService draftQueryService;
 	private final RevisionMapper revisionMapper;
 
 	@Transactional
@@ -36,13 +36,13 @@ public class InstructorRevisionFacade {
 		commission.validateRevisable();
 
 		// 선택된 디자이너의 가장 최근 시안
-		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);
+		CommissionDraft latestDraft = draftQueryService.getLatestDraftOfSelectedApplication(commissionId);
 
 		// 시안에 달린 디자이너 코멘트 조회 + 확인 처리
 		String designerComment = revisionService.getDesignerCommentAndCheck(latestDraft.getId());
 
 		// 썸네일
-		CommissionDraftFile thumbnail = draftService.getThumbnail(latestDraft.getId());
+		CommissionDraftFile thumbnail = draftQueryService.findThumbnail(latestDraft.getId());
 
 		// 현재 수정 차수
 		int currentRevisionCount = revisionService.calculateCurrentRevisionCount(commission);
@@ -75,7 +75,7 @@ public class InstructorRevisionFacade {
 		}
 
 		// 선택된 디자이너의 가장 최근 시안
-		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);
+		CommissionDraft latestDraft = draftQueryService.getLatestDraftOfSelectedApplication(commissionId);
 
 		// 시안에 이미 수정 요청이 존재하는지 검증
 		if (revisionService.hasRevisionRequestOnDraft(latestDraft.getId())) {

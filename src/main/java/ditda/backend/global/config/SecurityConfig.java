@@ -61,9 +61,11 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.POST, "/api/v1/instructors/auth/signup").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/v1/designers/auth/signup",
 					"/api/v1/designers/auth/signup/portfolio/presigned-url").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/v1/admin/auth/login").permitAll()
 				.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
 				.requestMatchers("/api/v1/instructors/**").hasRole("INSTRUCTOR")
 				.requestMatchers("/api/v1/designers/**").hasRole("DESIGNER")
+				.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated()
 			)
 			.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
