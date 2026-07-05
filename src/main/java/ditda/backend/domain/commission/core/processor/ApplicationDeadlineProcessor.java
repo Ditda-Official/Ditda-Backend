@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.application.dto.SelectionResult;
 import ditda.backend.domain.commission.application.entity.CommissionApplication;
@@ -20,6 +18,7 @@ import ditda.backend.domain.commission.core.policy.CommissionPricePolicy;
 import ditda.backend.domain.commission.core.repository.CommissionRepository;
 import ditda.backend.domain.payment.service.PaymentService;
 import ditda.backend.global.apipayload.exception.GeneralException;
+import ditda.backend.global.lock.DistributedLock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +34,7 @@ public class ApplicationDeadlineProcessor {
 	private final PaymentService paymentService;
 	private final ApplicationEventPublisher eventPublisher;
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@DistributedLock(key = "'commission:matching:' + #commissionId")
 	public void process(Long commissionId, LocalDateTime mailScheduledAt) {
 
 		// 외주 조회
