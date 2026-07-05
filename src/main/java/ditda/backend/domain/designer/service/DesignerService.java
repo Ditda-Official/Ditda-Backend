@@ -11,13 +11,23 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DesignerService {
 
 	private final DesignerRepository designerRepository;
 
-	@Transactional(readOnly = true)
 	public Designer getById(Long designerId) {
 		return designerRepository.findById(designerId)
 			.orElseThrow(() -> new GeneralException(DesignerErrorCode.DESIGNER_NOT_FOUND));
+	}
+
+	public Designer getByIdWithUser(Long designerId) {
+
+		return designerRepository.findByIdWithUser(designerId)
+			.orElseThrow(() -> new GeneralException(DesignerErrorCode.DESIGNER_NOT_FOUND));
+	}
+
+	public Designer getReferenceById(Long designerId) {
+		return designerRepository.getReferenceById(designerId);
 	}
 }
