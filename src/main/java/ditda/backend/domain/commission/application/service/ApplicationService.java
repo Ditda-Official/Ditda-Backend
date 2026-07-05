@@ -68,4 +68,31 @@ public class ApplicationService {
 	public void markAllApplicationRejected(List<CommissionApplication> applications) {
 		applications.forEach(CommissionApplication::markApplicationRejected);
 	}
+
+	// PENDING 지원 존재 여부
+	@Transactional(readOnly = true)
+	public boolean existsPendingApplication(Long commissionId, Long designerId) {
+		return commissionApplicationRepository
+			.existsByCommissionIdAndDesignerIdAndStatus(commissionId, designerId, ApplicationStatus.PENDING);
+	}
+
+	// PENDING 지원자 조회 (디자이너 fetch)
+	@Transactional(readOnly = true)
+	public List<CommissionApplication> getPendingApplicantsWithDesigner(Long commissionId) {
+		return commissionApplicationRepository
+			.findWithDesignerByCommissionIdAndStatus(commissionId, ApplicationStatus.PENDING);
+	}
+
+	// PENDING 지원자 조회 (디자이너/유저 fetch)
+	@Transactional(readOnly = true)
+	public List<CommissionApplication> getPendingApplicantsWithDesignerAndUser(Long commissionId) {
+		return commissionApplicationRepository
+			.findWithDesignerAndUserByCommissionIdAndStatus(commissionId, ApplicationStatus.PENDING);
+	}
+
+	// 지원 저장
+	@Transactional
+	public void saveApplication(CommissionApplication application) {
+		commissionApplicationRepository.save(application);
+	}
 }

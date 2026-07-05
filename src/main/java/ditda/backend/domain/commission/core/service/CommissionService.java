@@ -63,4 +63,10 @@ public class CommissionService {
 		return commissionRepository.findWithInstructorAndUserById(commissionId)
 			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 	}
+
+	// 외주 조회
+	public Commission getById(Long commissionId) {
+		return commissionRepository.findById(commissionId)
+			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
+	}
 }

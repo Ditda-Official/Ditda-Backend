@@ -131,6 +131,13 @@ public class Commission extends BaseEntity {
 		return isFirstDeadlinePassed || currentDraftCount >= planCode.getDesignerCount();
 	}
 
+	// 지원 마감일 검증
+	public void validateApplicationDeadlineNotPassed(LocalDate today) {
+		if (today.isAfter(applicationDeadline)) {
+			throw new GeneralException(CommissionErrorCode.APPLICATION_DEADLINE_PASSED);
+		}
+	}
+
 	public boolean isOwnedBy(Long instructorId) {
 		return Objects.equals(instructor.getId(), instructorId);
 	}
@@ -153,6 +160,17 @@ public class Commission extends BaseEntity {
 
 	public boolean isDesignerSelected() {
 		return assignedDesigner != null;
+	}
+
+	public boolean isEarlyMatchingReady(int distinctLevels, int totalPending) {
+		return matchedCount(distinctLevels, totalPending) >= getDesignerCount();
+	}
+
+	// 지원 가능 상태 검증
+	public void validateApplicable() {
+		if (status != CommissionStatus.RECRUITING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_RECRUITING);
+		}
 	}
 
 	// 수정 단계 검증
