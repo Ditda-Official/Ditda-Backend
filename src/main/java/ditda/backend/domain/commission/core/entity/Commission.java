@@ -40,8 +40,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Commission extends BaseEntity {
 
-	// 시안 지원 제출 마감 ~ 1차 시안 마감 일수
-	private static final int APPLICATION_DEADLINE_OFFSET_DAYS = 7;
+	// 디자이너 모집 기간
+	private static final int APPLICATION_DAYS = 5;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -118,7 +118,7 @@ public class Commission extends BaseEntity {
 			.additionalConcept(additionalConcept)
 			.colorSelectionMode(colorSelectionMode)
 			.firstDraftDeadline(firstDraftDeadline)
-			.applicationDeadline(firstDraftDeadline.minusDays(APPLICATION_DEADLINE_OFFSET_DAYS))
+			.applicationDeadline(LocalDate.now().plusDays(APPLICATION_DAYS))
 			.finalDeadline(finalDeadline)
 			.status(CommissionStatus.PENDING)
 			.maxRevision(planCode.getBaseRevision())

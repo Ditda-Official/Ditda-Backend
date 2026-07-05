@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommissionCreateValidator {
 
-	private static final int MIN_FIRST_DRAFT_LEAD_DAYS = 10;
+	private static final int MIN_FIRST_DRAFT_LEAD_DAYS = 12;
 	private static final int MIN_DRAFT_TO_FINAL_DAYS = 14;
 
 	private final CommissionCategoryHandlerResolver commissionCategoryHandlerResolver;
