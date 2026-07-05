@@ -48,4 +48,23 @@ public class DesignerDraftService {
 		return draft;
 	}
 
+	// 다음 라운드 시안 및 파일 저장
+	@Transactional
+	public CommissionDraft submitRevisionDraft(
+		CommissionApplication application,
+		int round,
+		List<String> keys
+	) {
+
+		CommissionDraft draft =
+			commissionDraftRepository.save(CommissionDraft.create(application, round));
+
+		List<CommissionDraftFile> draftFiles = IntStream.range(0, keys.size())
+			.mapToObj(i -> CommissionDraftFile.create(draft, i, keys.get(i)))
+			.toList();
+		commissionDraftFileRepository.saveAll(draftFiles);
+
+		return draft;
+	}
+
 }

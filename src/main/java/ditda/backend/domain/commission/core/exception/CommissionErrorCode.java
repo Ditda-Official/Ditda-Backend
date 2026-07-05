@@ -48,7 +48,8 @@ public enum CommissionErrorCode implements BaseErrorCode {
 	COMMISSION_NOT_DRAFT_SUBMITTABLE(HttpStatus.CONFLICT, "COMMISSION_409_05", "시안 제출 단계로 진입할 수 없는 외주 상태입니다."),
 	COMMISSION_NOT_DRAFT_SELECTABLE(HttpStatus.CONFLICT, "COMMISSION_409_06", "시안 선택 단계로 진입할 수 없는 외주 상태입니다."),
 	COMMISSION_NOT_CANCELLABLE(HttpStatus.CONFLICT, "COMMISSION_409_07", "취소할 수 없는 외주 상태입니다."),
-	COMMISSION_NOT_ACCEPTING_DRAFT(HttpStatus.CONFLICT, "COMMISSION_409_08", "1차 시안을 제출할 수 있는 상태가 아닙니다.");
+	COMMISSION_NOT_ACCEPTING_DRAFT(HttpStatus.CONFLICT, "COMMISSION_409_08", "1차 시안을 제출할 수 있는 상태가 아닙니다."),
+	COMMISSION_NOT_EDITING(HttpStatus.CONFLICT, "COMMISSION_409_09", "수정 시안을 제출할 수 없는 외주 상태입니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

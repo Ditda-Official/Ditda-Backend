@@ -227,4 +227,11 @@ public class Commission extends BaseEntity {
 	public int getRemainingRevisionCount(int currentRevisionCount) {
 		return Math.max(0, maxRevision - currentRevisionCount);
 	}
+
+	// 수정 시안 제출 가능 여부 검증
+	public void validateRevisionSubmittable() {
+		if (status != CommissionStatus.EDITING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_EDITING);
+		}
+	}
 }
