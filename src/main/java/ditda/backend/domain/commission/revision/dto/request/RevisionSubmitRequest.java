@@ -19,6 +19,7 @@ public record RevisionSubmitRequest(
 
 	@Schema(description = "수정본 파일 목록")
 	@NotEmpty
+	@Size(max = 9, message = "시안 파일은 1개 이상 9개 이하여야 합니다.")
 	@Valid
 	List<RevisionFile> files
 ) {
