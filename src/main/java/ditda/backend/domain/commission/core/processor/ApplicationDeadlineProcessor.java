@@ -41,6 +41,11 @@ public class ApplicationDeadlineProcessor {
 		Commission commission = commissionRepository.findWithInstructorAndUserById(commissionId)
 			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 
+		if (commission.getStatus() != CommissionStatus.RECRUITING) {
+			log.info("이미 모집 상태가 아니므로 마감 처리 스킵. commissionId={}, status={}", commission.getId(), commission.getStatus());
+			return;
+		}
+
 		// 지원자 조회 (PENDING만)
 		List<CommissionApplication> applications = applicationService
 			.getPendingApplicantsWithDesignerAndUser(commissionId);
@@ -56,11 +61,6 @@ public class ApplicationDeadlineProcessor {
 		List<CommissionApplication> applications,
 		LocalDateTime mailScheduledAt
 	) {
-
-		if (commission.getStatus() != CommissionStatus.RECRUITING) {
-			log.info("이미 모집 상태가 아니므로 마감 처리 스킵. commissionId={}, status={}", commission.getId(), commission.getStatus());
-			return;
-		}
 
 		int requiredCount = commission.getDesignerCount();
 		int applicantCount = applications.size();
