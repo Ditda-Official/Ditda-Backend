@@ -27,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DesignerApplicationFacade {
 
+	private static final String MATCHING_LOCK_KEY = "'commission:matching:' + #commissionId";
+
 	private final CommissionService commissionService;
 	private final DesignerService designerService;
 	private final ApplicationService applicationService;
@@ -34,7 +36,7 @@ public class DesignerApplicationFacade {
 	private final ApplicationEventPublisher eventPublisher;
 
 	// 외주 지원
-	@DistributedLock(key = "'commission:matching:' + #commissionId")
+	@DistributedLock(key = MATCHING_LOCK_KEY)
 	public void apply(Long designerId, Long commissionId) {
 
 		// 외주/디자이너 조회
@@ -55,6 +57,24 @@ public class DesignerApplicationFacade {
 
 		// 조기 매칭 확정 판정
 		tryEarlyMatching(commission);
+	}
+
+	// 외주 지원 취소
+	@DistributedLock(key = MATCHING_LOCK_KEY)
+	public void cancel(Long designerId, Long commissionId) {
+
+		// 외주 조회
+		Commission commission = commissionService.getById(commissionId);
+
+		// 디자이너 지원 조회
+		CommissionApplication application =
+			applicationService.getApplicationByCommissionAndDesigner(commissionId, designerId);
+
+		// 취소 가능 기간 검증
+		commission.validateApplicationDeadlineNotPassed(LocalDate.now());
+
+		// 지원 취소
+		application.cancel();
 	}
 
 	// 레벨별 1명 + 잉여 슬롯까지 모두 차면 즉시 매칭 확정
