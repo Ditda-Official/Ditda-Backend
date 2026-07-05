@@ -29,7 +29,7 @@ public class CommissionApplicationAssignmentPolicy {
 
 		// 레벨별 1명 보장
 		for (CommissionApplication app : sorted) {
-			if (selected.size() == capacity) {
+			if (selected.size() >= capacity) {
 				break;
 			}
 
