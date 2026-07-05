@@ -52,7 +52,7 @@ public enum CommissionErrorCode implements BaseErrorCode {
 	COMMISSION_NOT_RECRUITING(HttpStatus.CONFLICT, "COMMISSION_409_09", "모집 중인 외주가 아닙니다."),
 
 	// 마감일 검증
-	APPLICATION_DEADLINE_PASSED(HttpStatus.CONFLICT, "COMMISSION_409_09", "지원 마감일이 지났습니다.");
+	APPLICATION_DEADLINE_PASSED(HttpStatus.CONFLICT, "COMMISSION_409_10", "지원 마감일이 지났습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;
