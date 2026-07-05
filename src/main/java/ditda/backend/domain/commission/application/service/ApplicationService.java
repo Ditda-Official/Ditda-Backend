@@ -33,13 +33,15 @@ public class ApplicationService {
 	// 모든 지원자를 디자이너/사용자 정보까지 fetch하여 조회
 	@Transactional(readOnly = true)
 	public List<CommissionApplication> getApplicantsWithDesignerAndUser(Long commissionId) {
-		return commissionApplicationRepository.findWithDesignerAndUserByCommissionId(commissionId);
+		return commissionApplicationRepository
+			.findWithDesignerAndUserByCommissionIdAndStatusNot(commissionId, ApplicationStatus.CANCELLED);
 	}
 
-	// 특정 외주에 대한 디자이너의 지원 조회
+	// 특정 외주에 대한 디자이너의 지원 조회 (CANCELLED 제외)
 	@Transactional(readOnly = true)
 	public CommissionApplication getApplicationByCommissionAndDesigner(Long commissionId, Long designerId) {
-		return commissionApplicationRepository.findByCommissionAndDesigner(commissionId, designerId)
+		return commissionApplicationRepository
+			.findByCommissionIdAndDesignerIdAndStatusNot(commissionId, designerId, ApplicationStatus.CANCELLED)
 			.orElseThrow(() -> new GeneralException(ApplicationErrorCode.APPLICATION_NOT_FOUND));
 	}
 

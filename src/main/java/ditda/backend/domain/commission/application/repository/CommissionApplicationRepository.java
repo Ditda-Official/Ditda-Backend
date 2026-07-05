@@ -15,15 +15,17 @@ public interface CommissionApplicationRepository extends JpaRepository<Commissio
 	@Query("SELECT ca from CommissionApplication ca "
 		+ "JOIN FETCH ca.designer d "
 		+ "JOIN FETCH d.user "
-		+ "WHERE ca.commission.id = :commissionId")
-	List<CommissionApplication> findWithDesignerAndUserByCommissionId(@Param("commissionId") Long commissionId);
-
-	@Query("SELECT ca FROM CommissionApplication ca "
 		+ "WHERE ca.commission.id = :commissionId "
-		+ "AND ca.designer.id = :designerId")
-	Optional<CommissionApplication> findByCommissionAndDesigner(
+		+ "AND ca.status <> :excludedStatus")
+	List<CommissionApplication> findWithDesignerAndUserByCommissionIdAndStatusNot(
 		@Param("commissionId") Long commissionId,
-		@Param("designerId") Long designerId
+		@Param("excludedStatus") ApplicationStatus excludedStatus
+	);
+
+	Optional<CommissionApplication> findByCommissionIdAndDesignerIdAndStatusNot(
+		Long commissionId,
+		Long designerId,
+		ApplicationStatus status
 	);
 
 	@Query("SELECT COUNT(ca) FROM CommissionApplication ca "

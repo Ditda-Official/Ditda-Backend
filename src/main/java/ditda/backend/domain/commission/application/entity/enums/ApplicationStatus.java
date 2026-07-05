@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ApplicationStatus {
 	PENDING("지원 완료"),
+	CANCELLED("지원 취소"),
 	ASSIGNED("1차 시안 대상자"),
 	APPLICATION_REJECTED("지원 탈락"),
 	DRAFT_SUBMITTED("1차 시안 제출 완료"),
