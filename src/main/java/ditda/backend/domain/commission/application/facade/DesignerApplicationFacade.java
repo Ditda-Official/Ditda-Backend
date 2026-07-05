@@ -1,8 +1,10 @@
 package ditda.backend.domain.commission.application.facade;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import ditda.backend.domain.commission.application.dto.SelectionResult;
@@ -11,6 +13,7 @@ import ditda.backend.domain.commission.application.exception.ApplicationErrorCod
 import ditda.backend.domain.commission.application.policy.CommissionApplicationAssignmentPolicy;
 import ditda.backend.domain.commission.application.service.ApplicationService;
 import ditda.backend.domain.commission.core.entity.Commission;
+import ditda.backend.domain.commission.core.event.ApplicationDeadlineClosedEvent;
 import ditda.backend.domain.commission.core.service.CommissionService;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.designer.service.DesignerService;
@@ -28,6 +31,7 @@ public class DesignerApplicationFacade {
 	private final DesignerService designerService;
 	private final ApplicationService applicationService;
 	private final CommissionApplicationAssignmentPolicy assignmentPolicy;
+	private final ApplicationEventPublisher eventPublisher;
 
 	// 외주 지원
 	@DistributedLock(key = "'commission:matching:' + #commissionId")
@@ -68,14 +72,50 @@ public class DesignerApplicationFacade {
 			return;
 		}
 
-		// 레벨별 1명 + 잉여 슬롯까지 모두 차서 즉시 매칭 확정
-		commission.startDraftSubmitting();
+		// 외주 및 지원자의 필요한 정보들 join fetch
+		Commission matchedCommission = commissionService.getWithInstructorAndUserById(commission.getId());
+		List<CommissionApplication> pendingWithUser = applicationService.getPendingApplicantsWithDesignerAndUser(
+			commission.getId());
 
-		SelectionResult result = assignmentPolicy.select(pendingApplications, commission.getDesignerCount());
+		// 레벨별 1명 + 잉여 슬롯까지 모두 차서 즉시 매칭 확정
+		matchedCommission.startDraftSubmitting();
+
+		SelectionResult result = assignmentPolicy.select(pendingWithUser, matchedCommission.getDesignerCount());
 		applicationService.assignAll(result.selected());
 		applicationService.markAllApplicationRejected(result.rejected());
 
+		// 매칭 완료 알림
+		publishMatchedEvent(matchedCommission, result.selected());
+
 		log.info("조기 매칭 확정. commissionId={}, selected={}, rejected={}",
-			commission.getId(), result.selected().size(), result.rejected().size());
+			matchedCommission.getId(), result.selected().size(), result.rejected().size());
+	}
+
+	// TODO(#94): 결과별 이벤트 분리로 교체
+	// 매칭 확정 안내
+	private void publishMatchedEvent(Commission commission, List<CommissionApplication> selected) {
+		eventPublisher.publishEvent(new ApplicationDeadlineClosedEvent(
+			commission.getId(),
+			commission.getTitle(),
+			commission.getInstructor().getUser().getEmail(),
+			commission.getInstructor().getName(),
+			0,
+			false,
+			commission.getDesignerCount(),
+			selected.size(),
+			commission.getFirstDraftDeadline(),
+			LocalDateTime.now(),
+			toDesignerMatchInfos(selected)
+		));
+	}
+
+	private List<ApplicationDeadlineClosedEvent.DesignerMatchInfo> toDesignerMatchInfos(
+		List<CommissionApplication> applications
+	) {
+		return applications.stream()
+			.map(a -> new ApplicationDeadlineClosedEvent.DesignerMatchInfo(
+				a.getDesigner().getUser().getEmail(),
+				a.getDesigner().getUser().getName()))
+			.toList();
 	}
 }
