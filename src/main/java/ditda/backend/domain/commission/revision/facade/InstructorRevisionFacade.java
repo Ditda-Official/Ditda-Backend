@@ -12,7 +12,8 @@ import ditda.backend.domain.commission.revision.dto.request.RevisionCreateReques
 import ditda.backend.domain.commission.revision.dto.response.InstructorRevisionDetailResponse;
 import ditda.backend.domain.commission.revision.exception.RevisionErrorCode;
 import ditda.backend.domain.commission.revision.mapper.RevisionMapper;
-import ditda.backend.domain.commission.revision.service.RevisionService;
+import ditda.backend.domain.commission.revision.service.InstructorRevisionService;
+import ditda.backend.domain.commission.revision.service.RevisionQueryService;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
@@ -22,7 +23,8 @@ import lombok.RequiredArgsConstructor;
 public class InstructorRevisionFacade {
 
 	private final InstructorCommissionService instructorCommissionService;
-	private final RevisionService revisionService;
+	private final RevisionQueryService revisionQueryService;
+	private final InstructorRevisionService instructorRevisionService;
 	private final DraftQueryService draftQueryService;
 	private final RevisionMapper revisionMapper;
 
@@ -39,13 +41,13 @@ public class InstructorRevisionFacade {
 		CommissionDraft latestDraft = draftQueryService.getLatestDraftOfSelectedApplication(commissionId);
 
 		// 시안에 달린 디자이너 코멘트 조회 + 확인 처리
-		String designerComment = revisionService.getDesignerCommentAndCheck(latestDraft.getId());
+		String designerComment = instructorRevisionService.getDesignerCommentAndCheck(latestDraft.getId());
 
 		// 썸네일
 		CommissionDraftFile thumbnail = draftQueryService.findThumbnail(latestDraft.getId());
 
 		// 현재 수정 차수
-		int currentRevisionCount = revisionService.calculateCurrentRevisionCount(commission);
+		int currentRevisionCount = revisionQueryService.calculateCurrentRevisionCount(commission);
 
 		return revisionMapper.toInstructorRevisionDetailResponse(
 			commission,
@@ -69,7 +71,7 @@ public class InstructorRevisionFacade {
 		validateDistinctCategories(request);
 
 		// 수정 횟수 한도 검증
-		int current = revisionService.calculateCurrentRevisionCount(commission);
+		int current = revisionQueryService.calculateCurrentRevisionCount(commission);
 		if (commission.isRevisionLimitExceeded(current)) {
 			throw new GeneralException(RevisionErrorCode.REVISION_LIMIT_EXCEEDED);
 		}
@@ -78,12 +80,12 @@ public class InstructorRevisionFacade {
 		CommissionDraft latestDraft = draftQueryService.getLatestDraftOfSelectedApplication(commissionId);
 
 		// 시안에 이미 수정 요청이 존재하는지 검증
-		if (revisionService.hasRevisionRequestOnDraft(latestDraft.getId())) {
+		if (revisionQueryService.hasRevisionRequestOnDraft(latestDraft.getId())) {
 			throw new GeneralException(RevisionErrorCode.REVISION_ALREADY_REQUESTED);
 		}
 
 		// 수정 요청 저장
-		revisionService.createRevisionRequest(commission, latestDraft, request);
+		instructorRevisionService.createRevisionRequest(commission, latestDraft, request);
 	}
 
 	// 카테고리 중복 검증

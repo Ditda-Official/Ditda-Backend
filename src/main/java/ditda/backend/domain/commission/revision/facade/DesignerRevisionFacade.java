@@ -14,7 +14,8 @@ import ditda.backend.domain.commission.revision.dto.response.DesignerRevisionDet
 import ditda.backend.domain.commission.revision.entity.RevisionDetail;
 import ditda.backend.domain.commission.revision.entity.RevisionRequest;
 import ditda.backend.domain.commission.revision.mapper.RevisionMapper;
-import ditda.backend.domain.commission.revision.service.RevisionService;
+import ditda.backend.domain.commission.revision.service.DesignerRevisionService;
+import ditda.backend.domain.commission.revision.service.RevisionQueryService;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -24,7 +25,8 @@ public class DesignerRevisionFacade {
 
 	private final DesignerCommissionService designerCommissionService;
 	private final DraftQueryService draftQueryService;
-	private final RevisionService revisionService;
+	private final RevisionQueryService revisionQueryService;
+	private final DesignerRevisionService designerRevisionService;
 	private final RevisionMapper revisionMapper;
 
 	@Transactional
@@ -40,15 +42,15 @@ public class DesignerRevisionFacade {
 		CommissionDraft latestDraft = draftQueryService.getLatestDraftOfSelectedApplication(commissionId);
 
 		// 수정 요청 조회 + 확인 처리
-		RevisionRequest revisionRequest = revisionService.getRevisionRequestAndCheck(latestDraft.getId());
+		RevisionRequest revisionRequest = designerRevisionService.getRevisionRequestAndCheck(latestDraft.getId());
 
 		// 수정 요청 항목
-		List<RevisionDetail> details = revisionService.getRevisionDetails(revisionRequest.getId());
+		List<RevisionDetail> details = revisionQueryService.getRevisionDetails(revisionRequest.getId());
 
 		// 썸네일
 		CommissionDraftFile thumbnail = draftQueryService.findThumbnail(latestDraft.getId());
 
-		int currentRevisionCount = revisionService.calculateCurrentRevisionCount(commission);
+		int currentRevisionCount = revisionQueryService.calculateCurrentRevisionCount(commission);
 		int remainingRevisionCount = commission.getRemainingRevisionCount(currentRevisionCount);
 
 		return revisionMapper.toDesignerRevisionDetailResponse(
