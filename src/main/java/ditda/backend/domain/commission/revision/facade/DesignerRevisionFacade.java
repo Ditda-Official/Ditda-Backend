@@ -1,13 +1,17 @@
 package ditda.backend.domain.commission.revision.facade;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.application.entity.CommissionApplication;
 import ditda.backend.domain.commission.application.service.ApplicationService;
 import ditda.backend.domain.commission.core.entity.Commission;
+import ditda.backend.domain.commission.core.event.RevisionSubmittedEvent;
 import ditda.backend.domain.commission.core.service.CommissionService;
 import ditda.backend.domain.commission.core.service.DesignerCommissionService;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
@@ -34,6 +38,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DesignerRevisionFacade {
 
+	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
+
 	private final DesignerCommissionService designerCommissionService;
 	private final DraftQueryService draftQueryService;
 	private final RevisionQueryService revisionQueryService;
@@ -43,6 +49,7 @@ public class DesignerRevisionFacade {
 	private final ApplicationService applicationService;
 	private final DesignerDraftService designerDraftService;
 	private final DesignerDraftFileService designerDraftFileService;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	public DesignerRevisionDetailResponse getRevisionDetail(Long designerId, Long commissionId) {
@@ -134,10 +141,28 @@ public class DesignerRevisionFacade {
 
 		int currentRevisionCount = revisionQueryService.calculateCurrentRevisionCount(commission);
 
+		// 강사에게 수정본 제출 이메일 발송
+		publishRevisionSubmittedEvent(commissionId, currentRevisionCount);
+
 		return revisionMapper.toRevisionSubmitResponse(
 			newDraft,
 			currentRevisionCount,
 			commission
 		);
+	}
+
+	// 수정본 제출 알림 이벤트 발행
+	private void publishRevisionSubmittedEvent(Long commissionId, int currentRevisionCount) {
+
+		Commission commission = commissionService.getWithInstructorAndUserById(commissionId);
+
+		eventPublisher.publishEvent(new RevisionSubmittedEvent(
+			commission.getId(),
+			commission.getTitle(),
+			commission.getInstructor().getUser().getEmail(),
+			commission.getInstructor().getName(),
+			currentRevisionCount,
+			LocalDateTime.now(ZONE_KST)
+		));
 	}
 }
