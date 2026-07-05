@@ -26,10 +26,12 @@ import ditda.backend.domain.commission.revision.service.DesignerRevisionService;
 import ditda.backend.domain.commission.revision.service.RevisionQueryService;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class DesignerRevisionFacade {
 
 	private final DesignerCommissionService designerCommissionService;
@@ -86,7 +88,7 @@ public class DesignerRevisionFacade {
 
 		// 외주 조회 + 검증
 		Commission commission = commissionService.getByIdForUpdate(commissionId);
-		commission.validateRevisionSubmittable();
+		commission.validateRevisable();
 
 		// 최종 선택된 디자이너인지 검증
 		CommissionApplication application =
@@ -124,6 +126,7 @@ public class DesignerRevisionFacade {
 			try {
 				designerDraftFileService.deleteFiles(permanentKeys);
 			} catch (Exception cleanupEx) {
+				log.warn("수정본 저장 실패 후 S3 파일 정리 실패, keys={}", permanentKeys, cleanupEx);
 				original.addSuppressed(cleanupEx);
 			}
 			throw original;
