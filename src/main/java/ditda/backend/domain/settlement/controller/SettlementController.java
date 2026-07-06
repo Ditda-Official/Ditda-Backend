@@ -1,21 +1,20 @@
 package ditda.backend.domain.settlement.controller;
 
-import org.springframework.data.domain.PageRequest;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ditda.backend.domain.settlement.dto.response.DesignerSettlementItemResponse;
 import ditda.backend.domain.settlement.facade.DesignerSettlementFacade;
+import ditda.backend.global.apipayload.request.PageQuery;
 import ditda.backend.global.apipayload.response.ApiResponse;
 import ditda.backend.global.apipayload.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -32,15 +31,14 @@ public class SettlementController {
 	@GetMapping
 	public ApiResponse<PageResponse<DesignerSettlementItemResponse>> getMyPayments(
 		@AuthenticationPrincipal Long designerId,
-		@RequestParam(defaultValue = "0") @Min(0) int page,
-		@RequestParam(defaultValue = "10") @Min(1) @Max(50) int size
+		@ParameterObject @Valid PageQuery pageQuery
 	) {
 
 		return ApiResponse.onSuccess(
 			"디자이너 지급 내역 조회 성공",
 			designerSettlementFacade.getDesignerSettlements(
 				designerId,
-				PageRequest.of(page, size)
+				pageQuery.toPageable()
 			)
 		);
 	}

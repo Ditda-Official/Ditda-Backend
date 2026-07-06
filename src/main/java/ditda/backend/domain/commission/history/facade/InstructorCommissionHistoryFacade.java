@@ -37,7 +37,8 @@ public class InstructorCommissionHistoryFacade {
 		// 실제 결제된 가격 조회
 		Map<Long, Integer> paidAmounts = paymentService.getPaidAmounts(commissionIds);
 
-		return PageResponse.of(page,
-			c -> InstructorCommissionItemResponse.from(c, paidAmounts.get(c.getId())));
+		return PageResponse.from(page.map(
+			c -> InstructorCommissionItemResponse.from(c, paidAmounts.get(c.getId()))
+		));
 	}
 }

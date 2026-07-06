@@ -21,6 +21,6 @@ public class DesignerSettlementFacade {
 	public PageResponse<DesignerSettlementItemResponse> getDesignerSettlements(Long designerId, Pageable pageable) {
 
 		Page<Settlement> page = settlementService.getCompletedSettlements(designerId, pageable);
-		return PageResponse.of(page, DesignerSettlementItemResponse::from);
+		return PageResponse.from(page.map(DesignerSettlementItemResponse::from));
 	}
 }
