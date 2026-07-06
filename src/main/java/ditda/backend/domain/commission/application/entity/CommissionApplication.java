@@ -17,7 +17,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,16 +24,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-// 한 디자이너는 한 외주에 1번만 지원
-@Table(
-	name = "commission_applications",
-	uniqueConstraints = {
-		@UniqueConstraint(
-			name = "uk_commission_application",
-			columnNames = {"commission_id", "designer_id"}
-		)
-	}
-)
+@Table(name = "commission_applications")
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -108,6 +98,15 @@ public class CommissionApplication extends BaseEntity {
 	// 시안 대상자 상태 여부
 	public boolean isAssigned() {
 		return status == ApplicationStatus.ASSIGNED;
+	}
+
+	// 지원 취소
+	public void cancel() {
+		if (status != ApplicationStatus.PENDING) {
+			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_CANCEL);
+		}
+
+		this.status = ApplicationStatus.CANCELLED;
 	}
 
 	// 1차 시안 대상자 선정 처리

@@ -33,7 +33,7 @@ public enum CommissionErrorCode implements BaseErrorCode {
 
 	// 마감 기한
 	INVALID_DEADLINE_ORDER(HttpStatus.BAD_REQUEST, "COMMISSION_400_07", "1차 시안 마감일은 최종 마감일보다 빨라야 합니다."),
-	FIRST_DRAFT_DEADLINE_TOO_SOON(HttpStatus.BAD_REQUEST, "COMMISSION_400_08", "1차 시안 마감일은 오늘로부터 최소 10일 이후여야 합니다."),
+	FIRST_DRAFT_DEADLINE_TOO_SOON(HttpStatus.BAD_REQUEST, "COMMISSION_400_08", "1차 시안 마감일은 오늘로부터 최소 12일 이후여야 합니다."),
 	FINAL_DEADLINE_TOO_SOON(HttpStatus.BAD_REQUEST, "COMMISSION_400_09", "최종 마감일은 1차 시안 마감일로부터 최소 14일 이후여야 합니다."),
 
 	// 외주 조회 및 선택
@@ -48,7 +48,11 @@ public enum CommissionErrorCode implements BaseErrorCode {
 	COMMISSION_NOT_DRAFT_SUBMITTABLE(HttpStatus.CONFLICT, "COMMISSION_409_05", "시안 제출 단계로 진입할 수 없는 외주 상태입니다."),
 	COMMISSION_NOT_DRAFT_SELECTABLE(HttpStatus.CONFLICT, "COMMISSION_409_06", "시안 선택 단계로 진입할 수 없는 외주 상태입니다."),
 	COMMISSION_NOT_CANCELLABLE(HttpStatus.CONFLICT, "COMMISSION_409_07", "취소할 수 없는 외주 상태입니다."),
-	COMMISSION_NOT_ACCEPTING_DRAFT(HttpStatus.CONFLICT, "COMMISSION_409_08", "1차 시안을 제출할 수 있는 상태가 아닙니다.");
+	COMMISSION_NOT_ACCEPTING_DRAFT(HttpStatus.CONFLICT, "COMMISSION_409_08", "1차 시안을 제출할 수 있는 상태가 아닙니다."),
+	COMMISSION_NOT_RECRUITING(HttpStatus.CONFLICT, "COMMISSION_409_09", "모집 중인 외주가 아닙니다."),
+
+	// 마감일 검증
+	APPLICATION_DEADLINE_PASSED(HttpStatus.CONFLICT, "COMMISSION_409_10", "지원 마감일이 지났습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

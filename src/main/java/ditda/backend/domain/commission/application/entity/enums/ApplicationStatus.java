@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 public enum ApplicationStatus {
 	// Step 1 - 지원
 	PENDING("지원 완료"),
+	CANCELLED("지원 취소"),
 
 	// Step 2 - 지원 결과
 	ASSIGNED("1차 시안 대상자"),

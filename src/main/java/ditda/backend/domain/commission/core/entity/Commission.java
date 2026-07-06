@@ -40,8 +40,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Commission extends BaseEntity {
 
-	// 시안 지원 제출 마감 ~ 1차 시안 마감 일수
-	private static final int APPLICATION_DEADLINE_OFFSET_DAYS = 7;
+	// 디자이너 모집 기간
+	private static final int APPLICATION_DAYS = 5;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -118,7 +118,7 @@ public class Commission extends BaseEntity {
 			.additionalConcept(additionalConcept)
 			.colorSelectionMode(colorSelectionMode)
 			.firstDraftDeadline(firstDraftDeadline)
-			.applicationDeadline(firstDraftDeadline.minusDays(APPLICATION_DEADLINE_OFFSET_DAYS))
+			.applicationDeadline(LocalDate.now().plusDays(APPLICATION_DAYS))
 			.finalDeadline(finalDeadline)
 			.status(CommissionStatus.PENDING)
 			.maxRevision(planCode.getBaseRevision())
@@ -129,6 +129,13 @@ public class Commission extends BaseEntity {
 
 		boolean isFirstDeadlinePassed = currentDate.isAfter(firstDraftDeadline);
 		return isFirstDeadlinePassed || currentDraftCount >= planCode.getDesignerCount();
+	}
+
+	// 지원 마감일 검증
+	public void validateApplicationDeadlineNotPassed(LocalDate today) {
+		if (today.isAfter(applicationDeadline)) {
+			throw new GeneralException(CommissionErrorCode.APPLICATION_DEADLINE_PASSED);
+		}
 	}
 
 	public boolean isOwnedBy(Long instructorId) {
@@ -153,6 +160,17 @@ public class Commission extends BaseEntity {
 
 	public boolean isDesignerSelected() {
 		return assignedDesigner != null;
+	}
+
+	public boolean isEarlyMatchingReady(int distinctLevels, int totalPending) {
+		return matchedCount(distinctLevels, totalPending) >= getDesignerCount();
+	}
+
+	// 지원 가능 상태 검증
+	public void validateApplicable() {
+		if (status != CommissionStatus.RECRUITING) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_NOT_RECRUITING);
+		}
 	}
 
 	// 수정 단계 검증
