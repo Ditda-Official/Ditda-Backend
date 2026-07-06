@@ -11,14 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 import ditda.backend.domain.commission.application.entity.CommissionApplication;
 import ditda.backend.domain.commission.application.service.ApplicationService;
 import ditda.backend.domain.commission.core.dto.PriceDetail;
-import ditda.backend.domain.commission.core.dto.response.CommissionListResponse;
 import ditda.backend.domain.commission.core.dto.response.CommissionSummaryResponse;
+import ditda.backend.domain.commission.core.dto.response.DesignerCommissionItemResponse;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.policy.CommissionPricePolicy;
 import ditda.backend.domain.commission.core.service.DesignerCommissionService;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.designer.entity.enums.DesignerLevel;
 import ditda.backend.domain.designer.service.DesignerService;
+import ditda.backend.global.apipayload.response.PageResponse;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -31,7 +32,10 @@ public class DesignerCommissionFacade {
 	private final CommissionPricePolicy commissionPricePolicy;
 
 	@Transactional(readOnly = true)
-	public CommissionListResponse getRecruitingCommissionList(Long designerId, Pageable pageable) {
+	public PageResponse<DesignerCommissionItemResponse> getRecruitingCommissionList(
+		Long designerId,
+		Pageable pageable
+	) {
 
 		Designer designer = designerService.getById(designerId);
 		DesignerLevel level = designer.getLevel();
@@ -43,7 +47,8 @@ public class DesignerCommissionFacade {
 				c -> commissionPricePolicy.getPriceDetail(c.getCategoryType(), level)
 			));
 
-		return CommissionListResponse.from(commissions, priceDetails);
+		return PageResponse.of(commissions,
+			c -> DesignerCommissionItemResponse.from(c, priceDetails.get(c.getId())));
 	}
 
 	// 시안 제출시 외주 기본 정보 조회

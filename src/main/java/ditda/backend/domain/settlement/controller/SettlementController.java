@@ -8,9 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ditda.backend.domain.settlement.dto.response.DesignerSettlementResponse;
+import ditda.backend.domain.settlement.dto.response.DesignerSettlementItemResponse;
 import ditda.backend.domain.settlement.facade.DesignerSettlementFacade;
 import ditda.backend.global.apipayload.response.ApiResponse;
+import ditda.backend.global.apipayload.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
@@ -29,7 +30,7 @@ public class SettlementController {
 	@Operation(summary = "디자이너 지급 내역 조회",
 		description = "**[마이페이지]** 디자이너 본인의 지급 내역을 페이지네이션으로 조회합니다. 지급 일시 최신순으로 정렬됩니다.")
 	@GetMapping
-	public ApiResponse<DesignerSettlementResponse> getMyPayments(
+	public ApiResponse<PageResponse<DesignerSettlementItemResponse>> getMyPayments(
 		@AuthenticationPrincipal Long designerId,
 		@RequestParam(defaultValue = "0") @Min(0) int page,
 		@RequestParam(defaultValue = "10") @Min(1) @Max(50) int size

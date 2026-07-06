@@ -8,9 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ditda.backend.domain.commission.history.dto.response.InstructorCommissionHistoryResponse;
+import ditda.backend.domain.commission.history.dto.response.InstructorCommissionItemResponse;
 import ditda.backend.domain.commission.history.facade.InstructorCommissionHistoryFacade;
 import ditda.backend.global.apipayload.response.ApiResponse;
+import ditda.backend.global.apipayload.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
@@ -29,16 +30,17 @@ public class InstructorCommissionHistoryController {
 	@Operation(summary = "외주 내역 조회",
 		description = "**[마이페이지]** 강사 본인의 전체 외주를 페이지네이션으로 조회합니다. 생성일 최신순으로 정렬됩니다.")
 	@GetMapping
-	public ApiResponse<InstructorCommissionHistoryResponse> getMyCommissions(
+	public ApiResponse<PageResponse<InstructorCommissionItemResponse>> getMyCommissions(
 		@AuthenticationPrincipal Long instructorId,
 		@RequestParam(defaultValue = "0") @Min(0) int page,
 		@RequestParam(defaultValue = "10") @Min(1) @Max(50) int size
 	) {
 
-		InstructorCommissionHistoryResponse response = instructorCommissionHistoryFacade.getInstructorCommissions(
-			instructorId,
-			PageRequest.of(page, size)
-		);
+		PageResponse<InstructorCommissionItemResponse> response =
+			instructorCommissionHistoryFacade.getInstructorCommissions(
+				instructorId,
+				PageRequest.of(page, size)
+			);
 		return ApiResponse.onSuccess("강사 외주 내역 조회 성공", response);
 	}
 }
