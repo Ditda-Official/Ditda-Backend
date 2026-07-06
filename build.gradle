@@ -36,6 +36,7 @@ dependencies {
 
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.redisson:redisson-spring-boot-starter:4.6.1'
 
     // jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
