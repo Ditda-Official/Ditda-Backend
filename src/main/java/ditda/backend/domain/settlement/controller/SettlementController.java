@@ -2,7 +2,6 @@ package ditda.backend.domain.settlement.controller;
 
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/designers/settlements")
 @RequiredArgsConstructor
-@Validated
 @Tag(name = "Designer", description = "디자이너 마이페이지 API")
 public class SettlementController {
 

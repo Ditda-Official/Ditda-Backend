@@ -2,7 +2,6 @@ package ditda.backend.domain.commission.core.controller;
 
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/designers/commissions")
 @RequiredArgsConstructor
-@Validated
 @Tag(name = "Designer", description = "디자이너 모집 중 외주 목록 API")
 public class DesignerCommissionController {
 
