@@ -1,28 +1,26 @@
 package ditda.backend.domain.commission.core.controller;
 
-import org.springframework.data.domain.PageRequest;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ditda.backend.domain.commission.core.dto.response.CommissionListResponse;
 import ditda.backend.domain.commission.core.dto.response.CommissionSummaryResponse;
+import ditda.backend.domain.commission.core.dto.response.DesignerCommissionItemResponse;
 import ditda.backend.domain.commission.core.facade.DesignerCommissionFacade;
+import ditda.backend.global.apipayload.request.PageQuery;
 import ditda.backend.global.apipayload.response.ApiResponse;
+import ditda.backend.global.apipayload.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/designers/commissions")
 @RequiredArgsConstructor
-@Validated
 @Tag(name = "Designer", description = "디자이너 모집 중 외주 목록 API")
 public class DesignerCommissionController {
 
@@ -31,15 +29,14 @@ public class DesignerCommissionController {
 	@Operation(summary = "모집 중 외주 목록 조회",
 		description = "**[외주 찾기]** 디자이너가 모집 중인 외주 목록을 조회합니다. 지원 마감일이 임박한 순으로 정렬됩니다.")
 	@GetMapping
-	public ApiResponse<CommissionListResponse> getRecruitingCommissions(
+	public ApiResponse<PageResponse<DesignerCommissionItemResponse>> getRecruitingCommissions(
 		@AuthenticationPrincipal Long designerId,
-		@RequestParam(defaultValue = "0") @Min(0) int page,
-		@RequestParam(defaultValue = "10") @Min(1) @Max(50) int size
+		@ParameterObject @Valid PageQuery pageQuery
 	) {
 
-		CommissionListResponse response = designerCommissionFacade.getRecruitingCommissionList(
+		PageResponse<DesignerCommissionItemResponse> response = designerCommissionFacade.getRecruitingCommissionList(
 			designerId,
-			PageRequest.of(page, size)
+			pageQuery.toPageable()
 		);
 
 		return ApiResponse.onSuccess("디자이너 모집 중 외주 목록 조회 성공", response);
