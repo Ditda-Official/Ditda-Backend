@@ -19,6 +19,7 @@ import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.designer.service.DesignerService;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.lock.DistributedLock;
+import ditda.backend.global.lock.LockKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,8 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DesignerApplicationFacade {
 
-	private static final String MATCHING_LOCK_KEY = "'commission:matching:' + #commissionId";
-
 	private final CommissionService commissionService;
 	private final DesignerService designerService;
 	private final ApplicationService applicationService;
@@ -36,7 +35,7 @@ public class DesignerApplicationFacade {
 	private final ApplicationEventPublisher eventPublisher;
 
 	// 외주 지원
-	@DistributedLock(key = MATCHING_LOCK_KEY)
+	@DistributedLock(key = LockKeys.COMMISSION_MATCHING)
 	public void apply(Long designerId, Long commissionId) {
 
 		// 외주/디자이너 조회
@@ -60,7 +59,7 @@ public class DesignerApplicationFacade {
 	}
 
 	// 외주 지원 취소
-	@DistributedLock(key = MATCHING_LOCK_KEY)
+	@DistributedLock(key = LockKeys.COMMISSION_MATCHING)
 	public void cancel(Long designerId, Long commissionId) {
 
 		// 외주 조회
