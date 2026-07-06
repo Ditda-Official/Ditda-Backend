@@ -112,7 +112,7 @@ public class DesignerRevisionFacade {
 		}
 
 		// 파일 검증 + promote
-		List<String> keys = request.sortedKeys();
+		List<String> keys = request.keys();
 		designerDraftFileService.validateFiles(keys);
 		List<String> permanentKeys = designerDraftFileService.promote(keys);
 

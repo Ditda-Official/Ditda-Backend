@@ -1,13 +1,10 @@
 package ditda.backend.domain.commission.revision.dto.request;
 
-import java.util.Comparator;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Schema(description = "수정본 제출 요청")
@@ -17,32 +14,12 @@ public record RevisionSubmitRequest(
 	@Size(max = 300)
 	String designerComment,
 
-	@Schema(description = "수정본 파일 목록")
-	@NotEmpty
-	@Size(max = 9, message = "시안 파일은 1개 이상 9개 이하여야 합니다.")
-	@Valid
-	List<RevisionFile> files
+	@Schema(
+		description = "presigned URL로 업로드한 S3 임시 key 목록",
+		example = "[\"commission/draft/tmp/uuid1.png\", \"commission/draft/tmp/uuid2.png\"]"
+	)
+	@NotNull(message = "시안 파일 key 목록은 필수입니다.")
+	@Size(min = 1, max = 9, message = "시안 파일은 1개 이상 9개 이하여야 합니다.")
+	List<@NotBlank(message = "파일 key는 필수입니다.") String> keys
 ) {
-
-	public record RevisionFile(
-
-		@Schema(
-			description = "presigned URL로 업로드한 S3 임시 key",
-			example = "commission/draft/tmp/uuid1.png"
-		)
-		@NotBlank
-		String key,
-
-		@Schema(description = "파일 순서", example = "0")
-		@Min(0)
-		int fileOrder
-	) {
-	}
-
-	public List<String> sortedKeys() {
-		return files.stream()
-			.sorted(Comparator.comparingInt(RevisionFile::fileOrder))
-			.map(RevisionFile::key)
-			.toList();
-	}
 }
