@@ -127,4 +127,11 @@ public class CommissionApplication extends BaseEntity {
 			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_DRAFT_SUBMITTED);
 		}
 	}
+
+	// 수정본 제출 가능 상태 여부 검증
+	public void validateRevisionSubmittable() {
+		if (status != ApplicationStatus.DRAFT_SELECTED) {
+			throw new GeneralException(ApplicationErrorCode.NOT_SELECTED_DESIGNER);
+		}
+	}
 }

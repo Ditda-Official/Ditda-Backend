@@ -11,6 +11,7 @@ import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.exception.DraftErrorCode;
 import ditda.backend.domain.commission.revision.dto.response.DesignerRevisionDetailResponse;
 import ditda.backend.domain.commission.revision.dto.response.InstructorRevisionDetailResponse;
+import ditda.backend.domain.commission.revision.dto.response.RevisionSubmitResponse;
 import ditda.backend.domain.commission.revision.entity.RevisionDetail;
 import ditda.backend.domain.commission.revision.entity.RevisionRequest;
 import ditda.backend.global.apipayload.exception.GeneralException;
@@ -65,6 +66,19 @@ public class RevisionMapper {
 			remainingRevisionCount,
 			new DesignerRevisionDetailResponse.TargetDraft(draft.getId(), thumbnailUrl),
 			detailDtos
+		);
+	}
+
+	public RevisionSubmitResponse toRevisionSubmitResponse(
+		CommissionDraft draft,
+		int currentRevisionCount,
+		Commission commission
+	) {
+		return new RevisionSubmitResponse(
+			draft.getId(),
+			currentRevisionCount,
+			commission.getMaxRevision(),
+			draft.getCreatedAt()
 		);
 	}
 

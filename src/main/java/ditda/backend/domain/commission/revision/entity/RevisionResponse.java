@@ -46,7 +46,7 @@ public class RevisionResponse extends BaseEntity {
 	@JoinColumn(name = "produced_draft_id", nullable = false)
 	private CommissionDraft producedDraft;
 
-	@Column(name = "designer_comment", length = 500, nullable = false)
+	@Column(name = "designer_comment", length = 300)
 	private String designerComment;
 
 	@Builder.Default

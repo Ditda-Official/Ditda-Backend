@@ -63,4 +63,8 @@ public class CommissionDraft extends BaseEntity {
 	public boolean isDraftFirstRound() {
 		return round == FIRST_ROUND;
 	}
+
+	public int nextRound() {
+		return round + 1;
+	}
 }
