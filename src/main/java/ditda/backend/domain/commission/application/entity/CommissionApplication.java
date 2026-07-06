@@ -100,6 +100,15 @@ public class CommissionApplication extends BaseEntity {
 		return status == ApplicationStatus.ASSIGNED;
 	}
 
+	// 지원 취소
+	public void cancel() {
+		if (status != ApplicationStatus.PENDING) {
+			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_CANCEL);
+		}
+
+		this.status = ApplicationStatus.CANCELLED;
+	}
+
 	// 1차 시안 대상자 선정 처리
 	public void assign() {
 		if (status != ApplicationStatus.PENDING) {

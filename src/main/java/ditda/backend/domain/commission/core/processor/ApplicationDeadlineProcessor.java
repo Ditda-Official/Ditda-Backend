@@ -19,6 +19,7 @@ import ditda.backend.domain.commission.core.repository.CommissionRepository;
 import ditda.backend.domain.payment.service.PaymentService;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.lock.DistributedLock;
+import ditda.backend.global.lock.LockKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,7 +35,7 @@ public class ApplicationDeadlineProcessor {
 	private final PaymentService paymentService;
 	private final ApplicationEventPublisher eventPublisher;
 
-	@DistributedLock(key = "'commission:matching:' + #commissionId")
+	@DistributedLock(key = LockKeys.COMMISSION_MATCHING)
 	public void process(Long commissionId, LocalDateTime mailScheduledAt) {
 
 		// 외주 조회
