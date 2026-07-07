@@ -12,6 +12,7 @@ import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.dashboard.repository.projection.DesignerAnnouncementView;
 import ditda.backend.domain.commission.dashboard.repository.projection.DesignerDraftSubmissionView;
+import ditda.backend.domain.commission.dashboard.repository.projection.DesignerRevisingView;
 import ditda.backend.domain.commission.dashboard.repository.projection.InstructorDraftSubmissionView;
 import ditda.backend.domain.commission.dashboard.repository.projection.InstructorMatchingView;
 import ditda.backend.domain.commission.dashboard.repository.projection.InstructorRevisingView;
@@ -97,5 +98,22 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 	List<DesignerAnnouncementView> findDesignerAnnouncementViews(
 		@Param("designerId") Long designerId,
 		@Param("applicationStatuses") Set<ApplicationStatus> applicationStatuses
+	);
+
+	// 디자이너 수정 중인 외주: commission + submitted(미응답 요청 없음) + hasUpdated(미열람 수정 요청 존재)
+	@Query("SELECT c AS commission, "
+		+ "CASE WHEN COUNT(CASE WHEN rr.id IS NOT NULL AND resp.id IS NULL THEN 1 END) = 0 "
+		+ "     THEN true ELSE false END AS submitted, "
+		+ "CASE WHEN COUNT(CASE WHEN rr.id IS NOT NULL AND rr.checked = false THEN 1 END) > 0 "
+		+ "     THEN true ELSE false END AS hasUpdated "
+		+ "FROM Commission c "
+		+ "LEFT JOIN RevisionRequest rr ON rr.commission = c "
+		+ "LEFT JOIN RevisionResponse resp ON resp.revisionRequest = rr "
+		+ "WHERE c.assignedDesigner.id = :designerId AND c.status = :commissionStatus "
+		+ "GROUP BY c.id "
+		+ "ORDER BY c.finalDeadline ASC")
+	List<DesignerRevisingView> findDesignerRevisingViews(
+		@Param("designerId") Long designerId,
+		@Param("commissionStatus") CommissionStatus commissionStatus
 	);
 }

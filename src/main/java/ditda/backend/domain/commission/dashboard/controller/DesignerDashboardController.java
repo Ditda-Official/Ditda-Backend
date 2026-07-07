@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ditda.backend.domain.commission.dashboard.dto.response.DesignerAnnouncementCommissionResponse;
 import ditda.backend.domain.commission.dashboard.dto.response.DesignerDraftSubmissionCommissionResponse;
+import ditda.backend.domain.commission.dashboard.dto.response.DesignerRevisingCommissionResponse;
 import ditda.backend.domain.commission.dashboard.service.DesignerDashboardService;
 import ditda.backend.global.apipayload.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,5 +40,15 @@ public class DesignerDashboardController {
 		DesignerAnnouncementCommissionResponse response = designerDashboardService.getAnnouncements(designerId);
 
 		return ApiResponse.onSuccess("발표 대기 외주 조회 성공", response);
+	}
+
+	@Operation(summary = "수정 중인 외주 조회", description = "**[대시보드]** 디자이너가 수정 중인 외주 목록을 조회합니다.")
+	@GetMapping("/revisions")
+	public ApiResponse<DesignerRevisingCommissionResponse> getRevisingCommissions(
+		@AuthenticationPrincipal Long designerId
+	) {
+		DesignerRevisingCommissionResponse response = designerDashboardService.getRevisingCommissions(designerId);
+
+		return ApiResponse.onSuccess("수정 중인 외주 조회 성공", response);
 	}
 }
