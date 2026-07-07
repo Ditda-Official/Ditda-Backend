@@ -94,7 +94,7 @@ public class DesignerRevisionFacade {
 	) {
 
 		// 외주 조회 + 검증
-		Commission commission = commissionService.getByIdForUpdate(commissionId);
+		Commission commission = commissionService.getById(commissionId);
 		commission.validateRevisable();
 
 		// 최종 선택된 디자이너인지 검증
