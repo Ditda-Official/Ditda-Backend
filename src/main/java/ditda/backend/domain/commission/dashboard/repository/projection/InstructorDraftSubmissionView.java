@@ -2,11 +2,9 @@ package ditda.backend.domain.commission.dashboard.repository.projection;
 
 import ditda.backend.domain.commission.core.entity.Commission;
 
-public interface RevisingView {
+public interface InstructorDraftSubmissionView {
 
 	Commission getCommission();
 
-	Boolean getSubmitted();
-
-	Boolean getHasUpdated();
+	Long getSubmissionCount();
 }

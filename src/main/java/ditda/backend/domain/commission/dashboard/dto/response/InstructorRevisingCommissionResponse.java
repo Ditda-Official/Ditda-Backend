@@ -4,21 +4,21 @@ import java.time.LocalDate;
 import java.util.List;
 
 import ditda.backend.domain.commission.core.entity.Commission;
-import ditda.backend.domain.commission.dashboard.repository.projection.RevisingView;
+import ditda.backend.domain.commission.dashboard.repository.projection.InstructorRevisingView;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "수정 중인 외주 응답")
-public record RevisingCommissionResponse(
+public record InstructorRevisingCommissionResponse(
 
 	List<CommissionItem> commissions
 ) {
-	public static RevisingCommissionResponse of(List<RevisingView> views) {
+	public static InstructorRevisingCommissionResponse of(List<InstructorRevisingView> views) {
 
 		List<CommissionItem> items = views.stream()
 			.map(CommissionItem::from)
 			.toList();
 
-		return new RevisingCommissionResponse(items);
+		return new InstructorRevisingCommissionResponse(items);
 	}
 
 	public record CommissionItem(
@@ -38,7 +38,7 @@ public record RevisingCommissionResponse(
 		LocalDate finalDeadline
 	) {
 
-		private static CommissionItem from(RevisingView view) {
+		private static CommissionItem from(InstructorRevisingView view) {
 
 			Commission commission = view.getCommission();
 

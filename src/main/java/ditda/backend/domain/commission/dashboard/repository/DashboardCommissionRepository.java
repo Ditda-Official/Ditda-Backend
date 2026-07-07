@@ -10,13 +10,13 @@ import org.springframework.data.repository.query.Param;
 import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
-import ditda.backend.domain.commission.dashboard.repository.projection.DraftSubmissionView;
-import ditda.backend.domain.commission.dashboard.repository.projection.MatchingView;
-import ditda.backend.domain.commission.dashboard.repository.projection.RevisingView;
+import ditda.backend.domain.commission.dashboard.repository.projection.InstructorDraftSubmissionView;
+import ditda.backend.domain.commission.dashboard.repository.projection.InstructorMatchingView;
+import ditda.backend.domain.commission.dashboard.repository.projection.InstructorRevisingView;
 
 public interface DashboardCommissionRepository extends Repository<Commission, Long> {
 
-	// 시안 제출 현황: commission + DRAFT_SUBMITTED 개수
+	// 강사 시안 제출 현황: commission + DRAFT_SUBMITTED 개수
 	@Query("SELECT c AS commission, "
 		+ "COUNT(a.id) AS submissionCount "
 		+ "FROM Commission c "
@@ -24,13 +24,13 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 		+ "WHERE c.instructor.id = :instructorId AND c.status IN :commissionStatuses "
 		+ "GROUP BY c.id "
 		+ "ORDER BY c.firstDraftDeadline ASC")
-	List<DraftSubmissionView> findDraftSubmissionViews(
+	List<InstructorDraftSubmissionView> findInstructorDraftSubmissionViews(
 		@Param("instructorId") Long instructorId,
 		@Param("commissionStatuses") Set<CommissionStatus> commissionStatuses,
 		@Param("applicationStatus") ApplicationStatus applicationStatus
 	);
 
-	// 매칭 중인 외주: commission + distinct level 수 + PENDING 지원자 수
+	// 강사 매칭 중인 외주: commission + distinct level 수 + PENDING 지원자 수
 	@Query("SELECT c AS commission, "
 		+ "COUNT(DISTINCT d.level) AS distinctLevelCount, "
 		+ "COUNT(a.id) AS totalCount "
@@ -40,13 +40,13 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 		+ "WHERE c.instructor.id = :instructorId AND c.status = :commissionStatus "
 		+ "GROUP BY c.id "
 		+ "ORDER BY c.applicationDeadline ASC")
-	List<MatchingView> findMatchingViews(
+	List<InstructorMatchingView> findInstructorMatchingViews(
 		@Param("instructorId") Long instructorId,
 		@Param("commissionStatus") CommissionStatus commissionStatus,
 		@Param("applicationStatus") ApplicationStatus applicationStatus
 	);
 
-	// 수정 중인 외주: commission + submitted(응답 없는 요청 존재) + hasUpdated(미열람 응답 존재)
+	// 강사 수정 중인 외주: commission + submitted(응답 없는 요청 존재) + hasUpdated(미열람 응답 존재)
 	@Query("SELECT c AS commission, "
 		+ "CASE WHEN COUNT(CASE WHEN rr.id IS NOT NULL AND resp.id IS NULL THEN 1 END) > 0 "
 		+ "     THEN true ELSE false END AS submitted, "
@@ -58,7 +58,7 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 		+ "WHERE c.instructor.id = :instructorId AND c.status = :commissionStatus "
 		+ "GROUP BY c.id "
 		+ "ORDER BY c.finalDeadline ASC")
-	List<RevisingView> findRevisingViews(
+	List<InstructorRevisingView> findInstructorRevisingViews(
 		@Param("instructorId") Long instructorId,
 		@Param("commissionStatus") CommissionStatus commissionStatus
 	);
