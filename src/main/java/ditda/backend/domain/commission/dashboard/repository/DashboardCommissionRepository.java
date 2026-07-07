@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
+import ditda.backend.domain.commission.dashboard.repository.projection.DesignerAnnouncementView;
 import ditda.backend.domain.commission.dashboard.repository.projection.DesignerDraftSubmissionView;
 import ditda.backend.domain.commission.dashboard.repository.projection.InstructorDraftSubmissionView;
 import ditda.backend.domain.commission.dashboard.repository.projection.InstructorMatchingView;
@@ -76,6 +77,25 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 	List<DesignerDraftSubmissionView> findDesignerDraftSubmissionViews(
 		@Param("designerId") Long designerId,
 		@Param("commissionStatus") CommissionStatus commissionStatus,
+		@Param("applicationStatuses") Set<ApplicationStatus> applicationStatuses
+	);
+
+	// 디자이너 발표 대기 외주: commission + 지원 상태
+	// ORDER BY CASE 우선순위는 AnnouncementResult 순서와 동기화 필요
+	@Query("SELECT c AS commission, ca.status AS applicationStatus "
+		+ "FROM CommissionApplication ca "
+		+ "JOIN ca.commission c "
+		+ "WHERE ca.designer.id = :designerId "
+		+ "AND ca.status IN :applicationStatuses "
+		+ "ORDER BY "
+		+ "CASE "
+		+ "WHEN ca.status = ApplicationStatus.PENDING THEN 0 "
+		+ "WHEN ca.status = ApplicationStatus.ASSIGNED THEN 1 "
+		+ "WHEN ca.status = ApplicationStatus.APPLICATION_REJECTED THEN 2 "
+		+ "ELSE 3 END, "
+		+ "c.applicationDeadline ASC")
+	List<DesignerAnnouncementView> findDesignerAnnouncementViews(
+		@Param("designerId") Long designerId,
 		@Param("applicationStatuses") Set<ApplicationStatus> applicationStatuses
 	);
 }

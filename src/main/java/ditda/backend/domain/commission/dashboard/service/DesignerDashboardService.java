@@ -11,8 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.policy.CommissionPricePolicy;
+import ditda.backend.domain.commission.dashboard.dto.response.DesignerAnnouncementCommissionResponse;
 import ditda.backend.domain.commission.dashboard.dto.response.DesignerDraftSubmissionCommissionResponse;
+import ditda.backend.domain.commission.dashboard.dto.response.enums.AnnouncementResult;
 import ditda.backend.domain.commission.dashboard.repository.DashboardCommissionRepository;
+import ditda.backend.domain.commission.dashboard.repository.projection.DesignerAnnouncementView;
 import ditda.backend.domain.commission.dashboard.repository.projection.DesignerDraftSubmissionView;
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +43,17 @@ public class DesignerDashboardService {
 			));
 
 		return DesignerDraftSubmissionCommissionResponse.of(views, maxAmountMap);
+	}
+
+	// 발표 대기 외주 조회
+	public DesignerAnnouncementCommissionResponse getAnnouncements(Long designerId) {
+
+		List<DesignerAnnouncementView> views = dashboardCommissionRepository.findDesignerAnnouncementViews(
+			designerId,
+			AnnouncementResult.supportedStatuses()
+		);
+
+		return DesignerAnnouncementCommissionResponse.of(views);
 	}
 
 	// 최대 수령금액 계산
