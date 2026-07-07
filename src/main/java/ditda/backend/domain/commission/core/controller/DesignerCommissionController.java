@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/designers/commissions")
 @RequiredArgsConstructor
-@Tag(name = "Designer", description = "디자이너 모집 중 외주 목록 API")
+@Tag(name = "Designer Commission", description = "디자이너 외주 조회 API")
 public class DesignerCommissionController {
 
 	private final DesignerCommissionFacade designerCommissionFacade;
