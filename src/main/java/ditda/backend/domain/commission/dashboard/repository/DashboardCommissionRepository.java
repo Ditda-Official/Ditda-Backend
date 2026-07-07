@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
+import ditda.backend.domain.commission.dashboard.repository.projection.DesignerDraftSubmissionView;
 import ditda.backend.domain.commission.dashboard.repository.projection.InstructorDraftSubmissionView;
 import ditda.backend.domain.commission.dashboard.repository.projection.InstructorMatchingView;
 import ditda.backend.domain.commission.dashboard.repository.projection.InstructorRevisingView;
@@ -61,5 +62,20 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 	List<InstructorRevisingView> findInstructorRevisingViews(
 		@Param("instructorId") Long instructorId,
 		@Param("commissionStatus") CommissionStatus commissionStatus
+	);
+
+	// 디자이너 시안 제출 예정 외주: commission + 지원 상태 + 디자이너 레벨
+	@Query("SELECT c AS commission, ca.status AS applicationStatus, d.level AS designerLevel "
+		+ "FROM CommissionApplication ca "
+		+ "JOIN ca.commission c "
+		+ "JOIN ca.designer d "
+		+ "WHERE d.id = :designerId "
+		+ "AND ca.status IN :applicationStatuses "
+		+ "AND c.status = :commissionStatus "
+		+ "ORDER BY c.firstDraftDeadline ASC")
+	List<DesignerDraftSubmissionView> findDesignerDraftSubmissionViews(
+		@Param("designerId") Long designerId,
+		@Param("commissionStatus") CommissionStatus commissionStatus,
+		@Param("applicationStatuses") Set<ApplicationStatus> applicationStatuses
 	);
 }
