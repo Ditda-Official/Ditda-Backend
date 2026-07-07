@@ -111,6 +111,19 @@ public class InstructorCommissionService {
 		return commission;
 	}
 
+	// 외주 조회(instructor/designer fetch) + 강사 확인
+	@Transactional(readOnly = true)
+	public Commission getOwnedCommissionWithInstructorAndAssignedDesigner(Long commissionId, Long instructorId) {
+
+		Commission commission = commissionRepository.findWithInstructorAndAssignedDesignerById(commissionId)
+			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
+
+		if (!commission.isOwnedBy(instructorId)) {
+			throw new GeneralException(CommissionErrorCode.COMMISSION_ACCESS_DENIED);
+		}
+		return commission;
+	}
+
 	// 디자이너 선택
 	@Transactional
 	public void selectDesigner(Commission commission, Designer designer, LocalDateTime now) {
