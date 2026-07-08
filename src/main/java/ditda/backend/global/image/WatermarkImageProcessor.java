@@ -25,11 +25,12 @@ import ditda.backend.global.image.exception.ImageErrorCode;
 @Component
 public class WatermarkImageProcessor {
 
-	private static final String WATERMARK_TEXT = "DITDA"; // 워터마크 텍스트
+	private static final String WATERMARK_TEXT = "ditda"; // 워터마크 텍스트
 	private static final int TARGET_LONG_SIDE = 1600; // 출력물의 최대 길이
 	private static final long MAX_PIXELS = 200_000_000L; // 이미지 픽셀 제한
-	private static final float OPACITY = 0.15f; // 워터마크 투명도
-	private static final double ROTATION_DEGREES = -30; // 워터마크 텍스트 기울기
+	private static final float OPACITY = 0.25f; // 워터마크 투명도
+	private static final double ROTATION_DEGREES = -45; // 워터마크 텍스트 기울기
+	private static final Color WATERMARK_COLOR = new Color(0xF5F5F5); // 폰트 색상 (White Smoke)
 
 	public byte[] createWatermarkedPreview(InputStream source) throws IOException {
 
@@ -94,15 +95,15 @@ public class WatermarkImageProcessor {
 			// 기존 픽셀에 Opacity에 맞게 덧그리기
 			graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, OPACITY));
 			// 색상
-			graphics.setColor(Color.gray);
+			graphics.setColor(WATERMARK_COLOR);
 			// 폰트
-			graphics.setFont(new Font(Font.SANS_SERIF, Font.BOLD, image.getWidth() / 8));
+			graphics.setFont(new Font(Font.SANS_SERIF, Font.BOLD, image.getWidth() / 32));
 			// 좌표 회전 (글씨 대각선)
 			graphics.rotate(Math.toRadians(ROTATION_DEGREES), image.getWidth() / 2.0, image.getHeight() / 2.0);
 
 			FontMetrics fm = graphics.getFontMetrics();
-			int stepX = fm.stringWidth(WATERMARK_TEXT) * 2;        // 글자폭
-			int stepY = fm.getHeight() * 3;                        // 글자 높이
+			int stepX = fm.stringWidth(WATERMARK_TEXT) * 2;        // 타일 가로 간격
+			int stepY = fm.getHeight() * 4;                        // 타일 세로 간격
 
 			for (int y = -image.getHeight(); y < image.getHeight() * 2; y += stepY) {
 				for (int x = -image.getWidth(); x < image.getWidth() * 2; x += stepX) {
