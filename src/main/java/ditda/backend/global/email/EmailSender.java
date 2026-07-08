@@ -26,6 +26,7 @@ public class EmailSender {
 	private final JavaMailSender mailSender;
 	private final SpringTemplateEngine templateEngine;
 
+	// outbox 스케줄러를 통한 발송
 	public void send(String to, String subject, String templateName, Map<String, Object> variables)
 		throws MessagingException {
 
@@ -43,12 +44,13 @@ public class EmailSender {
 		log.info("Email sent. to={}, template={}", to, templateName);
 	}
 
+	// 즉시 발송
 	@Async
-	public void sendAsync(String to, String subject, String templateName, Map<String, Object> variables) {
+	public void sendAsync(String to, NotificationType type, Map<String, Object> variables) {
 		try {
-			send(to, subject, templateName, variables);
+			send(to, type.getSubject(), type.getTemplate(), variables);
 		} catch (Exception e) {
-			log.error("Email send failed. to={}, template={}", to, templateName, e);
+			log.error("Email send failed. to={}, type={}", to, type, e);
 		}
 	}
 

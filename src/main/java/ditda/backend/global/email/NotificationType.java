@@ -63,7 +63,17 @@ public enum NotificationType {
 	PAYOUT_REQUEST_CANCELLED_ADMIN(
 		"[DITDA] 외주 취소 - 제출 디자이너 정산 요청", "email/admin-payout-request"),
 	PAYOUT_REQUEST_REJECTED_ADMIN(
-		"[DITDA] 시안 선택 완료 - 미선택 디자이너 정산 요청", "email/admin-payout-request");
+		"[DITDA] 시안 선택 완료 - 미선택 디자이너 정산 요청", "email/admin-payout-request"),
+
+	// auth
+	EMAIL_VERIFICATION(
+		"[DITDA] 이메일 인증 코드", "email/verification-code"),
+	DESIGNER_SIGNUP_REVIEW_ADMIN(
+		"[DITDA] 새 디자이너 가입 검토 요청", "email/designer-signup-notification"),
+
+	// payment
+	DEPOSIT_CONFIRM_REQUEST_ADMIN(
+		"[DITDA] 외주 입금 확인 요청", "email/deposit-notification");
 
 	private final String subject;
 	private final String template;

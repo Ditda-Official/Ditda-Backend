@@ -1,37 +1,48 @@
 package ditda.backend.domain.payment.notification;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import ditda.backend.domain.payment.event.DepositNotifiedEvent;
 import ditda.backend.global.config.AdminProperties;
+import ditda.backend.global.email.NotificationOutbox;
+import ditda.backend.global.email.NotificationOutboxRepository;
+import ditda.backend.global.email.NotificationType;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DepositNotifier {
 
-	private final DepositMailer depositMailer;
+	private final NotificationOutboxRepository outboxRepository;
 	private final AdminProperties adminProperties;
 
-	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-	public void onDepositNotifier(DepositNotifiedEvent event) {
+	@EventListener
+	public void onDepositNotified(DepositNotifiedEvent event) {
 
-		try {
-			depositMailer.sendAdminNotification(
-				adminProperties.getNotificationEmail(),
-				event.commissionId(),
-				event.commissionTitle(),
-				event.instructorName(),
-				event.depositorName(),
-				event.amount(),
-				event.notifiedAt());
-		} catch (Exception exception) {
-			log.error("Failed to dispatch deposit notification. commissionId={}", event.commissionId(), exception);
-			// TODO : 디스코드 웹훅
-		}
+		// 메일 전송 시간
+		LocalDateTime mailScheduledAt = event.mailScheduledAt();
+
+		registerAdminDepositCheck(event, mailScheduledAt);
+	}
+
+	// 어드민 입금 확인 메일 발송
+	private void registerAdminDepositCheck(DepositNotifiedEvent event, LocalDateTime mailScheduledAt) {
+		outboxRepository.save(NotificationOutbox.create(
+			adminProperties.getNotificationEmail(),
+			NotificationType.DEPOSIT_CONFIRM_REQUEST_ADMIN,
+			Map.of(
+				"commissionId", event.commissionId(),
+				"title", event.commissionTitle(),
+				"instructorName", event.instructorName(),
+				"depositorName", event.depositorName(),
+				"amount", event.amount(),
+				"notifiedAt", event.notifiedAt()
+			),
+			mailScheduledAt
+		));
 	}
 }
