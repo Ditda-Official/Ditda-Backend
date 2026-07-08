@@ -65,8 +65,6 @@ public class InstructorDraftService {
 			}
 		}
 
-		// TODO: 수정본 상세 조회 제약조건 필요
-
 		// 2. 시안 조회
 		if (!draftQueryService.existsDraftInCommission(draftId, commissionId)) {
 			throw new GeneralException(DraftErrorCode.DRAFT_NOT_FOUND);
