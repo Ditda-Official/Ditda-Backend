@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
+import ditda.backend.domain.commission.draft.entity.enums.WatermarkStatus;
 
 public interface CommissionDraftFileRepository extends JpaRepository<CommissionDraftFile, Long> {
 
@@ -22,4 +23,9 @@ public interface CommissionDraftFileRepository extends JpaRepository<CommissionD
 		+ "WHERE f.commissionDraft.id = :draftId "
 		+ "AND f.fileOrder = 0")
 	Optional<CommissionDraftFile> findThumbnail(@Param("draftId") Long draftId);
+
+	List<CommissionDraftFile> findAllByCommissionDraftIdAndWatermarkStatus(
+		Long draftId,
+		WatermarkStatus watermarkStatus
+	);
 }
