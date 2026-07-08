@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import ditda.backend.domain.commission.core.event.DraftSelectedEvent;
 import ditda.backend.global.email.NotificationOutbox;
 import ditda.backend.global.email.NotificationOutboxRepository;
+import ditda.backend.global.email.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,11 +34,11 @@ public class DraftSelectedNotifier {
 		}
 	}
 
+	// 디자이너 시안 선택됨 메일 발송
 	private void registerSelectedDesigner(DraftSelectedEvent event, LocalDateTime mailScheduledAt) {
 		outboxRepository.save(NotificationOutbox.create(
 			event.selectedDesigner().email(),
-			"[DITDA] 제출하신 1차 시안이 최종 선택되었습니다.",
-			"email/first-draft-selected-designer",
+			NotificationType.DRAFT_SELECTED_DESIGNER,
 			Map.of(
 				"designerName", event.selectedDesigner().name(),
 				"commissionTitle", event.commissionTitle()
@@ -46,6 +47,7 @@ public class DraftSelectedNotifier {
 		));
 	}
 
+	// 디자이너 시안 선택되지 않음 메일 발송
 	private void registerRejectedDesigner(
 		DraftSelectedEvent event,
 		DraftSelectedEvent.DesignerInfo rejected,
@@ -53,8 +55,7 @@ public class DraftSelectedNotifier {
 	) {
 		outboxRepository.save(NotificationOutbox.create(
 			rejected.email(),
-			"[DITDA] 1차 시안 선정 결과를 안내해 드립니다.",
-			"email/first-draft-rejected-designer",
+			NotificationType.DRAFT_REJECTED_DESIGNER,
 			Map.of(
 				"designerName", rejected.name(),
 				"commissionTitle", event.commissionTitle()

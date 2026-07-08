@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import ditda.backend.domain.commission.core.event.AllFirstDraftsSubmittedEvent;
 import ditda.backend.global.email.NotificationOutbox;
 import ditda.backend.global.email.NotificationOutboxRepository;
+import ditda.backend.global.email.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,13 +29,13 @@ public class AllFirstDraftsSubmittedNotifier {
 		registerInstructorSelectionRequest(event, mailScheduledAt);
 	}
 
+	// 강사 1차 시안 전원 제출 메일 발송
 	private void registerInstructorSelectionRequest(
 		AllFirstDraftsSubmittedEvent event, LocalDateTime mailScheduledAt
 	) {
 		outboxRepository.save(NotificationOutbox.create(
 			event.instructorEmail(),
-			"[DITDA] 모든 1차 시안이 제출되었습니다. 시안을 선택해 주세요.",
-			"email/first-draft-all-submitted-instructor",
+			NotificationType.ALL_FIRST_DRAFTS_SUBMITTED_INSTRUCTOR,
 			Map.of(
 				"instructorName", event.instructorName(),
 				"commissionTitle", event.commissionTitle(),

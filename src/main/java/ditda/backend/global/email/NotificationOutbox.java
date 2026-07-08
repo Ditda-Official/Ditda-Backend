@@ -64,15 +64,14 @@ public class NotificationOutbox extends BaseEntity {
 
 	public static NotificationOutbox create(
 		String recipientEmail,
-		String subject,
-		String templateName,
+		NotificationType type,
 		Map<String, Object> templateVariables,
 		LocalDateTime scheduledAt
 	) {
 		return NotificationOutbox.builder()
 			.recipientEmail(recipientEmail)
-			.subject(subject)
-			.templateName(templateName)
+			.subject(type.getSubject())
+			.templateName(type.getTemplate())
 			.templateVariables(templateVariables)
 			.status(OutboxStatus.PENDING)
 			.scheduledAt(scheduledAt)

@@ -10,6 +10,7 @@ import ditda.backend.domain.commission.core.event.ApplicationDeadlineClosedEvent
 import ditda.backend.global.config.AdminProperties;
 import ditda.backend.global.email.NotificationOutbox;
 import ditda.backend.global.email.NotificationOutboxRepository;
+import ditda.backend.global.email.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,8 +54,7 @@ public class ApplicationDeadlineClosedNotifier {
 	private void registerAdminRefundRequest(ApplicationDeadlineClosedEvent event, LocalDateTime mailScheduledAt) {
 		outboxRepository.save(NotificationOutbox.create(
 			adminProperties.getNotificationEmail(),
-			"[DITDA] 외주 마감에 따른 환불 처리 요망",
-			"email/admin-refund-request",
+			NotificationType.APPLICATION_REFUND_REQUEST_ADMIN,
 			Map.of(
 				"commissionId", event.commissionId(),
 				"commissionTitle", event.commissionTitle(),
@@ -71,8 +71,7 @@ public class ApplicationDeadlineClosedNotifier {
 	private void registerInstructorCancellation(ApplicationDeadlineClosedEvent event, LocalDateTime mailScheduledAt) {
 		outboxRepository.save(NotificationOutbox.create(
 			event.instructorEmail(),
-			"[DITDA] 신청하신 외주가 지원자 부족으로 취소되었습니다.",
-			"email/commission-cancelled",
+			NotificationType.APPLICATION_CANCELLED_INSTRUCTOR,
 			Map.of(
 				"instructorName", event.instructorName(),
 				"commissionTitle", event.commissionTitle()
@@ -85,8 +84,7 @@ public class ApplicationDeadlineClosedNotifier {
 	private void registerInstructorShortfall(ApplicationDeadlineClosedEvent event, LocalDateTime mailScheduledAt) {
 		outboxRepository.save(NotificationOutbox.create(
 			event.instructorEmail(),
-			"[DITDA] 신청하신 외주의 모집 인원이 미달되었습니다.",
-			"email/commission-shortfall-instructor",
+			NotificationType.APPLICATION_SHORTFALL_INSTRUCTOR,
 			Map.of(
 				"instructorName", event.instructorName(),
 				"commissionTitle", event.commissionTitle(),
@@ -103,8 +101,7 @@ public class ApplicationDeadlineClosedNotifier {
 	private void registerInstructorMatchComplete(ApplicationDeadlineClosedEvent event, LocalDateTime mailScheduledAt) {
 		outboxRepository.save(NotificationOutbox.create(
 			event.instructorEmail(),
-			"[DITDA] 신청하신 외주의 디자이너 매칭이 완료되었습니다.",
-			"email/commission-matched-instructor",
+			NotificationType.APPLICATION_MATCHED_INSTRUCTOR,
 			Map.of(
 				"instructorName", event.instructorName(),
 				"commissionTitle", event.commissionTitle(),
@@ -125,8 +122,7 @@ public class ApplicationDeadlineClosedNotifier {
 	) {
 		outboxRepository.save(NotificationOutbox.create(
 			designer.email(),
-			"[DITDA] 지원하신 외주의 1차 시안 대상자로 선정되었습니다.",
-			"email/commission-matched-designer",
+			NotificationType.APPLICATION_MATCHED_DESIGNER,
 			Map.of(
 				"designerName", designer.name(),
 				"commissionTitle", event.commissionTitle(),

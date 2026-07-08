@@ -11,6 +11,7 @@ import ditda.backend.domain.commission.core.event.PayoutRequestedEvent;
 import ditda.backend.global.config.AdminProperties;
 import ditda.backend.global.email.NotificationOutbox;
 import ditda.backend.global.email.NotificationOutboxRepository;
+import ditda.backend.global.email.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,18 +53,17 @@ public class PayoutRequestedNotifier {
 
 		outboxRepository.save(NotificationOutbox.create(
 			adminProperties.getNotificationEmail(),
-			buildSubject(event.reason()),
-			"email/admin-payout-request",
+			resolveType(event.reason()),
 			variables,
 			event.mailScheduledAt()
 		));
 	}
 
-	private String buildSubject(PayoutRequestedEvent.PayoutReason reason) {
+	private NotificationType resolveType(PayoutRequestedEvent.PayoutReason reason) {
 		return switch (reason) {
-			case FINAL_COMPLETED_AUTO, FINAL_COMPLETED_MANUAL -> "[DITDA] 외주 최종 확정 - 디자이너 정산 요청";
-			case FINAL_CANCELLED_BY_DEADLINE -> "[DITDA] 외주 취소 - 제출 디자이너 정산 요청";
-			case DRAFT_SELECTION_REJECTED -> "[DITDA] 시안 선택 완료 - 미선택 디자이너 정산 요청";
+			case FINAL_COMPLETED_AUTO, FINAL_COMPLETED_MANUAL -> NotificationType.PAYOUT_REQUEST_COMPLETED_ADMIN;
+			case FINAL_CANCELLED_BY_DEADLINE -> NotificationType.PAYOUT_REQUEST_CANCELLED_ADMIN;
+			case DRAFT_SELECTION_REJECTED -> NotificationType.PAYOUT_REQUEST_REJECTED_ADMIN;
 		};
 	}
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import ditda.backend.domain.commission.core.event.FinalDeadlineClosedEvent;
 import ditda.backend.global.email.NotificationOutbox;
 import ditda.backend.global.email.NotificationOutboxRepository;
+import ditda.backend.global.email.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,8 +44,7 @@ public class FinalDeadlineClosedNotifier {
 	) {
 		outboxRepository.save(NotificationOutbox.create(
 			event.instructorEmail(),
-			"[DITDA] 시안 선택 기한 초과로 외주가 취소되었습니다.",
-			"email/final-cancelled-instructor",
+			NotificationType.FINAL_CANCELLED_INSTRUCTOR,
 			Map.of(
 				"instructorName", event.instructorName(),
 				"commissionTitle", event.commissionTitle()
@@ -61,8 +61,7 @@ public class FinalDeadlineClosedNotifier {
 	) {
 		outboxRepository.save(NotificationOutbox.create(
 			designer.email(),
-			"[DITDA] 강사 미선택으로 외주가 취소되었습니다.",
-			"email/final-cancelled-designer",
+			NotificationType.FINAL_CANCELLED_DESIGNER,
 			Map.of(
 				"designerName", designer.name(),
 				"commissionTitle", event.commissionTitle()

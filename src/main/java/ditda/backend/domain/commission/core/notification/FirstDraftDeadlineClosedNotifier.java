@@ -10,6 +10,7 @@ import ditda.backend.domain.commission.core.event.FirstDraftDeadlineClosedEvent;
 import ditda.backend.global.config.AdminProperties;
 import ditda.backend.global.email.NotificationOutbox;
 import ditda.backend.global.email.NotificationOutboxRepository;
+import ditda.backend.global.email.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,8 +55,7 @@ public class FirstDraftDeadlineClosedNotifier {
 	) {
 		outboxRepository.save(NotificationOutbox.create(
 			adminProperties.getNotificationEmail(),
-			"[DITDA] 1차 시안 미제출에 따른 환불 처리 요망",
-			"email/admin-refund-request",
+			NotificationType.FIRST_DRAFT_REFUND_REQUEST_ADMIN,
 			Map.of(
 				"commissionId", event.commissionId(),
 				"commissionTitle", event.commissionTitle(),
@@ -74,8 +74,7 @@ public class FirstDraftDeadlineClosedNotifier {
 	) {
 		outboxRepository.save(NotificationOutbox.create(
 			event.instructorEmail(),
-			"[DITDA] 1차 시안 제출이 없어 외주가 취소되었습니다.",
-			"email/first-draft-zero-instructor",
+			NotificationType.FIRST_DRAFT_ZERO_INSTRUCTOR,
 			Map.of(
 				"instructorName", event.instructorName(),
 				"commissionTitle", event.commissionTitle(),
@@ -91,8 +90,7 @@ public class FirstDraftDeadlineClosedNotifier {
 	) {
 		outboxRepository.save(NotificationOutbox.create(
 			event.instructorEmail(),
-			"[DITDA] 일부 디자이너의 1차 시안이 미제출되었습니다.",
-			"email/first-draft-shortfall-instructor",
+			NotificationType.FIRST_DRAFT_SHORTFALL_INSTRUCTOR,
 			Map.of(
 				"instructorName", event.instructorName(),
 				"commissionTitle", event.commissionTitle(),
@@ -113,8 +111,7 @@ public class FirstDraftDeadlineClosedNotifier {
 	) {
 		outboxRepository.save(NotificationOutbox.create(
 			designer.email(),
-			"[DITDA] 1차 시안 기한 초과로 외주 진행이 종료되었습니다.",
-			"email/first-draft-missed-designer",
+			NotificationType.FIRST_DRAFT_MISSED_DESIGNER,
 			Map.of(
 				"designerName", designer.name(),
 				"commissionTitle", event.commissionTitle()
