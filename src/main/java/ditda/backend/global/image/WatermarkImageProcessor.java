@@ -1,6 +1,8 @@
 package ditda.backend.global.image;
 
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -121,7 +123,6 @@ public class WatermarkImageProcessor {
 
 			for (int y = -image.getHeight(); y < image.getHeight() * 2; y += stepY) {
 				for (int x = -image.getWidth(); x < image.getWidth() * 2; x += stepX) {
-					// 원본 로고를 목표 크기로 지정해 그리기 - 축소가 회전과 같은 패스에서 수행됨
 					graphics.drawImage(logo, x, y, logoWidth, logoHeight, null);
 				}
 			}
