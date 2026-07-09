@@ -1,6 +1,7 @@
 package ditda.backend.domain.payment.notification;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import org.springframework.context.event.EventListener;
@@ -40,7 +41,7 @@ public class DepositNotifier {
 				"instructorName", event.instructorName(),
 				"depositorName", event.depositorName(),
 				"amount", event.amount(),
-				"notifiedAt", event.notifiedAt()
+				"notifiedAt", event.notifiedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
 			),
 			mailScheduledAt
 		));
