@@ -106,9 +106,7 @@ public class ApplicationDeadlineClosedNotifier {
 				"instructorName", event.instructorName(),
 				"commissionTitle", event.commissionTitle(),
 				"requiredCount", event.requiredCount(),
-				"designerCount", event.matchedDesignerCount(),
-				"shortfallCount", event.requiredCount() - event.matchedDesignerCount(),
-				"refundAmount", event.refundAmount()
+				"designerCount", event.matchedDesignerCount()
 			),
 			mailScheduledAt
 		));

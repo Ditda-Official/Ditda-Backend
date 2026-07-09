@@ -2,6 +2,7 @@ package ditda.backend.domain.commission.application.facade;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -13,7 +14,7 @@ import ditda.backend.domain.commission.application.exception.ApplicationErrorCod
 import ditda.backend.domain.commission.application.policy.CommissionApplicationAssignmentPolicy;
 import ditda.backend.domain.commission.application.service.ApplicationService;
 import ditda.backend.domain.commission.core.entity.Commission;
-import ditda.backend.domain.commission.core.event.ApplicationDeadlineClosedEvent;
+import ditda.backend.domain.commission.core.event.CommissionMatchedEvent;
 import ditda.backend.domain.commission.core.service.CommissionService;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.domain.designer.service.DesignerService;
@@ -27,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class DesignerApplicationFacade {
+
+	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final CommissionService commissionService;
 	private final DesignerService designerService;
@@ -110,29 +113,26 @@ public class DesignerApplicationFacade {
 			matchedCommission.getId(), result.selected().size(), result.rejected().size());
 	}
 
-	// TODO(#94): 결과별 이벤트 분리로 교체
 	// 매칭 확정 안내
 	private void publishMatchedEvent(Commission commission, List<CommissionApplication> selected) {
-		eventPublisher.publishEvent(new ApplicationDeadlineClosedEvent(
+		eventPublisher.publishEvent(new CommissionMatchedEvent(
 			commission.getId(),
 			commission.getTitle(),
 			commission.getInstructor().getUser().getEmail(),
 			commission.getInstructor().getName(),
-			0,
-			false,
 			commission.getDesignerCount(),
 			selected.size(),
 			commission.getFirstDraftDeadline(),
-			LocalDateTime.now(),
+			LocalDateTime.now(ZONE_KST),
 			toDesignerMatchInfos(selected)
 		));
 	}
 
-	private List<ApplicationDeadlineClosedEvent.DesignerMatchInfo> toDesignerMatchInfos(
+	private List<CommissionMatchedEvent.DesignerMatchInfo> toDesignerMatchInfos(
 		List<CommissionApplication> applications
 	) {
 		return applications.stream()
-			.map(a -> new ApplicationDeadlineClosedEvent.DesignerMatchInfo(
+			.map(a -> new CommissionMatchedEvent.DesignerMatchInfo(
 				a.getDesigner().getUser().getEmail(),
 				a.getDesigner().getUser().getName()))
 			.toList();
