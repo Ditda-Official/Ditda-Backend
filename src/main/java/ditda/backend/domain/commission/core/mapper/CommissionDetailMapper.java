@@ -28,7 +28,7 @@ public class CommissionDetailMapper {
 
 	private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
 
-	public CommissionDetailResponse toResponse(CommissionDetail detail, PriceDetail priceDetail) {
+	public CommissionDetailResponse toResponse(CommissionDetail detail, PriceDetail priceDetail, Boolean applied) {
 		Commission commission = detail.commission();
 
 		return new CommissionDetailResponse(
@@ -40,7 +40,8 @@ public class CommissionDetailMapper {
 			detail.categoryDetail().toResponse(),
 			toFileInfos(detail.files()),
 			toDateInfo(commission),
-			toPriceInfo(priceDetail)
+			toPriceInfo(priceDetail),
+			applied
 		);
 	}
 
