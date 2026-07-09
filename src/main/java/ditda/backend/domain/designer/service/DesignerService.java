@@ -30,4 +30,10 @@ public class DesignerService {
 	public Designer getReferenceById(Long designerId) {
 		return designerRepository.getReferenceById(designerId);
 	}
+
+	public void validateExists(Long designerId) {
+		if (!designerRepository.existsById(designerId)) {
+			throw new GeneralException(DesignerErrorCode.DESIGNER_NOT_FOUND);
+		}
+	}
 }
