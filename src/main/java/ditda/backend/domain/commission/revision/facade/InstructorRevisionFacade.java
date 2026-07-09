@@ -1,7 +1,6 @@
 package ditda.backend.domain.commission.revision.facade;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -27,8 +26,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class InstructorRevisionFacade {
-
-	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final InstructorCommissionService instructorCommissionService;
 	private final RevisionQueryService revisionQueryService;
@@ -128,7 +125,7 @@ public class InstructorRevisionFacade {
 			designerUser.getEmail(),
 			designerUser.getName(),
 			currentRevisionCount,
-			LocalDateTime.now(ZONE_KST)
+			LocalDateTime.now()
 		));
 	}
 }

@@ -1,7 +1,6 @@
 package ditda.backend.domain.commission.draft.facade;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,8 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class DesignerDraftFacade {
-
-	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final CommissionService commissionService;
 	private final DesignerDraftService designerDraftService;
@@ -111,7 +108,7 @@ public class DesignerDraftFacade {
 			commission.getInstructor().getUser().getEmail(),
 			commission.getInstructor().getName(),
 			(int)submittedCount,
-			LocalDateTime.now(ZONE_KST)
+			LocalDateTime.now()
 		));
 
 		log.info("모든 1차 시안 제출 완료. commissionId={}, submittedCount={}",

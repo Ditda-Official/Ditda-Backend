@@ -1,7 +1,6 @@
 package ditda.backend.domain.commission.revision.facade;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -37,8 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 @Slf4j
 public class DesignerRevisionFacade {
-
-	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final DesignerCommissionService designerCommissionService;
 	private final DraftQueryService draftQueryService;
@@ -160,7 +157,7 @@ public class DesignerRevisionFacade {
 			commission.getInstructor().getUser().getEmail(),
 			commission.getInstructor().getName(),
 			currentRevisionCount,
-			LocalDateTime.now(ZONE_KST)
+			LocalDateTime.now()
 		));
 	}
 }

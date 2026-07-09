@@ -1,7 +1,6 @@
 package ditda.backend.domain.commission.draft.facade;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,8 +29,6 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class InstructorDraftFacade {
-
-	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final InstructorCommissionService instructorCommissionService;
 	private final InstructorDraftService instructorDraftService;
@@ -71,7 +68,7 @@ public class InstructorDraftFacade {
 		applyDesignerSelection(commission, applications, selected, now);
 
 		// 이벤트 발행
-		LocalDateTime mailScheduledAt = LocalDateTime.now(ZONE_KST);
+		LocalDateTime mailScheduledAt = LocalDateTime.now();
 		publishRejectedPayoutEvent(commission, rejected, mailScheduledAt);
 		publishDraftSelectedEvent(commission, selected, rejected, mailScheduledAt);
 
@@ -193,7 +190,7 @@ public class InstructorDraftFacade {
 		Designer assigned = latestDraft.getCommissionApplication().getDesigner();
 		assigned.gainCommissionCompletedReward();
 
-		LocalDateTime mailScheduledAt = LocalDateTime.now(ZONE_KST);
+		LocalDateTime mailScheduledAt = LocalDateTime.now();
 
 		publishPayoutRequestedEvent(commission, assigned, mailScheduledAt);
 		publishCommissionCompletedEvent(commission, assigned, mailScheduledAt);

@@ -2,7 +2,6 @@ package ditda.backend.domain.commission.application.facade;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -28,8 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class DesignerApplicationFacade {
-
-	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final CommissionService commissionService;
 	private final DesignerService designerService;
@@ -123,7 +120,7 @@ public class DesignerApplicationFacade {
 			commission.getDesignerCount(),
 			selected.size(),
 			commission.getFirstDraftDeadline(),
-			LocalDateTime.now(ZONE_KST),
+			LocalDateTime.now(),
 			toDesignerMatchInfos(selected)
 		));
 	}
