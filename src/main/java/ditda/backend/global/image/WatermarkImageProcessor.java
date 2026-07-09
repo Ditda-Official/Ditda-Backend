@@ -106,7 +106,6 @@ public class WatermarkImageProcessor {
 
 		Graphics2D graphics = image.createGraphics();
 		try {
-			// 축소+회전을 한 번의 고품질 리샘플링으로 처리
 			graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 			graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
