@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 
 import ditda.backend.domain.commission.core.event.FirstDraftDeadlineClosedEvent;
 import ditda.backend.global.config.AdminProperties;
-import ditda.backend.global.email.NotificationOutbox;
-import ditda.backend.global.email.NotificationOutboxRepository;
-import ditda.backend.global.email.NotificationType;
+import ditda.backend.global.notification.NotificationOutbox;
+import ditda.backend.global.notification.NotificationOutboxRepository;
+import ditda.backend.global.notification.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

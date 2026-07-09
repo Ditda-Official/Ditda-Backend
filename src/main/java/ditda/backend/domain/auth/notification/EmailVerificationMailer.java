@@ -4,8 +4,8 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import ditda.backend.global.email.EmailSender;
-import ditda.backend.global.email.NotificationType;
+import ditda.backend.global.notification.EmailSender;
+import ditda.backend.global.notification.NotificationType;
 import lombok.RequiredArgsConstructor;
 
 @Component

@@ -1,4 +1,4 @@
-package ditda.backend.global.email;
+package ditda.backend.global.notification;
 
 import java.util.Map;
 

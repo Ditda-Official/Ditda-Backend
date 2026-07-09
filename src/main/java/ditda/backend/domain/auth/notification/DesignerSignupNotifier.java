@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 
 import ditda.backend.domain.auth.event.DesignerSignedUpEvent;
 import ditda.backend.global.config.AdminProperties;
-import ditda.backend.global.email.NotificationOutbox;
-import ditda.backend.global.email.NotificationOutboxRepository;
-import ditda.backend.global.email.NotificationType;
+import ditda.backend.global.notification.NotificationOutbox;
+import ditda.backend.global.notification.NotificationOutboxRepository;
+import ditda.backend.global.notification.NotificationType;
 import ditda.backend.global.s3.manager.S3PresignedUrlGenerator;
 import lombok.RequiredArgsConstructor;
 
