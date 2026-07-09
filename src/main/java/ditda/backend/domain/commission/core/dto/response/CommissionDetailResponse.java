@@ -39,8 +39,12 @@ public record CommissionDetailResponse(
 	@Schema(description = "마감일 정보")
 	DateInfo dateInfo,
 
-	@Schema(description = "가격 정보")
-	PriceInfo priceInfo
+	@Schema(description = "디자이너 가격 정보. 디자이너가 조회할 때만 존재.")
+	PriceInfo priceInfo,
+
+	@Schema(description = "디자이너 지원 여부. 모집 중(RECRUITING) 외주를 디자이너가 조회할 때만 존재.", example = "true")
+	Boolean applied
+
 ) {
 	@Schema(description = "디자인 정보")
 	public record DesignInfo(
@@ -101,7 +105,7 @@ public record CommissionDetailResponse(
 	) {
 	}
 
-	@Schema(description = "가격 정보")
+	@Schema(description = "디자이너 가격 정보")
 	public record PriceInfo(
 
 		@Schema(description = "기본금", example = "60000")

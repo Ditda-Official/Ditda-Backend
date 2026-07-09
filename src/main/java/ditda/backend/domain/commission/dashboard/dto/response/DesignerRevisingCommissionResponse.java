@@ -4,41 +4,44 @@ import java.time.LocalDate;
 import java.util.List;
 
 import ditda.backend.domain.commission.core.entity.Commission;
-import ditda.backend.domain.commission.dashboard.repository.projection.RevisingView;
+import ditda.backend.domain.commission.dashboard.repository.projection.DesignerRevisingView;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "수정 중인 외주 응답")
-public record RevisingCommissionResponse(
+public record DesignerRevisingCommissionResponse(
 
+	@Schema(description = "수정 중인 외주 목록")
 	List<CommissionItem> commissions
 ) {
-	public static RevisingCommissionResponse of(List<RevisingView> views) {
+	public static DesignerRevisingCommissionResponse of(List<DesignerRevisingView> views) {
 
 		List<CommissionItem> items = views.stream()
 			.map(CommissionItem::from)
 			.toList();
 
-		return new RevisingCommissionResponse(items);
+		return new DesignerRevisingCommissionResponse(items);
 	}
 
+	@Schema(description = "수정 중인 외주 정보")
 	public record CommissionItem(
+
 		@Schema(description = "외주 ID", example = "1")
 		Long commissionId,
 
 		@Schema(description = "제목", example = "수학의 정석 - 수학")
 		String title,
 
-		@Schema(description = "수정 요청 전송 여부 (true=전송완료, false=확인하기)", example = "true")
+		@Schema(description = "수정 응답 전송 여부 (true=전송완료, false=확인하기)", example = "true")
 		boolean isSubmitted,
 
-		@Schema(description = "수정사항 제출 여부", example = "true")
+		@Schema(description = "수정 요청 제출 여부", example = "true")
 		boolean hasUpdated,
 
 		@Schema(description = "최종 마감일", example = "2026-06-23")
 		LocalDate finalDeadline
 	) {
 
-		private static CommissionItem from(RevisingView view) {
+		private static CommissionItem from(DesignerRevisingView view) {
 
 			Commission commission = view.getCommission();
 
@@ -52,5 +55,4 @@ public record RevisingCommissionResponse(
 		}
 	}
 }
-
 

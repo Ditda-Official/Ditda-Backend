@@ -5,20 +5,21 @@ import java.util.List;
 
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.CategoryType;
-import ditda.backend.domain.commission.dashboard.repository.projection.DraftSubmissionView;
+import ditda.backend.domain.commission.dashboard.repository.projection.InstructorDraftSubmissionView;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "시안 제출 외주 응답")
-public record DraftSubmissionCommissionResponse(
+public record InstructorDraftSubmissionCommissionResponse(
 	List<CommissionItem> commissions
 ) {
-	public static DraftSubmissionCommissionResponse of(List<DraftSubmissionView> views, LocalDate today) {
+	public static InstructorDraftSubmissionCommissionResponse of(List<InstructorDraftSubmissionView> views,
+		LocalDate today) {
 
 		List<CommissionItem> items = views.stream()
 			.map(view -> CommissionItem.from(view, today))
 			.toList();
 
-		return new DraftSubmissionCommissionResponse(items);
+		return new InstructorDraftSubmissionCommissionResponse(items);
 	}
 
 	public record CommissionItem(
@@ -40,7 +41,7 @@ public record DraftSubmissionCommissionResponse(
 		@Schema(description = "1차 시안 마감일", example = "2026-06-23")
 		LocalDate firstDraftDeadline
 	) {
-		private static CommissionItem from(DraftSubmissionView view, LocalDate today) {
+		private static CommissionItem from(InstructorDraftSubmissionView view, LocalDate today) {
 
 			Commission commission = view.getCommission();
 			int submitted = view.getSubmissionCount().intValue();
