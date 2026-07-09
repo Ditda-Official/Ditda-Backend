@@ -58,8 +58,14 @@ public class DraftWatermarkService {
 
 		// 워터마크 진행된 파일 s3 업로드 (commission/draft/{uuid}.png -> commission/draft/wm/{uuid}.png)
 		int lastSlash = originalKey.lastIndexOf('/');
-		String watermarkedKey = originalKey.substring(0, lastSlash)
-			+ "/" + WATERMARK_DIR + originalKey.substring(lastSlash);
+		if (lastSlash < 0) {
+			throw new IllegalArgumentException("유효하지 않은 S3 키: " + originalKey);
+		}
+		String dir = originalKey.substring(0, lastSlash);
+		String filename = originalKey.substring(lastSlash + 1);
+		int lastDot = filename.lastIndexOf('.');
+		String baseName = lastDot > 0 ? filename.substring(0, lastDot) : filename;
+		String watermarkedKey = dir + "/" + WATERMARK_DIR + "/" + baseName + ".png";
 
 		s3FileManager.upload(BUCKET, watermarkedKey, watermarked, S3ContentType.PNG.getContentType());
 

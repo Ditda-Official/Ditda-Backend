@@ -41,7 +41,9 @@ public class WatermarkImageProcessor {
 
 		// 3. PNG로 재압축
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ImageIO.write(preview, "png", out);
+		if (!ImageIO.write(preview, "png", out)) {
+			throw new IOException("PNG 인코딩에 실패했습니다.");
+		}
 
 		// 4. S3 업로드용 바이트
 		return out.toByteArray();
@@ -55,7 +57,12 @@ public class WatermarkImageProcessor {
 				throw new IllegalStateException("워터마크 로고 리소스가 없습니다: " + LOGO_PATH);
 			}
 
-			return ImageIO.read(logoStream);
+			BufferedImage image = ImageIO.read(logoStream);
+			if (image == null) {
+				throw new IllegalStateException("워터마크 로고 이미지를 읽을 수 없습니다: " + LOGO_PATH);
+			}
+
+			return image;
 		} catch (IOException exception) {
 			throw new IllegalStateException("워터마크 로고 로드 실패: " + LOGO_PATH, exception);
 		}
@@ -101,8 +108,8 @@ public class WatermarkImageProcessor {
 	// 로고 기반 워터마크
 	private void drawWatermark(BufferedImage image) {
 
-		int logoWidth = image.getWidth() / LOGO_WIDTH_RATIO;
-		int logoHeight = logoWidth * logo.getHeight() / logo.getWidth();   // 원본 비율 유지
+		int logoWidth = Math.max(1, image.getWidth() / LOGO_WIDTH_RATIO);
+		int logoHeight = Math.max(1, logoWidth * logo.getHeight() / logo.getWidth());   // 원본 비율 유지
 
 		Graphics2D graphics = image.createGraphics();
 		try {

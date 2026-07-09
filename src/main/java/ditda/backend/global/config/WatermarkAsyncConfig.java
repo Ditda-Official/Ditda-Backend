@@ -15,6 +15,8 @@ public class WatermarkAsyncConfig {
 		executor.setCorePoolSize(1);
 		executor.setMaxPoolSize(1);
 		executor.setThreadNamePrefix("watermark-");
+		executor.setWaitForTasksToCompleteOnShutdown(true);
+		executor.setAwaitTerminationSeconds(30);
 		executor.initialize();
 		return executor;
 	}
