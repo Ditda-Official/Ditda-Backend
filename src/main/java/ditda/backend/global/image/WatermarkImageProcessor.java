@@ -1,11 +1,6 @@
 package ditda.backend.global.image;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,12 +20,14 @@ import ditda.backend.global.image.exception.ImageErrorCode;
 @Component
 public class WatermarkImageProcessor {
 
-	private static final String WATERMARK_TEXT = "ditda"; // 워터마크 텍스트
-	private static final int TARGET_LONG_SIDE = 1600; // 출력물의 최대 길이
-	private static final long MAX_PIXELS = 200_000_000L; // 이미지 픽셀 제한
-	private static final float OPACITY = 0.25f; // 워터마크 투명도
-	private static final double ROTATION_DEGREES = -45; // 워터마크 텍스트 기울기
-	private static final Color WATERMARK_COLOR = new Color(0xF5F5F5); // 폰트 색상 (White Smoke)
+	private static final String LOGO_PATH = "/images/watermark-logo.png";	// 워터마크 이미지 파일 경로
+	private static final int TARGET_LONG_SIDE = 1600; 						// 출력물의 최대 길이
+	private static final long MAX_PIXELS = 200_000_000L;					// 이미지 픽셀 제한
+	private static final float OPACITY = 0.25f; 							// 워터마크 투명도
+	private static final double ROTATION_DEGREES = -45; 					// 워터마크 텍스트 기울기
+	private static final int LOGO_WIDTH_RATIO = 15;						 	// 로고 폭
+
+	private final BufferedImage logo = loadLogo();
 
 	public byte[] createWatermarkedPreview(InputStream source) throws IOException {
 
@@ -46,6 +43,21 @@ public class WatermarkImageProcessor {
 
 		// 4. S3 업로드용 바이트
 		return out.toByteArray();
+	}
+
+	// 워터마크 로고 로드
+	private BufferedImage loadLogo() {
+
+		try (InputStream logoStream = getClass().getResourceAsStream(LOGO_PATH)) {
+			if (logoStream == null) {
+				throw new IllegalStateException("워터마크 로고 리소스가 없습니다: " + LOGO_PATH);
+			}
+
+			return ImageIO.read(logoStream);
+		} catch (IOException exception) {
+			throw new IllegalStateException("워터마크 로고 로드 실패: " + LOGO_PATH, exception);
+		}
+
 	}
 
 	// 서브샘플링
@@ -84,30 +96,33 @@ public class WatermarkImageProcessor {
 		}
 	}
 
-	// 텍스트 워터마크
+	// 로고 기반 워터마크
 	private void drawWatermark(BufferedImage image) {
 
+		int logoWidth = image.getWidth() / LOGO_WIDTH_RATIO;
+		int logoHeight = logoWidth * logo.getHeight() / logo.getWidth();   // 원본 비율 유지
+
 		Graphics2D graphics = image.createGraphics();
-
 		try {
-			// 안티앨리어싱 (텍스트만 부드럽게 처리)
-			graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-			// 기존 픽셀에 Opacity에 맞게 덧그리기
-			graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, OPACITY));
-			// 색상
-			graphics.setColor(WATERMARK_COLOR);
-			// 폰트
-			graphics.setFont(new Font(Font.SANS_SERIF, Font.BOLD, image.getWidth() / 32));
-			// 좌표 회전 (글씨 대각선)
-			graphics.rotate(Math.toRadians(ROTATION_DEGREES), image.getWidth() / 2.0, image.getHeight() / 2.0);
+			// 축소+회전을 한 번의 고품질 리샘플링으로 처리
+			graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+			graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-			FontMetrics fm = graphics.getFontMetrics();
-			int stepX = fm.stringWidth(WATERMARK_TEXT) * 2;        // 타일 가로 간격
-			int stepY = fm.getHeight() * 4;                        // 타일 세로 간격
+			graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, OPACITY));
+			graphics.rotate(
+				Math.toRadians(ROTATION_DEGREES),
+				image.getWidth() / 2.0,
+				image.getHeight() / 2.0
+			);
+
+			int stepX = logoWidth * 4;        // 타일 가로 간격
+			int stepY = logoHeight * 5;       // 타일 세로 간격
 
 			for (int y = -image.getHeight(); y < image.getHeight() * 2; y += stepY) {
 				for (int x = -image.getWidth(); x < image.getWidth() * 2; x += stepX) {
-					graphics.drawString(WATERMARK_TEXT, x, y);
+					// 원본 로고를 목표 크기로 지정해 그리기 - 축소가 회전과 같은 패스에서 수행됨
+					graphics.drawImage(logo, x, y, logoWidth, logoHeight, null);
 				}
 			}
 		} finally {
