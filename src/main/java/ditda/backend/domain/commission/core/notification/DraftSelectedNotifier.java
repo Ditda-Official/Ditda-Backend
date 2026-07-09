@@ -11,9 +11,7 @@ import ditda.backend.global.notification.NotificationOutbox;
 import ditda.backend.global.notification.NotificationOutboxRepository;
 import ditda.backend.global.notification.NotificationType;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DraftSelectedNotifier {
