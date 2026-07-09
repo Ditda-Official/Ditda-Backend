@@ -1,5 +1,7 @@
 package ditda.backend.domain.payment.service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -24,6 +26,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
+
+	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final PaymentRepository paymentRepository;
 	private final ApplicationEventPublisher eventPublisher;
@@ -75,7 +79,8 @@ public class PaymentService {
 			commission.getInstructor().getName(),
 			payment.getDepositorName(),
 			payment.getAmount(),
-			payment.getDepositNotifiedAt()
+			payment.getDepositNotifiedAt(),
+			LocalDateTime.now(ZONE_KST)
 		));
 
 		return DepositNotifyResponse.of(
