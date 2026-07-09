@@ -82,7 +82,8 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 	);
 
 	// 디자이너 발표 대기 외주: commission + 지원 상태
-	// ORDER BY CASE 우선순위는 AnnouncementResult 순서와 동기화 필요
+	// SELECTED 그룹은 :selectedStatuses(AnnouncementResult.statusesOf)로 파생되어 자동 동기화됨.
+	// PENDING(0)/APPLICATION_REJECTED(2)는 AnnouncementResult 순서와 동기화 필요
 	@Query("SELECT c AS commission, ca.status AS applicationStatus "
 		+ "FROM CommissionApplication ca "
 		+ "JOIN ca.commission c "
@@ -91,13 +92,14 @@ public interface DashboardCommissionRepository extends Repository<Commission, Lo
 		+ "ORDER BY "
 		+ "CASE "
 		+ "WHEN ca.status = ApplicationStatus.PENDING THEN 0 "
-		+ "WHEN ca.status = ApplicationStatus.ASSIGNED THEN 1 "
+		+ "WHEN ca.status IN :selectedStatuses THEN 1 "
 		+ "WHEN ca.status = ApplicationStatus.APPLICATION_REJECTED THEN 2 "
 		+ "ELSE 3 END, "
 		+ "c.applicationDeadline ASC")
 	List<DesignerAnnouncementView> findDesignerAnnouncementViews(
 		@Param("designerId") Long designerId,
-		@Param("applicationStatuses") Set<ApplicationStatus> applicationStatuses
+		@Param("applicationStatuses") Set<ApplicationStatus> applicationStatuses,
+		@Param("selectedStatuses") Set<ApplicationStatus> selectedStatuses
 	);
 
 	// 디자이너 수정 중인 외주: commission + submitted(미응답 요청 없음) + hasUpdated(미열람 수정 요청 존재)

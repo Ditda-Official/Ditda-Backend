@@ -52,7 +52,8 @@ public class DesignerDashboardService {
 
 		List<DesignerAnnouncementView> views = dashboardCommissionRepository.findDesignerAnnouncementViews(
 			designerId,
-			AnnouncementResult.supportedStatuses()
+			AnnouncementResult.supportedStatuses(),
+			AnnouncementResult.statusesOf(AnnouncementResult.SELECTED)
 		);
 
 		return DesignerAnnouncementCommissionResponse.of(views);

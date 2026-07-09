@@ -2,6 +2,7 @@ package ditda.backend.domain.commission.dashboard.dto.response.enums;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
 
@@ -14,11 +15,23 @@ public enum AnnouncementResult {
 	private static final Map<ApplicationStatus, AnnouncementResult> MAPPING = Map.of(
 		ApplicationStatus.PENDING, AWAITING,
 		ApplicationStatus.ASSIGNED, SELECTED,
+		ApplicationStatus.DRAFT_SUBMITTED, SELECTED,
+		ApplicationStatus.DRAFT_MISSED, SELECTED,
+		ApplicationStatus.DRAFT_SELECTED, SELECTED,
+		ApplicationStatus.DRAFT_REJECTED, SELECTED,
 		ApplicationStatus.APPLICATION_REJECTED, NOT_SELECTED
 	);
 
 	public static Set<ApplicationStatus> supportedStatuses() {
 		return MAPPING.keySet();
+	}
+
+	// 특정 결과에 매핑되는 상태들
+	public static Set<ApplicationStatus> statusesOf(AnnouncementResult result) {
+		return MAPPING.entrySet().stream()
+			.filter(e -> e.getValue() == result)
+			.map(Map.Entry::getKey)
+			.collect(Collectors.toUnmodifiableSet());
 	}
 
 	public static AnnouncementResult from(ApplicationStatus status) {
