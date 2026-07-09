@@ -81,7 +81,7 @@ public class DesignerAuthService {
 			user.getId(),
 			user.getName(),
 			user.getEmail(),
-			portfolioKeys,
+			!portfolioKeys.isEmpty(),
 			LocalDateTime.now(ZONE_KST)
 		));
 
