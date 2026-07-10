@@ -22,7 +22,7 @@ public record DraftSelectResponse(
 	@Schema(description = "남은 수정 횟수", example = "3")
 	int remainingRevisionCount,
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	LocalDateTime selectedAt
 
 ) {
