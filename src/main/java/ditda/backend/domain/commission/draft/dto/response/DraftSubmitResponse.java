@@ -16,7 +16,7 @@ public record DraftSubmitResponse(
 	Long draftId,
 
 	@Schema(description = "제출 시각", example = "2026-05-15 12:30:00")
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	LocalDateTime submittedAt
 ) {
 

@@ -1,7 +1,6 @@
 package ditda.backend.domain.auth.service;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -28,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 public class DesignerAuthService {
 
 	private static final String DEFAULT_PROFILE_IMAGE = "profile/default.png";
-	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final DesignerRepository designerRepository;
 	private final UserService userService;
@@ -82,7 +80,7 @@ public class DesignerAuthService {
 			user.getName(),
 			user.getEmail(),
 			!portfolioKeys.isEmpty(),
-			LocalDateTime.now(ZONE_KST)
+			LocalDateTime.now()
 		));
 
 		return new AuthResult(
