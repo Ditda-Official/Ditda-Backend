@@ -4,21 +4,21 @@ import java.time.LocalDate;
 import java.util.List;
 
 import ditda.backend.domain.commission.core.entity.Commission;
-import ditda.backend.domain.commission.dashboard.repository.projection.MatchingView;
+import ditda.backend.domain.commission.dashboard.repository.projection.InstructorMatchingView;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "매칭 중인 외주 응답")
-public record MatchingCommissionResponse(
+public record InstructorMatchingCommissionResponse(
 
 	List<CommissionItem> commissions
 ) {
-	public static MatchingCommissionResponse of(List<MatchingView> views) {
+	public static InstructorMatchingCommissionResponse of(List<InstructorMatchingView> views) {
 
 		List<CommissionItem> items = views.stream()
 			.map(CommissionItem::from)
 			.toList();
 
-		return new MatchingCommissionResponse(items);
+		return new InstructorMatchingCommissionResponse(items);
 	}
 
 	public record CommissionItem(
@@ -34,7 +34,7 @@ public record MatchingCommissionResponse(
 		@Schema(description = "디자이너 모집 마감일", example = "2026-06-23")
 		LocalDate applicationDeadline
 	) {
-		private static CommissionItem from(MatchingView view) {
+		private static CommissionItem from(InstructorMatchingView view) {
 
 			Commission commission = view.getCommission();
 			int matched = commission.matchedCount(

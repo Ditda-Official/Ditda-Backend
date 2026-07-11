@@ -7,8 +7,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import ditda.backend.domain.commission.core.event.RevisionSubmittedEvent;
-import ditda.backend.global.email.NotificationOutbox;
-import ditda.backend.global.email.NotificationOutboxRepository;
+import ditda.backend.global.notification.NotificationOutbox;
+import ditda.backend.global.notification.NotificationOutboxRepository;
+import ditda.backend.global.notification.NotificationType;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -25,6 +26,7 @@ public class RevisionSubmittedNotifier {
 		registerInstructorRevisionSubmitted(event, mailScheduledAt);
 	}
 
+	// 강사 시안 수정본 제출됨 메일 발송
 	private void registerInstructorRevisionSubmitted(
 		RevisionSubmittedEvent event,
 		LocalDateTime mailScheduledAt
@@ -32,8 +34,7 @@ public class RevisionSubmittedNotifier {
 
 		outboxRepository.save(NotificationOutbox.create(
 			event.instructorEmail(),
-			"[DITDA] 수정본이 제출되었습니다. 확인해주세요.",
-			"email/revision-submitted-instructor",
+			NotificationType.REVISION_SUBMITTED_INSTRUCTOR,
 			Map.of(
 				"instructorName", event.instructorName(),
 				"commissionTitle", event.commissionTitle(),

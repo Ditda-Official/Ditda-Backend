@@ -3,9 +3,11 @@ package ditda.backend.domain.commission.core.facade;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import ditda.backend.domain.commission.application.service.ApplicationService;
 import ditda.backend.domain.commission.core.dto.CommissionDetail;
 import ditda.backend.domain.commission.core.dto.PriceDetail;
 import ditda.backend.domain.commission.core.dto.response.CommissionDetailResponse;
+import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.mapper.CommissionDetailMapper;
 import ditda.backend.domain.commission.core.policy.CommissionPricePolicy;
 import ditda.backend.domain.commission.core.service.CommissionService;
@@ -24,6 +26,7 @@ public class CommissionFacade {
 	private final CommissionService commissionService;
 	private final UserService userService;
 	private final DesignerService designerService;
+	private final ApplicationService applicationService;
 	private final CommissionPricePolicy commissionPricePolicy;
 	private final CommissionDetailMapper commissionDetailMapper;
 
@@ -33,18 +36,25 @@ public class CommissionFacade {
 		// 상세 정보 조회
 		CommissionDetail detail = commissionService.getDetail(commissionId);
 
-		// Designer이면 가격 정보 표시
+		// Designer이면 가격 정보/지원 여부 표시
 		User user = userService.findById(userId);
 
 		PriceDetail priceDetail = null;
+		Boolean applied = null;
+
 		if (user.getRole() == UserRole.DESIGNER) {
 			Designer designer = designerService.getById(userId);
 			priceDetail = commissionPricePolicy.getPriceDetail(
 				detail.commission().getCategoryType(),
 				designer.getLevel()
 			);
+
+			// 지원 여부는 RECRUITING일 때만 표시
+			if (detail.commission().getStatus() == CommissionStatus.RECRUITING) {
+				applied = applicationService.existsPendingApplication(commissionId, userId);
+			}
 		}
 
-		return commissionDetailMapper.toResponse(detail, priceDetail);
+		return commissionDetailMapper.toResponse(detail, priceDetail, applied);
 	}
 }

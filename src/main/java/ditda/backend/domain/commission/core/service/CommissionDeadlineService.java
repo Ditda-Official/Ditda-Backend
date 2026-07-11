@@ -2,7 +2,6 @@ package ditda.backend.domain.commission.core.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 
@@ -23,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CommissionDeadlineService {
 
 	private static final int MAIL_DISPATCH_HOUR = 9;
-	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final CommissionRepository commissionRepository;
 	private final ApplicationDeadlineProcessor applicationDeadlineProcessor;
@@ -32,7 +30,7 @@ public class CommissionDeadlineService {
 
 	public void processApplicationDeadlines() {
 
-		LocalDate today = LocalDate.now(ZONE_KST);
+		LocalDate today = LocalDate.now();
 
 		// 메일 전송 시간
 		LocalDateTime mailScheduledAt = today.atTime(MAIL_DISPATCH_HOUR, 0);
@@ -56,7 +54,7 @@ public class CommissionDeadlineService {
 
 	public void processFirstDraftDeadlines() {
 
-		LocalDate today = LocalDate.now(ZONE_KST);
+		LocalDate today = LocalDate.now();
 
 		// 메일 전송 시간
 		LocalDateTime mailScheduledAt = today.atTime(MAIL_DISPATCH_HOUR, 0);
@@ -80,7 +78,7 @@ public class CommissionDeadlineService {
 
 	public void processFinalDeadlines() {
 
-		LocalDate today = LocalDate.now(ZONE_KST);
+		LocalDate today = LocalDate.now();
 
 		// 메일 전송 시간
 		LocalDateTime mailScheduledAt = today.atTime(MAIL_DISPATCH_HOUR, 0);

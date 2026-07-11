@@ -41,7 +41,10 @@ public class S3UploadManager {
 		List<String> permanentKeys = new ArrayList<>();
 		try {
 			for (String tempKey : tempKeys) {
-				String permanentKey = tempKey.replaceFirst("/" + TEMP_DIR + "/", "/");    // '/tmp/' -> '/'
+				String stripped = tempKey.replaceFirst("/" + TEMP_DIR + "/", "/");
+				String dir = stripped.substring(0, stripped.lastIndexOf('/'));
+				String ext = stripped.substring(stripped.lastIndexOf('.'));
+				String permanentKey = "%s/%s%s".formatted(dir, UUID.randomUUID(), ext);
 				s3FileManager.copy(bucketType, tempKey, permanentKey);
 				permanentKeys.add(permanentKey);
 			}

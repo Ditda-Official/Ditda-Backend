@@ -1,7 +1,6 @@
 package ditda.backend.domain.commission.revision.facade;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -38,8 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 @Slf4j
 public class DesignerRevisionFacade {
-
-	private static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
 
 	private final DesignerCommissionService designerCommissionService;
 	private final DraftQueryService draftQueryService;
@@ -95,7 +92,7 @@ public class DesignerRevisionFacade {
 	) {
 
 		// 외주 조회 + 검증
-		Commission commission = commissionService.getByIdForUpdate(commissionId);
+		Commission commission = commissionService.getWithInstructorAndUserById(commissionId);
 		commission.validateRevisable();
 
 		// 최종 선택된 디자이너인지 검증
@@ -147,7 +144,7 @@ public class DesignerRevisionFacade {
 		int currentRevisionCount = revisionQueryService.calculateCurrentRevisionCount(commission);
 
 		// 강사에게 수정본 제출 이메일 발송
-		publishRevisionSubmittedEvent(commissionId, currentRevisionCount);
+		publishRevisionSubmittedEvent(commission, currentRevisionCount);
 
 		return revisionMapper.toRevisionSubmitResponse(
 			newDraft,
@@ -157,9 +154,7 @@ public class DesignerRevisionFacade {
 	}
 
 	// 수정본 제출 알림 이벤트 발행
-	private void publishRevisionSubmittedEvent(Long commissionId, int currentRevisionCount) {
-
-		Commission commission = commissionService.getWithInstructorAndUserById(commissionId);
+	private void publishRevisionSubmittedEvent(Commission commission, int currentRevisionCount) {
 
 		eventPublisher.publishEvent(new RevisionSubmittedEvent(
 			commission.getId(),
@@ -167,7 +162,7 @@ public class DesignerRevisionFacade {
 			commission.getInstructor().getUser().getEmail(),
 			commission.getInstructor().getName(),
 			currentRevisionCount,
-			LocalDateTime.now(ZONE_KST)
+			LocalDateTime.now()
 		));
 	}
 }
