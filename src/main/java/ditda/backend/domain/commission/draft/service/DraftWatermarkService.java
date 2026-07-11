@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.entity.enums.WatermarkStatus;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.image.WatermarkImageProcessor;
 import ditda.backend.global.image.dto.WatermarkedImage;
 import ditda.backend.global.s3.enums.BucketType;
@@ -48,6 +50,9 @@ public class DraftWatermarkService {
 					file.getId(),
 					(System.nanoTime() - start) / 1_000_000
 				);
+			} catch (GeneralException exception) {
+				log.error("워터마크 영구 실패(이미지 문제). draftFileId={}", file.getId(), exception);
+				draftWatermarkTransitionService.failPermanently(file.getId());
 			} catch (Exception exception) {
 				log.error(
 					"워터마크 실패. draftFileId={}, fileUrl={}, elapsedMs={}",
@@ -58,6 +63,34 @@ public class DraftWatermarkService {
 				);
 				draftWatermarkTransitionService.fail(file.getId());
 			}
+		}
+	}
+
+	// 워터마크 재처리
+	@Async("watermarkExecutor")
+	public void reprocessFile(Long draftFileId) {
+
+		long start = System.nanoTime();
+		try {
+			String originalKey = draftWatermarkTransitionService.markProcessingAndGetKey(draftFileId);
+			String watermarkedKey = createWatermarked(originalKey);
+			draftWatermarkTransitionService.complete(draftFileId, watermarkedKey);
+			log.info(
+				"워터마크 재처리 완료. draftFileId={}, elapsedMs={}",
+				draftFileId,
+				(System.nanoTime() - start) / 1_000_000
+			);
+		} catch (GeneralException exception) {
+			log.error("워터마크 영구 실패(이미지 문제). draftFileId={}", draftFileId, exception);
+			draftWatermarkTransitionService.failPermanently(draftFileId);
+		} catch (Exception exception) {
+			log.error(
+				"워터마크 재처리 실패. draftFileId={}, elapsedMs={}",
+				draftFileId,
+				(System.nanoTime() - start) / 1_000_000,
+				exception
+			);
+			draftWatermarkTransitionService.fail(draftFileId);
 		}
 	}
 

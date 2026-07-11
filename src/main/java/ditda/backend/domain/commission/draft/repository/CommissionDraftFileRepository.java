@@ -1,5 +1,6 @@
 package ditda.backend.domain.commission.draft.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,5 +28,15 @@ public interface CommissionDraftFileRepository extends JpaRepository<CommissionD
 	List<CommissionDraftFile> findAllByCommissionDraftIdAndWatermarkStatus(
 		Long draftId,
 		WatermarkStatus watermarkStatus
+	);
+
+	@Query("SELECT f FROM CommissionDraftFile f "
+		+ "WHERE (f.watermarkStatus = :failed AND f.watermarkRetryCount < :maxRetry) "
+		+ "OR (f.watermarkStatus = :processing AND f.updatedAt < :stuckBefore)")
+	List<CommissionDraftFile> findWatermarkRetryTargets(
+		@Param("failed") WatermarkStatus failed,
+		@Param("processing") WatermarkStatus processing,
+		@Param("maxRetry") int maxRetry,
+		@Param("stuckBefore") LocalDateTime stuckBefore
 	);
 }

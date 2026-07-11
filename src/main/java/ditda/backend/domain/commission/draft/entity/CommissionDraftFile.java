@@ -37,6 +37,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommissionDraftFile extends BaseEntity {
 
+	public static final int MAX_WATERMARK_RETRY = 3;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "commission_draft_file_id")
@@ -58,6 +60,9 @@ public class CommissionDraftFile extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "watermark_status", length = 20, nullable = false)
 	private WatermarkStatus watermarkStatus;
+
+	@Column(name = "watermark_retry_count", nullable = false)
+	private int watermarkRetryCount;
 
 	public static CommissionDraftFile create(
 		CommissionDraft commissionDraft,
@@ -85,6 +90,23 @@ public class CommissionDraftFile extends BaseEntity {
 
 	// 워터마크 처리 실패
 	public void markWatermarkFailed() {
+		this.watermarkRetryCount++;
+		this.watermarkStatus = WatermarkStatus.FAILED;
+	}
+
+	// 워터마크 재처리 시작
+	public void retryWatermark() {
+		this.watermarkStatus = WatermarkStatus.PROCESSING;
+	}
+
+	// 재시도 가능 여부 확인
+	public boolean isWatermarkRetryable() {
+		return watermarkRetryCount < MAX_WATERMARK_RETRY;
+	}
+
+	// 재시도 불가 실패 (이미지 문제)
+	public void markWatermarkFailedPermanently() {
+		this.watermarkRetryCount = MAX_WATERMARK_RETRY;
 		this.watermarkStatus = WatermarkStatus.FAILED;
 	}
 }
