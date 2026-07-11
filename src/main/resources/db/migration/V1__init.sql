@@ -355,6 +355,7 @@ CREATE TABLE notification_outboxes
     created_at             DATETIME(6)  NOT NULL,
     updated_at             DATETIME(6)  NOT NULL,
     PRIMARY KEY (notification_outbox_id)
+    KEY idx_notification_outboxes_status_scheduled_at (status, scheduled_at)
 );
 
 -- =========================================================
