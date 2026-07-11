@@ -40,58 +40,15 @@ public class DraftWatermarkService {
 				WatermarkStatus.PROCESSING
 			);
 
-		for (CommissionDraftFile file : files) {
-			long start = System.nanoTime();
-			try {
-				String watermarkedKey = createWatermarked(file.getFileUrl());
-				draftWatermarkTransitionService.complete(file.getId(), watermarkedKey);
-				log.info(
-					"워터마크 완료. draftFileId={}, elapsedMs={}",
-					file.getId(),
-					(System.nanoTime() - start) / 1_000_000
-				);
-			} catch (GeneralException exception) {
-				log.error("워터마크 영구 실패(이미지 문제). draftFileId={}", file.getId(), exception);
-				draftWatermarkTransitionService.failPermanently(file.getId());
-			} catch (Exception exception) {
-				log.error(
-					"워터마크 실패. draftFileId={}, fileUrl={}, elapsedMs={}",
-					file.getId(),
-					file.getFileUrl(),
-					(System.nanoTime() - start) / 1_000_000,
-					exception
-				);
-				draftWatermarkTransitionService.fail(file.getId());
-			}
-		}
+		files.forEach(f -> process(f.getId(), f.getFileUrl()));
 	}
 
 	// 워터마크 재처리
 	@Async("watermarkExecutor")
 	public void reprocessFile(Long draftFileId) {
 
-		long start = System.nanoTime();
-		try {
-			String originalKey = draftWatermarkTransitionService.markProcessingAndGetKey(draftFileId);
-			String watermarkedKey = createWatermarked(originalKey);
-			draftWatermarkTransitionService.complete(draftFileId, watermarkedKey);
-			log.info(
-				"워터마크 재처리 완료. draftFileId={}, elapsedMs={}",
-				draftFileId,
-				(System.nanoTime() - start) / 1_000_000
-			);
-		} catch (GeneralException exception) {
-			log.error("워터마크 영구 실패(이미지 문제). draftFileId={}", draftFileId, exception);
-			draftWatermarkTransitionService.failPermanently(draftFileId);
-		} catch (Exception exception) {
-			log.error(
-				"워터마크 재처리 실패. draftFileId={}, elapsedMs={}",
-				draftFileId,
-				(System.nanoTime() - start) / 1_000_000,
-				exception
-			);
-			draftWatermarkTransitionService.fail(draftFileId);
-		}
+		String originalKey = draftWatermarkTransitionService.getOriginalKey(draftFileId);
+		process(draftFileId, originalKey);
 	}
 
 	private String createWatermarked(String originalKey) throws IOException {
@@ -117,5 +74,25 @@ public class DraftWatermarkService {
 		s3FileManager.upload(BUCKET, watermarkedKey, watermarked, S3ContentType.PNG.getContentType());
 
 		return watermarkedKey;
+	}
+
+	private void process(Long fileId, String originalKey) {
+
+		long start = System.nanoTime();
+		try {
+			String watermarkedKey = createWatermarked(originalKey);
+			draftWatermarkTransitionService.complete(fileId, watermarkedKey);
+			log.info("워터마크 완료. draftFileId={}, elapsedMs={}", fileId, elapsedMs(start));
+		} catch (GeneralException e) {
+			log.error("워터마크 영구 실패(이미지 문제). draftFileId={}", fileId, e);
+			draftWatermarkTransitionService.failPermanently(fileId);
+		} catch (Exception e) {
+			log.error("워터마크 실패. draftFileId={}, elapsedMs={}", fileId, elapsedMs(start), e);
+			draftWatermarkTransitionService.fail(fileId);
+		}
+	}
+
+	private long elapsedMs(long start) {
+		return (System.nanoTime() - start) / 1_000_000;
 	}
 }

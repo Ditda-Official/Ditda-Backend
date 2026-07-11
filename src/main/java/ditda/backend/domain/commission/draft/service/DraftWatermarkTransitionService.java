@@ -27,7 +27,7 @@ public class DraftWatermarkTransitionService {
 			);
 	}
 
-	// 영구 실패 전이 (이미지 문제)
+	// 워터마크 영구 실패 전이 (이미지 문제)
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void failPermanently(Long draftFileId) {
 
@@ -38,7 +38,7 @@ public class DraftWatermarkTransitionService {
 			}, () -> log.warn("워터마크 영구 실패 전이 대상 없음. draftFileId={}", draftFileId));
 	}
 
-	// 재시도 실패 전이
+	// 워터마크 실패 전이
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void fail(Long draftFileId) {
 
@@ -52,14 +52,12 @@ public class DraftWatermarkTransitionService {
 	}
 
 	// 워터마크 재처리 전이
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public String markProcessingAndGetKey(Long draftFileId) {
+	@Transactional(readOnly = true)
+	public String getOriginalKey(Long draftFileId) {
 
-		CommissionDraftFile file = commissionDraftFileRepository.findById(draftFileId)
+		return commissionDraftFileRepository.findById(draftFileId)
+			.map(CommissionDraftFile::getFileUrl)
 			.orElseThrow(() -> new IllegalStateException("워터마크 재처리 대상 없음: " + draftFileId));
-
-		file.retryWatermark();
-		return file.getFileUrl();
 	}
 
 	// TODO: 디스코드 웹훅 - 영구 실패 알림 (draftFileId + 사유)

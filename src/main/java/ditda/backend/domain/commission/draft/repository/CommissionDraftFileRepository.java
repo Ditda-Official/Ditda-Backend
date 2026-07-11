@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -30,13 +32,32 @@ public interface CommissionDraftFileRepository extends JpaRepository<CommissionD
 		WatermarkStatus watermarkStatus
 	);
 
-	@Query("SELECT f FROM CommissionDraftFile f "
+	@Query("SELECT f.id FROM CommissionDraftFile f "
 		+ "WHERE (f.watermarkStatus = :failed AND f.watermarkRetryCount < :maxRetry) "
-		+ "OR (f.watermarkStatus = :processing AND f.updatedAt < :stuckBefore)")
-	List<CommissionDraftFile> findWatermarkRetryTargets(
+		+ "OR (f.watermarkStatus = :processing "
+		+ "    AND f.updatedAt < :stuckBefore AND f.watermarkRetryCount < :maxRetry) "
+		+ "ORDER BY f.updatedAt ASC")
+	List<Long> findWatermarkRetryTargetIds(
 		@Param("failed") WatermarkStatus failed,
 		@Param("processing") WatermarkStatus processing,
 		@Param("maxRetry") int maxRetry,
-		@Param("stuckBefore") LocalDateTime stuckBefore
+		@Param("stuckBefore") LocalDateTime stuckBefore,
+		Pageable pageable
+	);
+
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE CommissionDraftFile f "
+		+ "SET f.watermarkStatus = :processing, "
+		+ "    f.watermarkRetryCount = f.watermarkRetryCount + 1, "
+		+ "    f.updatedAt = :now "
+		+ "WHERE f.id IN :ids "
+		+ "AND f.watermarkStatus <> :completed "
+		+ "AND f.watermarkRetryCount < :maxRetry")
+	int claimForRetry(
+		@Param("ids") List<Long> ids,
+		@Param("processing") WatermarkStatus processing,
+		@Param("completed") WatermarkStatus completed,
+		@Param("maxRetry") int maxRetry,
+		@Param("now") LocalDateTime now
 	);
 }

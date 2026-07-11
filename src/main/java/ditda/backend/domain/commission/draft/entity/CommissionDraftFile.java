@@ -90,13 +90,7 @@ public class CommissionDraftFile extends BaseEntity {
 
 	// 워터마크 처리 실패
 	public void markWatermarkFailed() {
-		this.watermarkRetryCount++;
 		this.watermarkStatus = WatermarkStatus.FAILED;
-	}
-
-	// 워터마크 재처리 시작
-	public void retryWatermark() {
-		this.watermarkStatus = WatermarkStatus.PROCESSING;
 	}
 
 	// 재시도 가능 여부 확인
