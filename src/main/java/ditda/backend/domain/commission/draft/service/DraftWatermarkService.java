@@ -10,6 +10,7 @@ import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.entity.enums.WatermarkStatus;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
 import ditda.backend.global.image.WatermarkImageProcessor;
+import ditda.backend.global.image.dto.WatermarkedImage;
 import ditda.backend.global.s3.enums.BucketType;
 import ditda.backend.global.s3.enums.S3ContentType;
 import ditda.backend.global.s3.manager.S3FileManager;
@@ -38,11 +39,23 @@ public class DraftWatermarkService {
 			);
 
 		for (CommissionDraftFile file : files) {
+			long start = System.nanoTime();
 			try {
 				String watermarkedKey = createWatermarked(file.getFileUrl());
 				draftWatermarkTransitionService.complete(file.getId(), watermarkedKey);
+				log.info(
+					"워터마크 완료. draftFileId={}, elapsedMs={}",
+					file.getId(),
+					(System.nanoTime() - start) / 1_000_000
+				);
 			} catch (Exception exception) {
-				log.error("워터마크 처리 실패. draftFileId={}, fileUrl={}", file.getId(), file.getFileUrl(), exception);
+				log.error(
+					"워터마크 실패. draftFileId={}, fileUrl={}, elapsedMs={}",
+					file.getId(),
+					file.getFileUrl(),
+					(System.nanoTime() - start) / 1_000_000,
+					exception
+				);
 				draftWatermarkTransitionService.fail(file.getId());
 			}
 		}
@@ -53,7 +66,8 @@ public class DraftWatermarkService {
 		byte[] watermarked;
 		// 원본 s3 다운로드 후 워터마크 진행
 		try (InputStream original = s3FileManager.download(BUCKET, originalKey)) {
-			watermarked = watermarkImageProcessor.createWatermarkedPreview(original);
+			WatermarkedImage image = watermarkImageProcessor.createWatermarkedPreview(original);
+			watermarked = image.bytes();
 		}
 
 		// 워터마크 진행된 파일 s3 업로드 (commission/draft/{uuid}.png -> commission/draft/wm/{uuid}.png)

@@ -19,6 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import ditda.backend.global.apipayload.exception.GeneralException;
+import ditda.backend.global.image.dto.WatermarkedImage;
 
 class WatermarkImageProcessorTest {
 
@@ -32,7 +33,8 @@ class WatermarkImageProcessorTest {
 		byte[] source = pngBytes(3200, 2400);
 
 		// when
-		byte[] result = watermarkImageProcessor.createWatermarkedPreview(new ByteArrayInputStream(source));
+		WatermarkedImage image = watermarkImageProcessor.createWatermarkedPreview(new ByteArrayInputStream(source));
+		byte[] result = image.bytes();
 
 		// then: sample=2로 절반 크기
 		BufferedImage preview = ImageIO.read(new ByteArrayInputStream(result));
@@ -48,7 +50,8 @@ class WatermarkImageProcessorTest {
 		byte[] source = pngBytes(800, 600);
 
 		// when
-		byte[] result = watermarkImageProcessor.createWatermarkedPreview(new ByteArrayInputStream(source));
+		WatermarkedImage image = watermarkImageProcessor.createWatermarkedPreview(new ByteArrayInputStream(source));
+		byte[] result = image.bytes();
 
 		// then
 		BufferedImage preview = ImageIO.read(new ByteArrayInputStream(result));
@@ -93,7 +96,8 @@ class WatermarkImageProcessorTest {
 
 			byte[] result;
 			try (InputStream in = Files.newInputStream(source)) {
-				result = watermarkImageProcessor.createWatermarkedPreview(in);
+				WatermarkedImage image = watermarkImageProcessor.createWatermarkedPreview(in);
+				result = image.bytes();
 			}
 			Files.write(outputDir.resolve(source.getFileName()), result);
 

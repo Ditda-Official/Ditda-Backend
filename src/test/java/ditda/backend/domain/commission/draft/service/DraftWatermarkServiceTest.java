@@ -17,6 +17,7 @@ import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.entity.enums.WatermarkStatus;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
 import ditda.backend.global.image.WatermarkImageProcessor;
+import ditda.backend.global.image.dto.WatermarkedImage;
 import ditda.backend.global.s3.enums.BucketType;
 import ditda.backend.global.s3.enums.S3ContentType;
 import ditda.backend.global.s3.manager.S3FileManager;
@@ -52,7 +53,7 @@ class DraftWatermarkServiceTest {
 		given(s3FileManager.download(BucketType.PRIVATE, "commission/draft/abc.png"))
 			.willReturn(new ByteArrayInputStream(new byte[0]));
 
-		byte[] watermarked = {1, 2, 3};
+		WatermarkedImage watermarked = new WatermarkedImage(new byte[]{1, 2, 3}, S3ContentType.PNG);
 		given(watermarkImageProcessor.createWatermarkedPreview(any())).willReturn(watermarked);
 
 		// when
@@ -62,7 +63,7 @@ class DraftWatermarkServiceTest {
 		then(s3FileManager).should().upload(
 			BucketType.PRIVATE,
 			"commission/draft/wm/abc.png",
-			watermarked,
+			watermarked.bytes(),
 			S3ContentType.PNG.getContentType()
 		);
 		then(draftWatermarkTransitionService).should().complete(10L, "commission/draft/wm/abc.png");
@@ -103,7 +104,7 @@ class DraftWatermarkServiceTest {
 		given(s3FileManager.download(any(), anyString()))
 			.willAnswer(invocation -> new ByteArrayInputStream(new byte[0]));
 
-		byte[] watermarked = {1};
+		WatermarkedImage watermarked = new WatermarkedImage(new byte[]{1, 2, 3}, S3ContentType.PNG);
 		given(watermarkImageProcessor.createWatermarkedPreview(any()))
 			.willThrow(new IOException("첫 번째 파일 실패"))
 			.willReturn(watermarked);

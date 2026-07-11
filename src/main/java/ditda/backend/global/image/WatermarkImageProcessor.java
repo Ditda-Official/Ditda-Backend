@@ -17,13 +17,15 @@ import javax.imageio.stream.ImageInputStream;
 import org.springframework.stereotype.Component;
 
 import ditda.backend.global.apipayload.exception.GeneralException;
+import ditda.backend.global.image.dto.WatermarkedImage;
 import ditda.backend.global.image.exception.ImageErrorCode;
+import ditda.backend.global.s3.enums.S3ContentType;
 
 @Component
 public class WatermarkImageProcessor {
 
 	private static final String LOGO_PATH = "/images/watermark-logo.png";	// 워터마크 이미지 파일 경로
-	private static final int TARGET_LONG_SIDE = 1600; 						// 출력물의 최대 길이
+	private static final int TARGET_LONG_SIDE = 1200; 						// 출력물의 최대 길이
 	private static final long MAX_PIXELS = 200_000_000L;					// 이미지 픽셀 제한
 	private static final float OPACITY = 0.25f; 							// 워터마크 투명도
 	private static final double ROTATION_DEGREES = -45; 					// 워터마크 텍스트 기울기
@@ -31,7 +33,7 @@ public class WatermarkImageProcessor {
 
 	private final BufferedImage logo = loadLogo();
 
-	public byte[] createWatermarkedPreview(InputStream source) throws IOException {
+	public WatermarkedImage createWatermarkedPreview(InputStream source) throws IOException {
 
 		// 1. 이미지 디코딩
 		BufferedImage preview = readSubsampled(source);
@@ -46,7 +48,7 @@ public class WatermarkImageProcessor {
 		}
 
 		// 4. S3 업로드용 바이트
-		return out.toByteArray();
+		return new WatermarkedImage(out.toByteArray(), S3ContentType.PNG);
 	}
 
 	// 워터마크 로고 로드
