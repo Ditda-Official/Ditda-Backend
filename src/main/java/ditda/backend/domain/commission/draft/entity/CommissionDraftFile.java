@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 	name = "commission_draft_files",
 	uniqueConstraints = {
 		@UniqueConstraint(
-			name = "uk_commission_draft_file_order",
+			name = "uk_commission_draft_files_commission_draft_id_file_order",
 			columnNames = {"commission_draft_id", "file_order"}
 		)
 	}
