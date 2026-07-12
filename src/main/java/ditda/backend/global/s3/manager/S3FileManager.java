@@ -1,5 +1,6 @@
 package ditda.backend.global.s3.manager;
 
+import java.io.InputStream;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -8,6 +9,7 @@ import ditda.backend.global.s3.config.S3Properties;
 import ditda.backend.global.s3.enums.BucketType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
@@ -56,5 +58,18 @@ public class S3FileManager {
 			.sourceKey(sourceKey)
 			.destinationBucket(bucket)
 			.destinationKey(destinationKey));
+	}
+
+	public InputStream download(BucketType bucketType, String key) {
+		String bucket = s3Properties.getBucket(bucketType);
+		return s3Client.getObject(req -> req.bucket(bucket).key(key));
+	}
+
+	public void upload(BucketType bucketType, String key, byte[] bytes, String contentType) {
+		String bucket = s3Properties.getBucket(bucketType);
+		s3Client.putObject(
+			req -> req.bucket(bucket).key(key).contentType(contentType),
+			RequestBody.fromBytes(bytes)
+		);
 	}
 }
