@@ -72,7 +72,19 @@ public class CommissionDraftFile extends BaseEntity {
 			.build();
 	}
 
+	// 시안 조회 가능 여부 (워터마크 완료 상태)
 	public boolean isWatermarkCompleted() {
 		return this.watermarkStatus == WatermarkStatus.COMPLETED;
+	}
+
+	// 워터마크 처리 완료
+	public void completeWatermark(String watermarkedFileUrl) {
+		this.watermarkedFileUrl = watermarkedFileUrl;
+		this.watermarkStatus = WatermarkStatus.COMPLETED;
+	}
+
+	// 워터마크 처리 실패
+	public void markWatermarkFailed() {
+		this.watermarkStatus = WatermarkStatus.FAILED;
 	}
 }

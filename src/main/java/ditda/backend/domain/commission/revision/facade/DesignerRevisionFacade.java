@@ -15,6 +15,7 @@ import ditda.backend.domain.commission.core.service.CommissionService;
 import ditda.backend.domain.commission.core.service.DesignerCommissionService;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
+import ditda.backend.domain.commission.draft.event.DraftFilesSubmittedEvent;
 import ditda.backend.domain.commission.draft.service.DesignerDraftFileService;
 import ditda.backend.domain.commission.draft.service.DesignerDraftService;
 import ditda.backend.domain.commission.draft.service.DraftQueryService;
@@ -126,6 +127,10 @@ public class DesignerRevisionFacade {
 				newDraft,
 				request.designerComment()
 			);
+
+			// 워터마크 진행
+			eventPublisher.publishEvent(new DraftFilesSubmittedEvent(newDraft.getId()));
+
 		} catch (Exception original) {
 			try {
 				designerDraftFileService.deleteFiles(permanentKeys);

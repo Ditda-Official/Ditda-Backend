@@ -16,6 +16,7 @@ import ditda.backend.domain.commission.core.service.CommissionService;
 import ditda.backend.domain.commission.draft.dto.request.DraftSubmitRequest;
 import ditda.backend.domain.commission.draft.dto.response.DraftSubmitResponse;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
+import ditda.backend.domain.commission.draft.event.DraftFilesSubmittedEvent;
 import ditda.backend.domain.commission.draft.service.DesignerDraftFileService;
 import ditda.backend.domain.commission.draft.service.DesignerDraftService;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +62,9 @@ public class DesignerDraftFacade {
 
 			// 모든 지원자가 제출을 완료했는지 판단 및 처리
 			handleAllSubmittedIfLast(commission);
+
+			// 워터마크 진행
+			eventPublisher.publishEvent(new DraftFilesSubmittedEvent(draft.getId()));
 
 		} catch (Exception original) {
 			try {
