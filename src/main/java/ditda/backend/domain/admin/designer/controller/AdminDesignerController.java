@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ditda.backend.domain.admin.designer.dto.response.DesignerAccountResponse;
+import ditda.backend.domain.admin.designer.dto.response.DesignerPortfolioResponse;
 import ditda.backend.domain.admin.designer.service.AdminDesignerService;
 import ditda.backend.global.apipayload.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,5 +32,17 @@ public class AdminDesignerController {
 		DesignerAccountResponse response = adminDesignerService.getDesignerAccount(adminId, designerId);
 
 		return ApiResponse.onSuccess("디자이너 계좌 정보 조회 성공", response);
+	}
+
+	@Operation(summary = "디자이너 포트폴리오 조회", description = "**[어드민]** 디자이너가 가입 시 첨부한 포트폴리오의 presigned URL을 조회합니다.")
+	@GetMapping("/{designerId}/portfolios")
+	public ApiResponse<DesignerPortfolioResponse> getDesignerPortfolios(
+		@AuthenticationPrincipal Long adminId,
+		@PathVariable Long designerId
+	) {
+
+		DesignerPortfolioResponse response = adminDesignerService.getDesignerPortfolios(adminId, designerId);
+
+		return ApiResponse.onSuccess("디자이너 포트폴리오 조회 성공", response);
 	}
 }

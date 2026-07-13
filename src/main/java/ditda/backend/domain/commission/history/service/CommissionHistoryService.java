@@ -19,6 +19,6 @@ public class CommissionHistoryService {
 	@Transactional(readOnly = true)
 	public Page<Commission> getInstructorCommissions(Long instructorId, Pageable pageable) {
 
-		return commissionHistoryRepository.findByInstructorId(instructorId, pageable);
+		return commissionHistoryRepository.findByInstructorIdOrderByCreatedAtDescIdAsc(instructorId, pageable);
 	}
 }

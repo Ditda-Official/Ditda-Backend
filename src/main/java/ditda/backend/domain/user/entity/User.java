@@ -50,7 +50,7 @@ public class User extends BaseEntity {
 	private String phone;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "role", nullable = false)
+	@Column(name = "role", nullable = false, length = 20)
 	private UserRole role;
 
 	@Column(name = "email_verified_at")

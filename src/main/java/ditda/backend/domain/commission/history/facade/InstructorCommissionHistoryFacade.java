@@ -9,9 +9,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.core.entity.Commission;
-import ditda.backend.domain.commission.history.dto.response.InstructorCommissionHistoryResponse;
+import ditda.backend.domain.commission.history.dto.response.InstructorCommissionItemResponse;
 import ditda.backend.domain.commission.history.service.CommissionHistoryService;
 import ditda.backend.domain.payment.service.PaymentService;
+import ditda.backend.global.apipayload.response.PageResponse;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -22,7 +23,10 @@ public class InstructorCommissionHistoryFacade {
 	private final PaymentService paymentService;
 
 	@Transactional(readOnly = true)
-	public InstructorCommissionHistoryResponse getInstructorCommissions(Long instructorId, Pageable pageable) {
+	public PageResponse<InstructorCommissionItemResponse> getInstructorCommissions(
+		Long instructorId,
+		Pageable pageable
+	) {
 
 		Page<Commission> page = commissionHistoryService.getInstructorCommissions(instructorId, pageable);
 
@@ -33,6 +37,8 @@ public class InstructorCommissionHistoryFacade {
 		// 실제 결제된 가격 조회
 		Map<Long, Integer> paidAmounts = paymentService.getPaidAmounts(commissionIds);
 
-		return InstructorCommissionHistoryResponse.from(page, paidAmounts);
+		return PageResponse.from(page.map(
+			c -> InstructorCommissionItemResponse.from(c, paidAmounts.get(c.getId()))
+		));
 	}
 }

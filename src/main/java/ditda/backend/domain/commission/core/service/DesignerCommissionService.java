@@ -14,20 +14,19 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DesignerCommissionService {
 
 	private final CommissionRepository commissionRepository;
 
 	// 모집 중 외주 목록 조회
-	@Transactional(readOnly = true)
 	public Page<Commission> getRecruitingCommissions(Pageable pageable) {
-		return commissionRepository.findByStatus(
+		return commissionRepository.findByStatusOrderByApplicationDeadlineAscIdAsc(
 			CommissionStatus.RECRUITING,
 			pageable
 		);
 	}
 
-	@Transactional(readOnly = true)
 	public Commission getSelectedCommission(Long commissionId, Long designerId) {
 
 		Commission commission = commissionRepository.findById(commissionId)
@@ -37,5 +36,11 @@ public class DesignerCommissionService {
 			throw new GeneralException(CommissionErrorCode.COMMISSION_ACCESS_DENIED);
 		}
 		return commission;
+	}
+
+	// 외주 조회
+	public Commission getById(Long commissionId) {
+		return commissionRepository.findById(commissionId)
+			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 	}
 }

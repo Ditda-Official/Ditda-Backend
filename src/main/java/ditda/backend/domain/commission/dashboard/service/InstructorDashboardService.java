@@ -9,13 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ditda.backend.domain.commission.application.entity.enums.ApplicationStatus;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
-import ditda.backend.domain.commission.dashboard.dto.response.DraftSubmissionCommissionResponse;
-import ditda.backend.domain.commission.dashboard.dto.response.MatchingCommissionResponse;
-import ditda.backend.domain.commission.dashboard.dto.response.RevisingCommissionResponse;
+import ditda.backend.domain.commission.dashboard.dto.response.InstructorDraftSubmissionCommissionResponse;
+import ditda.backend.domain.commission.dashboard.dto.response.InstructorMatchingCommissionResponse;
+import ditda.backend.domain.commission.dashboard.dto.response.InstructorRevisingCommissionResponse;
 import ditda.backend.domain.commission.dashboard.repository.DashboardCommissionRepository;
-import ditda.backend.domain.commission.dashboard.repository.projection.DraftSubmissionView;
-import ditda.backend.domain.commission.dashboard.repository.projection.MatchingView;
-import ditda.backend.domain.commission.dashboard.repository.projection.RevisingView;
+import ditda.backend.domain.commission.dashboard.repository.projection.InstructorDraftSubmissionView;
+import ditda.backend.domain.commission.dashboard.repository.projection.InstructorMatchingView;
+import ditda.backend.domain.commission.dashboard.repository.projection.InstructorRevisingView;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -26,9 +26,9 @@ public class InstructorDashboardService {
 	private final DashboardCommissionRepository dashboardCommissionRepository;
 
 	// 시안 제출 현황 조회
-	public DraftSubmissionCommissionResponse getDraftSubmissions(Long instructorId) {
+	public InstructorDraftSubmissionCommissionResponse getDraftSubmissions(Long instructorId) {
 
-		List<DraftSubmissionView> views = dashboardCommissionRepository.findDraftSubmissionViews(
+		List<InstructorDraftSubmissionView> views = dashboardCommissionRepository.findInstructorDraftSubmissionViews(
 			instructorId,
 			Set.of(CommissionStatus.DRAFT_SUBMITTING, CommissionStatus.DRAFT_SELECTING),
 			ApplicationStatus.DRAFT_SUBMITTED
@@ -36,29 +36,29 @@ public class InstructorDashboardService {
 
 		LocalDate today = LocalDate.now();
 
-		return DraftSubmissionCommissionResponse.of(views, today);
+		return InstructorDraftSubmissionCommissionResponse.of(views, today);
 	}
 
 	// 매칭 중인 외주 조회
-	public MatchingCommissionResponse getMatchingCommissions(Long instructorId) {
+	public InstructorMatchingCommissionResponse getMatchingCommissions(Long instructorId) {
 
-		List<MatchingView> views = dashboardCommissionRepository.findMatchingViews(
+		List<InstructorMatchingView> views = dashboardCommissionRepository.findInstructorMatchingViews(
 			instructorId,
 			CommissionStatus.RECRUITING,
 			ApplicationStatus.PENDING
 		);
 
-		return MatchingCommissionResponse.of(views);
+		return InstructorMatchingCommissionResponse.of(views);
 	}
 
 	// 수정 중인 외주 조회
-	public RevisingCommissionResponse getRevisingCommissions(Long instructorId) {
+	public InstructorRevisingCommissionResponse getRevisingCommissions(Long instructorId) {
 
-		List<RevisingView> views = dashboardCommissionRepository.findRevisingViews(
+		List<InstructorRevisingView> views = dashboardCommissionRepository.findInstructorRevisingViews(
 			instructorId,
 			CommissionStatus.EDITING
 		);
 
-		return RevisingCommissionResponse.of(views);
+		return InstructorRevisingCommissionResponse.of(views);
 	}
 }

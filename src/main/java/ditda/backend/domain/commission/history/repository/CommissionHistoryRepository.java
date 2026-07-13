@@ -8,5 +8,5 @@ import ditda.backend.domain.commission.core.entity.Commission;
 
 public interface CommissionHistoryRepository extends Repository<Commission, Long> {
 
-	Page<Commission> findByInstructorId(Long instructorId, Pageable pageable);
+	Page<Commission> findByInstructorIdOrderByCreatedAtDescIdAsc(Long instructorId, Pageable pageable);
 }

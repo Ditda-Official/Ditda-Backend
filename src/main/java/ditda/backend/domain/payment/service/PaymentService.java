@@ -1,5 +1,6 @@
 package ditda.backend.domain.payment.service;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -75,7 +76,8 @@ public class PaymentService {
 			commission.getInstructor().getName(),
 			payment.getDepositorName(),
 			payment.getAmount(),
-			payment.getDepositNotifiedAt()
+			payment.getDepositNotifiedAt(),
+			LocalDateTime.now()
 		));
 
 		return DepositNotifyResponse.of(

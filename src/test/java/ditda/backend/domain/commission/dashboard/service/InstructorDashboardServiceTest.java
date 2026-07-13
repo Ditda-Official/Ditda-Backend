@@ -17,9 +17,9 @@ import ditda.backend.domain.commission.application.entity.enums.ApplicationStatu
 import ditda.backend.domain.commission.core.entity.Commission;
 import ditda.backend.domain.commission.core.entity.enums.CommissionStatus;
 import ditda.backend.domain.commission.core.entity.enums.PlanCode;
-import ditda.backend.domain.commission.dashboard.dto.response.MatchingCommissionResponse;
+import ditda.backend.domain.commission.dashboard.dto.response.InstructorMatchingCommissionResponse;
 import ditda.backend.domain.commission.dashboard.repository.DashboardCommissionRepository;
-import ditda.backend.domain.commission.dashboard.repository.projection.MatchingView;
+import ditda.backend.domain.commission.dashboard.repository.projection.InstructorMatchingView;
 
 @ExtendWith(MockitoExtension.class)
 class InstructorDashboardServiceTest {
@@ -53,34 +53,35 @@ class InstructorDashboardServiceTest {
 			.finalDeadline(deadline)
 			.build();
 
-		MatchingView maxView = mock(MatchingView.class);
+		InstructorMatchingView maxView = mock(InstructorMatchingView.class);
 		given(maxView.getCommission()).willReturn(max);
 		given(maxView.getDistinctLevelCount()).willReturn(3L);   // 레벨 3종류
 		given(maxView.getTotalCount()).willReturn(4L);           // 지원자 4명
 
-		MatchingView basicView = mock(MatchingView.class);
+		InstructorMatchingView basicView = mock(InstructorMatchingView.class);
 		given(basicView.getCommission()).willReturn(basic);
 		given(basicView.getDistinctLevelCount()).willReturn(2L); // 레벨 2종류
 		given(basicView.getTotalCount()).willReturn(4L);         // 지원자 4명
 
-		given(dashboardCommissionRepository.findMatchingViews(
+		given(dashboardCommissionRepository.findInstructorMatchingViews(
 			INSTRUCTOR_ID, CommissionStatus.RECRUITING, ApplicationStatus.PENDING
 		)).willReturn(List.of(maxView, basicView));
 
 		// when
-		MatchingCommissionResponse response = instructorDashboardService.getMatchingCommissions(INSTRUCTOR_ID);
+		InstructorMatchingCommissionResponse response = instructorDashboardService.getMatchingCommissions(
+			INSTRUCTOR_ID);
 
 		// then
 		assertThat(response.commissions()).hasSize(2);
 
-		MatchingCommissionResponse.CommissionItem maxItem = response.commissions().getFirst();
+		InstructorMatchingCommissionResponse.CommissionItem maxItem = response.commissions().getFirst();
 		assertThat(maxItem.commissionId()).isEqualTo(1L);
 		assertThat(maxItem.title()).isEqualTo("MAX 외주");
 		assertThat(maxItem.applicationDeadline()).isEqualTo(deadline);
 		assertThat(maxItem.matching().matched()).isEqualTo(4);
 		assertThat(maxItem.matching().total()).isEqualTo(5);
 
-		MatchingCommissionResponse.CommissionItem basicItem = response.commissions().get(1);
+		InstructorMatchingCommissionResponse.CommissionItem basicItem = response.commissions().get(1);
 		assertThat(basicItem.commissionId()).isEqualTo(2L);
 		assertThat(basicItem.matching().matched()).isEqualTo(2);
 		assertThat(basicItem.matching().total()).isEqualTo(3);
@@ -91,12 +92,13 @@ class InstructorDashboardServiceTest {
 	void getMatchingCommissions_emptyList() {
 
 		// given
-		given(dashboardCommissionRepository.findMatchingViews(
+		given(dashboardCommissionRepository.findInstructorMatchingViews(
 			INSTRUCTOR_ID, CommissionStatus.RECRUITING, ApplicationStatus.PENDING
 		)).willReturn(List.of());
 
 		// when
-		MatchingCommissionResponse response = instructorDashboardService.getMatchingCommissions(INSTRUCTOR_ID);
+		InstructorMatchingCommissionResponse response = instructorDashboardService.getMatchingCommissions(
+			INSTRUCTOR_ID);
 
 		// then
 		assertThat(response.commissions()).isEmpty();

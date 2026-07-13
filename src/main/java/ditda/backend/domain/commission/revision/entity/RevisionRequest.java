@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 	name = "revision_requests",
 	uniqueConstraints = {
 		@UniqueConstraint(
-			name = "uk_revision_request_target_draft",
+			name = "uk_revision_requests_target_draft_id",
 			columnNames = {"target_draft_id"}
 		)
 	}

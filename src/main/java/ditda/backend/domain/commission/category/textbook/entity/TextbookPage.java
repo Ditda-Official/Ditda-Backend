@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 	name = "textbook_pages",
 	uniqueConstraints = {
 		@UniqueConstraint(
-			name = "uk_commission_required_page_type",
+			name = "uk_textbook_pages_commission_id_page_type",
 			columnNames = {"commission_id", "page_type"}
 		)
 	}

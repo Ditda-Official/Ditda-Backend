@@ -1,31 +1,53 @@
 package ditda.backend.domain.commission.revision.facade;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import ditda.backend.domain.commission.application.entity.CommissionApplication;
+import ditda.backend.domain.commission.application.service.ApplicationService;
 import ditda.backend.domain.commission.core.entity.Commission;
+import ditda.backend.domain.commission.core.event.RevisionSubmittedEvent;
+import ditda.backend.domain.commission.core.service.CommissionService;
 import ditda.backend.domain.commission.core.service.DesignerCommissionService;
 import ditda.backend.domain.commission.draft.entity.CommissionDraft;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
-import ditda.backend.domain.commission.draft.service.DraftService;
+import ditda.backend.domain.commission.draft.event.DraftFilesSubmittedEvent;
+import ditda.backend.domain.commission.draft.service.DesignerDraftFileService;
+import ditda.backend.domain.commission.draft.service.DesignerDraftService;
+import ditda.backend.domain.commission.draft.service.DraftQueryService;
+import ditda.backend.domain.commission.revision.dto.request.RevisionSubmitRequest;
 import ditda.backend.domain.commission.revision.dto.response.DesignerRevisionDetailResponse;
+import ditda.backend.domain.commission.revision.dto.response.RevisionSubmitResponse;
 import ditda.backend.domain.commission.revision.entity.RevisionDetail;
 import ditda.backend.domain.commission.revision.entity.RevisionRequest;
+import ditda.backend.domain.commission.revision.exception.RevisionErrorCode;
 import ditda.backend.domain.commission.revision.mapper.RevisionMapper;
-import ditda.backend.domain.commission.revision.service.RevisionService;
+import ditda.backend.domain.commission.revision.service.DesignerRevisionService;
+import ditda.backend.domain.commission.revision.service.RevisionQueryService;
+import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class DesignerRevisionFacade {
 
 	private final DesignerCommissionService designerCommissionService;
-	private final DraftService draftService;
-	private final RevisionService revisionService;
+	private final DraftQueryService draftQueryService;
+	private final RevisionQueryService revisionQueryService;
+	private final DesignerRevisionService designerRevisionService;
 	private final RevisionMapper revisionMapper;
+	private final CommissionService commissionService;
+	private final ApplicationService applicationService;
+	private final DesignerDraftService designerDraftService;
+	private final DesignerDraftFileService designerDraftFileService;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	public DesignerRevisionDetailResponse getRevisionDetail(Long designerId, Long commissionId) {
@@ -37,18 +59,18 @@ public class DesignerRevisionFacade {
 		commission.validateRevisable();
 
 		// 가장 최근 시안
-		CommissionDraft latestDraft = draftService.getLatestDraftOfSelectedApplication(commissionId);
+		CommissionDraft latestDraft = draftQueryService.getLatestDraftOfSelectedApplication(commissionId);
 
 		// 수정 요청 조회 + 확인 처리
-		RevisionRequest revisionRequest = revisionService.getRevisionRequestAndCheck(latestDraft.getId());
+		RevisionRequest revisionRequest = designerRevisionService.getRevisionRequestAndCheck(latestDraft.getId());
 
 		// 수정 요청 항목
-		List<RevisionDetail> details = revisionService.getRevisionDetails(revisionRequest.getId());
+		List<RevisionDetail> details = revisionQueryService.getRevisionDetails(revisionRequest.getId());
 
 		// 썸네일
-		CommissionDraftFile thumbnail = draftService.getThumbnail(latestDraft.getId());
+		CommissionDraftFile thumbnail = draftQueryService.findThumbnail(latestDraft.getId());
 
-		int currentRevisionCount = revisionService.calculateCurrentRevisionCount(commission);
+		int currentRevisionCount = revisionQueryService.calculateCurrentRevisionCount(commission);
 		int remainingRevisionCount = commission.getRemainingRevisionCount(currentRevisionCount);
 
 		return revisionMapper.toDesignerRevisionDetailResponse(
@@ -59,6 +81,88 @@ public class DesignerRevisionFacade {
 			details,
 			remainingRevisionCount
 		);
+	}
 
+	// 수정본 제출
+	@Transactional
+	public RevisionSubmitResponse submitRevision(
+		Long designerId,
+		Long commissionId,
+		RevisionSubmitRequest request
+	) {
+
+		// 외주 조회 + 검증
+		Commission commission = commissionService.getWithInstructorAndUserById(commissionId);
+		commission.validateRevisable();
+
+		// 최종 선택된 디자이너인지 검증
+		CommissionApplication application =
+			applicationService.getApplicationByCommissionAndDesigner(commissionId, designerId);
+		application.validateRevisionSubmittable();
+
+		// 현재 수정 요청 조회
+		CommissionDraft latestDraft = draftQueryService.getLatestDraftOfSelectedApplication(commissionId);
+		RevisionRequest revisionRequest = revisionQueryService.getRevisionRequestOnDraft(latestDraft.getId());
+
+		// 이미 수정본 제출했는지 검증
+		if (revisionQueryService.hasRevisionResponse(revisionRequest.getId())) {
+			throw new GeneralException(RevisionErrorCode.REVISION_ALREADY_SUBMITTED);
+		}
+
+		// 파일 검증 + promote
+		List<String> keys = request.keys();
+		designerDraftFileService.validateFiles(keys);
+		List<String> permanentKeys = designerDraftFileService.promote(keys);
+
+		// 수정본 시안 + 파일 + 수정 답변 저장
+		CommissionDraft newDraft;
+		try {
+			newDraft = designerDraftService.submitRevisionDraft(
+				application,
+				latestDraft.nextRound(),
+				permanentKeys
+			);
+			designerRevisionService.createRevisionResponse(
+				revisionRequest,
+				newDraft,
+				request.designerComment()
+			);
+
+			// 워터마크 진행
+			eventPublisher.publishEvent(new DraftFilesSubmittedEvent(newDraft.getId()));
+
+		} catch (Exception original) {
+			try {
+				designerDraftFileService.deleteFiles(permanentKeys);
+			} catch (Exception cleanupEx) {
+				log.warn("수정본 저장 실패 후 S3 파일 정리 실패, keys={}", permanentKeys, cleanupEx);
+				original.addSuppressed(cleanupEx);
+			}
+			throw original;
+		}
+
+		int currentRevisionCount = revisionQueryService.calculateCurrentRevisionCount(commission);
+
+		// 강사에게 수정본 제출 이메일 발송
+		publishRevisionSubmittedEvent(commission, currentRevisionCount);
+
+		return revisionMapper.toRevisionSubmitResponse(
+			newDraft,
+			currentRevisionCount,
+			commission
+		);
+	}
+
+	// 수정본 제출 알림 이벤트 발행
+	private void publishRevisionSubmittedEvent(Commission commission, int currentRevisionCount) {
+
+		eventPublisher.publishEvent(new RevisionSubmittedEvent(
+			commission.getId(),
+			commission.getTitle(),
+			commission.getInstructor().getUser().getEmail(),
+			commission.getInstructor().getName(),
+			currentRevisionCount,
+			LocalDateTime.now()
+		));
 	}
 }

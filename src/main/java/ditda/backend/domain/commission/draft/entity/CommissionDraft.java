@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 	name = "commission_drafts",
 	uniqueConstraints = {
 		@UniqueConstraint(
-			name = "uk_commission_draft_round",
+			name = "uk_commission_drafts_commission_application_id_round",
 			columnNames = {"commission_application_id", "round"}
 		)
 	}
@@ -34,6 +34,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommissionDraft extends BaseEntity {
+
+	private static final int FIRST_ROUND = 0;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +49,22 @@ public class CommissionDraft extends BaseEntity {
 	@Column(name = "round", nullable = false)
 	private int round;
 
+	public static CommissionDraft create(CommissionApplication commissionApplication, int round) {
+		return CommissionDraft.builder()
+			.commissionApplication(commissionApplication)
+			.round(round)
+			.build();
+	}
+
+	public static CommissionDraft createFirstRound(CommissionApplication commissionApplication) {
+		return create(commissionApplication, FIRST_ROUND);
+	}
+
 	public boolean isDraftFirstRound() {
-		return round == 0;
+		return round == FIRST_ROUND;
+	}
+
+	public int nextRound() {
+		return round + 1;
 	}
 }

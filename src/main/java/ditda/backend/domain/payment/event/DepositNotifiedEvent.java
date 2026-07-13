@@ -8,6 +8,7 @@ public record DepositNotifiedEvent(
 	String instructorName,
 	String depositorName,
 	int amount,
-	LocalDateTime notifiedAt
+	LocalDateTime notifiedAt,
+	LocalDateTime mailScheduledAt
 ) {
 }

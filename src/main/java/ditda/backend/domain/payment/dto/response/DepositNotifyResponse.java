@@ -17,7 +17,7 @@ public record DepositNotifyResponse(
 	PaymentStatus status,
 
 	@Schema(description = "입금 통보 시각", example = "2026-05-26 15:30:00")
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	LocalDateTime depositNotifiedAt
 ) {
 

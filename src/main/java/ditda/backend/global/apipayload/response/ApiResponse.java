@@ -31,7 +31,7 @@ public class ApiResponse<T> {
 	@JsonProperty("error")
 	private final Object error;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private final LocalDateTime timestamp;
 
 	// result가 있는 성공 응답

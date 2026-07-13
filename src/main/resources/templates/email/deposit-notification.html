@@ -38,8 +38,7 @@
         </div>
         <div style="margin: 8px 0;">
             <span style="display: inline-block; width: 90px; color: #888; font-size: 14px;">통보 시각</span>
-            <span style="font-weight: 600;"
-                  th:text="${#temporals.format(notifiedAt, 'yyyy-MM-dd HH:mm')}"></span>
+            <span style="font-weight: 600;" th:text="${notifiedAt}"></span>
         </div>
     </div>
 

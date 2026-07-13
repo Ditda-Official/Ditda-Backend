@@ -17,7 +17,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,16 +24,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-// 한 디자이너는 한 외주에 1번만 지원
-@Table(
-	name = "commission_applications",
-	uniqueConstraints = {
-		@UniqueConstraint(
-			name = "uk_commission_application",
-			columnNames = {"commission_id", "designer_id"}
-		)
-	}
-)
+@Table(name = "commission_applications")
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -73,6 +63,11 @@ public class CommissionApplication extends BaseEntity {
 		this.status = ApplicationStatus.APPLICATION_REJECTED;
 	}
 
+	public void markDraftSubmitted() {
+		validateDraftSubmittable();
+		this.status = ApplicationStatus.DRAFT_SUBMITTED;
+	}
+
 	public void markDraftSelected() {
 		if (status != ApplicationStatus.DRAFT_SUBMITTED) {
 			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_DRAFT_SELECTION);
@@ -105,6 +100,15 @@ public class CommissionApplication extends BaseEntity {
 		return status == ApplicationStatus.ASSIGNED;
 	}
 
+	// 지원 취소
+	public void cancel() {
+		if (status != ApplicationStatus.PENDING) {
+			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_CANCEL);
+		}
+
+		this.status = ApplicationStatus.CANCELLED;
+	}
+
 	// 1차 시안 대상자 선정 처리
 	public void assign() {
 		if (status != ApplicationStatus.PENDING) {
@@ -112,5 +116,22 @@ public class CommissionApplication extends BaseEntity {
 		}
 
 		this.status = ApplicationStatus.ASSIGNED;
+	}
+
+	// 1차 시안 제출 가능 여부 검증
+	public void validateDraftSubmittable() {
+		if (status == ApplicationStatus.DRAFT_SUBMITTED) {
+			throw new GeneralException(ApplicationErrorCode.APPLICATION_ALREADY_DRAFT_SUBMITTED);
+		}
+		if (status != ApplicationStatus.ASSIGNED) {
+			throw new GeneralException(ApplicationErrorCode.INVALID_STATUS_FOR_DRAFT_SUBMITTED);
+		}
+	}
+
+	// 수정본 제출 가능 상태 여부 검증
+	public void validateRevisionSubmittable() {
+		if (status != ApplicationStatus.DRAFT_SELECTED) {
+			throw new GeneralException(ApplicationErrorCode.NOT_SELECTED_DESIGNER);
+		}
 	}
 }

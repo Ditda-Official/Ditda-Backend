@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 	name = "commission_draft_files",
 	uniqueConstraints = {
 		@UniqueConstraint(
-			name = "uk_commission_draft_file_order",
+			name = "uk_commission_draft_files_commission_draft_id_file_order",
 			columnNames = {"commission_draft_id", "file_order"}
 		)
 	}
@@ -49,9 +49,6 @@ public class CommissionDraftFile extends BaseEntity {
 	@Column(name = "file_order", nullable = false)
 	private int fileOrder;
 
-	@Column(name = "file_name", length = 100, nullable = false)
-	private String fileName;
-
 	@Column(name = "file_url", nullable = false)
 	private String fileUrl;
 
@@ -65,19 +62,29 @@ public class CommissionDraftFile extends BaseEntity {
 	public static CommissionDraftFile create(
 		CommissionDraft commissionDraft,
 		int fileOrder,
-		String fileName,
 		String fileUrl
 	) {
 		return CommissionDraftFile.builder()
 			.commissionDraft(commissionDraft)
 			.fileOrder(fileOrder)
-			.fileName(fileName)
 			.fileUrl(fileUrl)
 			.watermarkStatus(WatermarkStatus.PROCESSING)
 			.build();
 	}
 
+	// 시안 조회 가능 여부 (워터마크 완료 상태)
 	public boolean isWatermarkCompleted() {
 		return this.watermarkStatus == WatermarkStatus.COMPLETED;
+	}
+
+	// 워터마크 처리 완료
+	public void completeWatermark(String watermarkedFileUrl) {
+		this.watermarkedFileUrl = watermarkedFileUrl;
+		this.watermarkStatus = WatermarkStatus.COMPLETED;
+	}
+
+	// 워터마크 처리 실패
+	public void markWatermarkFailed() {
+		this.watermarkStatus = WatermarkStatus.FAILED;
 	}
 }

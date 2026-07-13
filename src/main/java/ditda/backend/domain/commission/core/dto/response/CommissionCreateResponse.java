@@ -37,7 +37,7 @@ public record CommissionCreateResponse(
 	@Schema(description = "최대 수정 횟수", example = "3")
 	int maxRevision,
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	LocalDateTime createdAt
 ) {
 

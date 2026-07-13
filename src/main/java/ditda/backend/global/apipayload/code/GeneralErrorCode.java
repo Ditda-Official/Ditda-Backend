@@ -37,7 +37,10 @@ public enum GeneralErrorCode implements BaseErrorCode {
 	// 서버 내부 에러
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_500_01", "서버 내부 오류입니다."),
 	SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "SERVER_503_01", "서버가 일시적으로 불안정합니다."),
-	EXTERNAL_SERVICE_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, "SERVER_504_01", "외부 서비스 응답 지연");
+	EXTERNAL_SERVICE_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, "SERVER_504_01", "외부 서비스 응답 지연"),
+
+	// 락 에러
+	LOCK_ACQUISITION_FAILED(HttpStatus.CONFLICT, "LOCK_409_01", "요청이 많아 처리가 지연되고 있습니다. 잠시 후 다시 시도해주세요.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

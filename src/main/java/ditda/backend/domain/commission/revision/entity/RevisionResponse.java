@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 	name = "revision_responses",
 	uniqueConstraints = {
 		@UniqueConstraint(
-			name = "uk_revision_response_produced_draft",
+			name = "uk_revision_responses_produced_draft_id",
 			columnNames = {"produced_draft_id"}
 		)
 	}
@@ -46,7 +46,7 @@ public class RevisionResponse extends BaseEntity {
 	@JoinColumn(name = "produced_draft_id", nullable = false)
 	private CommissionDraft producedDraft;
 
-	@Column(name = "designer_comment", length = 500, nullable = false)
+	@Column(name = "designer_comment", length = 300)
 	private String designerComment;
 
 	@Builder.Default
