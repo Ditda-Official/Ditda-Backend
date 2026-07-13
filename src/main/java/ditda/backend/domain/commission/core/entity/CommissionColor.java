@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 	name = "commission_colors",
 	uniqueConstraints = {
 		@UniqueConstraint(
-			name = "uk_commission_color_role",
+			name = "uk_commission_colors_commission_id_role",
 			columnNames = {"commission_id", "role"}
 		)
 	}
