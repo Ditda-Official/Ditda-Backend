@@ -57,6 +57,13 @@ public class PortfolioService {
 		portfolioRepository.saveAll(portfolios);
 	}
 
+	@Transactional(readOnly = true)
+	public List<String> getPortfolioKeys(Long designerId) {
+		return portfolioRepository.findByDesignerIdOrderByIdAsc(designerId).stream()
+			.map(Portfolio::getPortfolioUrl)
+			.toList();
+	}
+
 	public List<String> promote(List<String> tempKeys) {
 		return s3UploadManager.promote(BUCKET, tempKeys);
 	}
