@@ -8,5 +8,6 @@
 --  - 기본값의 단일 진실은 엔티티(@Builder.Default)이며 DB DEFAULT 절은 사용하지 않음.
 -- ===========================================================================
 
-ALTER TABLE commission_draft_files
-    ADD COLUMN watermark_retry_count INT NOT NULL;
+ALTER TABLE commission_draft_files ADD COLUMN watermark_retry_count INT;
+UPDATE commission_draft_files SET watermark_retry_count = 0 WHERE watermark_retry_count IS NULL;
+ALTER TABLE commission_draft_files ALTER COLUMN watermark_retry_count SET NOT NULL;
