@@ -36,11 +36,9 @@ public class NotificationOutbox extends BaseEntity {
 	@Column(name = "recipient_email", nullable = false, length = 100)
 	private String recipientEmail;
 
-	@Column(name = "subject", nullable = false, length = 150)
-	private String subject;
-
-	@Column(name = "template_name", nullable = false, length = 100)
-	private String templateName;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "notification_type", nullable = false, length = 50)
+	private NotificationType type;
 
 	@Convert(converter = MapToJsonConverter.class)
 	@Column(name = "template_variables", nullable = false, columnDefinition = "TEXT")
@@ -70,8 +68,7 @@ public class NotificationOutbox extends BaseEntity {
 	) {
 		return NotificationOutbox.builder()
 			.recipientEmail(recipientEmail)
-			.subject(type.getSubject())
-			.templateName(type.getTemplate())
+			.type(type)
 			.templateVariables(templateVariables)
 			.status(OutboxStatus.PENDING)
 			.scheduledAt(scheduledAt)
