@@ -20,15 +20,15 @@ import javax.imageio.stream.ImageInputStream;
 
 import org.springframework.stereotype.Component;
 
-import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.image.dto.WatermarkedImage;
 import ditda.backend.global.image.exception.ImageErrorCode;
+import ditda.backend.global.image.exception.ImageProcessingException;
 import ditda.backend.global.s3.enums.S3ContentType;
 
 @Component
 public class WatermarkImageProcessor {
 
-	private static final String FONT_PATH = "/fonts/watermark-font.ttf";	// 워터마크 폰트 파일
+	private static final String FONT_PATH = "/fonts/LINESeedSans_Bd.ttf";	// 워터마크 폰트 파일
 	private static final String WATERMARK_TEXT = "ditda";					// 워터마크 텍스트
 	private static final int TARGET_LONG_SIDE = 1600; 						// 출력물의 최대 길이
 	private static final long MAX_PIXELS = 200_000_000L;					// 이미지 픽셀 제한
@@ -79,7 +79,7 @@ public class WatermarkImageProcessor {
 
 			// 이미지가 아니거나 심하게 손상될 경우
 			if (!readers.hasNext()) {
-				throw new GeneralException(ImageErrorCode.IMAGE_NOT_READABLE);
+				throw new ImageProcessingException(ImageErrorCode.IMAGE_NOT_READABLE);
 			}
 
 			ImageReader reader = readers.next();
@@ -91,7 +91,7 @@ public class WatermarkImageProcessor {
 
 				// 픽셀 수 계산
 				if ((long)width * height > MAX_PIXELS) {
-					throw new GeneralException(ImageErrorCode.IMAGE_RESOLUTION_EXCEEDED);
+					throw new ImageProcessingException(ImageErrorCode.IMAGE_RESOLUTION_EXCEEDED);
 				}
 
 				// 샘플링 간격

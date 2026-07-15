@@ -61,8 +61,9 @@ public class CommissionDraftFile extends BaseEntity {
 	@Column(name = "watermark_status", length = 20, nullable = false)
 	private WatermarkStatus watermarkStatus;
 
+	@Builder.Default
 	@Column(name = "watermark_retry_count", nullable = false)
-	private int watermarkRetryCount;
+	private int watermarkRetryCount = 0;
 
 	public static CommissionDraftFile create(
 		CommissionDraft commissionDraft,

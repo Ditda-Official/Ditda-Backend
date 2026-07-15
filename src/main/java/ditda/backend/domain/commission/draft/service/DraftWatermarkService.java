@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.entity.enums.WatermarkStatus;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
-import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.image.WatermarkImageProcessor;
 import ditda.backend.global.image.dto.WatermarkedImage;
+import ditda.backend.global.image.exception.ImageProcessingException;
 import ditda.backend.global.s3.enums.BucketType;
 import ditda.backend.global.s3.enums.S3ContentType;
 import ditda.backend.global.s3.manager.S3FileManager;
@@ -83,8 +83,8 @@ public class DraftWatermarkService {
 			String watermarkedKey = createWatermarked(originalKey);
 			draftWatermarkTransitionService.complete(fileId, watermarkedKey);
 			log.info("워터마크 완료. draftFileId={}, elapsedMs={}", fileId, elapsedMs(start));
-		} catch (GeneralException e) {
-			log.error("워터마크 영구 실패(이미지 문제). draftFileId={}", fileId, e);
+		} catch (ImageProcessingException exception) {
+			log.error("워터마크 영구 실패(이미지 문제). draftFileId={}", fileId, exception);
 			draftWatermarkTransitionService.failPermanently(fileId);
 		} catch (Exception e) {
 			log.error("워터마크 실패. draftFileId={}, elapsedMs={}", fileId, elapsedMs(start), e);
