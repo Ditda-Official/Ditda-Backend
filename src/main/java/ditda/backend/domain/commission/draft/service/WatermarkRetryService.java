@@ -32,6 +32,19 @@ public class WatermarkRetryService {
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime stuckBefore = now.minus(STUCK_THRESHOLD);
 
+		// 1. 재시도 상한을 넘겨 PROCESSING에 정체된 파일은 FAILED로 전이
+		int exhausted = commissionDraftFileRepository.failExhaustedStuckFiles(
+			WatermarkStatus.FAILED,
+			WatermarkStatus.PROCESSING,
+			CommissionDraftFile.MAX_WATERMARK_RETRY,
+			stuckBefore,
+			now
+		);
+		if (exhausted > 0) {
+			log.warn("재시도 상한 초과 정체 파일 FAILED 전환 {}건", exhausted);
+		}
+
+		// 2. 재처리 대상 조회
 		List<Long> targetIds = commissionDraftFileRepository.findWatermarkRetryTargetIds(
 			WatermarkStatus.FAILED,
 			WatermarkStatus.PROCESSING,
@@ -44,16 +57,20 @@ public class WatermarkRetryService {
 			return;
 		}
 
-		int claimed = commissionDraftFileRepository.claimForRetry(
-			targetIds,
-			WatermarkStatus.PROCESSING,
-			WatermarkStatus.COMPLETED,
-			CommissionDraftFile.MAX_WATERMARK_RETRY,
-			now
-		);
+		// 3. 선점에 성공된 파일만 큐잉
+		List<Long> claimedIds = targetIds.stream()
+			.filter(id -> commissionDraftFileRepository.claimForRetry(
+				id,
+				WatermarkStatus.PROCESSING,
+				WatermarkStatus.FAILED,
+				CommissionDraftFile.MAX_WATERMARK_RETRY,
+				stuckBefore,
+				now
+			) == 1)
+			.toList();
 
-		targetIds.forEach(draftWatermarkService::reprocessFile);
+		claimedIds.forEach(draftWatermarkService::reprocessFile);
 
-		log.info("워터마크 재처리 대상 선점 {}건 / 큐잉 {}건", claimed, targetIds.size());
+		log.info("워터마크 재처리 대상 {}건 / 큐잉 {}건", targetIds.size(), claimedIds.size());
 	}
 }

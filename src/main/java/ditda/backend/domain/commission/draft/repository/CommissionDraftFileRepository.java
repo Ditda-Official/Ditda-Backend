@@ -50,14 +50,31 @@ public interface CommissionDraftFileRepository extends JpaRepository<CommissionD
 		+ "SET f.watermarkStatus = :processing, "
 		+ "    f.watermarkRetryCount = f.watermarkRetryCount + 1, "
 		+ "    f.updatedAt = :now "
-		+ "WHERE f.id IN :ids "
-		+ "AND f.watermarkStatus <> :completed "
-		+ "AND f.watermarkRetryCount < :maxRetry")
+		+ "WHERE f.id = :id "
+		+ "AND f.watermarkRetryCount < :maxRetry "
+		+ "AND (f.watermarkStatus = :failed "
+		+ "     OR (f.watermarkStatus = :processing AND f.updatedAt < :stuckBefore))")
 	int claimForRetry(
-		@Param("ids") List<Long> ids,
+		@Param("id") Long id,
 		@Param("processing") WatermarkStatus processing,
-		@Param("completed") WatermarkStatus completed,
+		@Param("failed") WatermarkStatus failed,
 		@Param("maxRetry") int maxRetry,
+		@Param("stuckBefore") LocalDateTime stuckBefore,
+		@Param("now") LocalDateTime now
+	);
+
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE CommissionDraftFile f "
+		+ "SET f.watermarkStatus = :failed, "
+		+ "    f.updatedAt = :now "
+		+ "WHERE f.watermarkStatus = :processing "
+		+ "AND f.updatedAt < :stuckBefore "
+		+ "AND f.watermarkRetryCount >= :maxRetry")
+	int failExhaustedStuckFiles(
+		@Param("failed") WatermarkStatus failed,
+		@Param("processing") WatermarkStatus processing,
+		@Param("maxRetry") int maxRetry,
+		@Param("stuckBefore") LocalDateTime stuckBefore,
 		@Param("now") LocalDateTime now
 	);
 }
