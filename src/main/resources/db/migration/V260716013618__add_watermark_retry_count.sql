@@ -9,5 +9,5 @@
 -- ===========================================================================
 
 ALTER TABLE commission_draft_files ADD COLUMN watermark_retry_count INT;
-UPDATE commission_draft_files SET watermark_retry_count = 0 WHERE watermark_retry_count IS NULL;
-ALTER TABLE commission_draft_files ALTER COLUMN watermark_retry_count SET NOT NULL;
+UPDATE commission_draft_files SET watermark_retry_count = 0;
+ALTER TABLE commission_draft_files MODIFY COLUMN watermark_retry_count INT NOT NULL;
