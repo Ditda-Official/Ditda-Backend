@@ -49,12 +49,12 @@ public class NotificationOutboxScheduler {
 				mailPublisher.publish(message, correlationData);
 
 				CorrelationData.Confirm confirm = correlationData.getFuture().get(5, TimeUnit.SECONDS);
-				if (confirm.ack()) {
+				if (confirm.ack() && correlationData.getReturned() == null) {
 					outbox.markSent();
 				} else {
-					outbox.recordRetry("Broker Not Confirmed");
+					String errorMessage = !confirm.ack() ? "Broker Not Confirmed" : "Message Returned (Unroutable)";
+					outbox.recordRetry(errorMessage);
 				}
-				outboxRepository.save(outbox);
 
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -63,10 +63,11 @@ public class NotificationOutboxScheduler {
 			} catch (Exception e) {
 				log.error("아웃박스 알림 발행 실패. outboxId={}", outbox.getId(), e);
 				outbox.recordRetry(e.getMessage());
-				outboxRepository.save(outbox);
-
-				// TODO: outbox.getStatus() == FAILED시 디스코드 웹훅
 			}
+
+			outboxRepository.save(outbox);
+
+			// TODO: outbox.getStatus() == FAILED시 디스코드 웹훅
 		}
 	}
 }
