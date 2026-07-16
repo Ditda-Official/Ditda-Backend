@@ -60,7 +60,7 @@ public class FirstDraftDeadlineClosedNotifier {
 				"instructorName", event.instructorName(),
 				"instructorEmail", event.instructorEmail(),
 				"refundAmount", event.refundAmount(),
-				"isCancelled", isCancelled
+				"reason", isCancelled ? "FIRST_DRAFT_ZERO" : "FIRST_DRAFT_SHORTFALL"
 			),
 			mailScheduledAt
 		));
