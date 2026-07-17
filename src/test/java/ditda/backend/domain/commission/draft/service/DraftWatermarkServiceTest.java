@@ -90,4 +90,24 @@ class DraftWatermarkServiceTest {
 			.watermarkStatus(WatermarkStatus.PROCESSING)
 			.build();
 	}
+
+	@Test
+	@DisplayName("프로세서가 예외를 던져도 실패 전이 후 나머지 파일 처리를 계속함")
+	void watermarkDraftFiles_continuesWhenProcessorThrows() {
+
+		// given
+		CommissionDraftFile first = draftFile(10L, "commission/draft/aaa.png");
+		CommissionDraftFile second = draftFile(20L, "commission/draft/bbb.png");
+		given(commissionDraftFileRepository.findAllByCommissionDraftIdAndWatermarkStatus(
+			DRAFT_ID, WatermarkStatus.PROCESSING)).willReturn(List.of(first, second));
+		willThrow(new RuntimeException("unexpected")).given(watermarkProcessor)
+			.process(10L, "commission/draft/aaa.png");
+
+		// when
+		draftWatermarkService.watermarkDraftFiles(DRAFT_ID);
+
+		// then
+		then(draftWatermarkTransitionService).should().fail(10L);
+		then(watermarkProcessor).should().process(20L, "commission/draft/bbb.png");
+	}
 }

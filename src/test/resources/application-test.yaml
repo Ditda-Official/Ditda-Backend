@@ -58,3 +58,6 @@ encrypt:
 swagger:
   server-url: http://localhost:8080
   server-description: Test Server
+
+watermark:
+  mode: local

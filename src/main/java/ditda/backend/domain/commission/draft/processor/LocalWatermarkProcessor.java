@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import ditda.backend.domain.commission.draft.service.DraftWatermarkTransitionService;
@@ -19,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "watermark.mode", havingValue = "local", matchIfMissing = true)
+@ConditionalOnProperty(name = "watermark.mode", havingValue = "local")
 public class LocalWatermarkProcessor implements WatermarkProcessor {
 
 	private static final BucketType BUCKET = BucketType.PRIVATE;
@@ -29,6 +30,8 @@ public class LocalWatermarkProcessor implements WatermarkProcessor {
 	private final WatermarkKeyResolver watermarkKeyResolver;
 	private final DraftWatermarkTransitionService draftWatermarkTransitionService;
 
+	// 로컬 구현체의 경우에는 리소스 제한을 위해 단일 스레드로 진행
+	@Async("watermarkExecutor")
 	@Override
 	public void process(Long draftFileId, String originalKey) {
 

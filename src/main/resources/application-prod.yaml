@@ -22,3 +22,6 @@ spring:
 swagger:
   server-url: https://api.ditda.kr
   server-description: Production Server
+
+watermark:
+  mode: local
