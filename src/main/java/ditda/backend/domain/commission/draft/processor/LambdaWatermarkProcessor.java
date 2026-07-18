@@ -3,7 +3,6 @@ package ditda.backend.domain.commission.draft.processor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ditda.backend.domain.commission.draft.service.DraftWatermarkTransitionService;
 import ditda.backend.global.s3.config.S3Properties;
@@ -14,6 +13,7 @@ import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.InvocationType;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Component
