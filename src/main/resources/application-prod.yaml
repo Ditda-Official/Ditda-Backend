@@ -25,3 +25,6 @@ swagger:
 
 watermark:
   mode: local
+  lambda:
+    function-name: ditda-watermark
+    callback-url: https://api.ditda.kr/internal/watermarks/callback
