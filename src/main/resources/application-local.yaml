@@ -26,3 +26,6 @@ spring:
 swagger:
   server-url: http://localhost:8080
   server-description: Local Server
+
+watermark:
+  mode: local
