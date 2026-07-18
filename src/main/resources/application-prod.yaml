@@ -24,7 +24,9 @@ swagger:
   server-description: Production Server
 
 watermark:
-  mode: local
+  mode: lambda
   lambda:
     function-name: ditda-watermark
     callback-url: https://api.ditda.kr/internal/watermarks/callback
+  callback:
+    secret: ${WATERMARK_CALLBACK_SECRET}
