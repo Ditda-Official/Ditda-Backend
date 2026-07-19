@@ -27,6 +27,6 @@ watermark:
   mode: lambda
   lambda:
     function-name: ditda-watermark
-    callback-url: https://api.ditda.kr/internal/watermarks/callback
+    callback-url: https://api.ditda.kr/api/v1/internal/watermarks/callback
   callback:
     secret: ${WATERMARK_CALLBACK_SECRET}

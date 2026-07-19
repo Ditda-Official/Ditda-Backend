@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/internal/watermarks")
+@RequestMapping("/api/v1/internal/watermarks")
 @RequiredArgsConstructor
 @Tag(name = "Internal - Watermark Callback", description = "Lambda 워터마크 결과 콜백 (내부 전용)")
 public class WatermarkCallbackController {
