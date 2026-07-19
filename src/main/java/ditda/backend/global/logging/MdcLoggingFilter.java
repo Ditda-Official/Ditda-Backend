@@ -39,8 +39,13 @@ public class MdcLoggingFilter extends OncePerRequestFilter {
 	private String getClientIp(HttpServletRequest request) {
 		String forwarded = request.getHeader("X-Forwarded-For");
 
-		if (StringUtils.hasText(forwarded) && !"unknown".equalsIgnoreCase(forwarded)) {
-			return forwarded.split(",")[0].trim();
+		if (StringUtils.hasText(forwarded)) {
+			for (String ip : forwarded.split(",")) {
+				String trimmedIp = ip.trim();
+				if (!trimmedIp.isEmpty() && !"unknown".equalsIgnoreCase(trimmedIp)) {
+					return trimmedIp;
+				}
+			}
 		}
 
 		String proxyClientIp = request.getHeader("Proxy-Client-IP");
