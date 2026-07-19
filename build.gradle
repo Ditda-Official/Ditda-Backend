@@ -62,8 +62,12 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    // actuator
+    // monitoring
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // tracing
+    implementation 'org.springframework.boot:spring-boot-micrometer-tracing-opentelemetry'
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
