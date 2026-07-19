@@ -29,6 +29,10 @@ public class WatermarkCallbackService {
 		// 2. 검증된 body 파싱
 		WatermarkCallbackRequest request = parse(rawBody);
 
+		if (request.result() == null) {
+			throw new GeneralException(WatermarkCallbackErrorCode.INVALID_REQUEST);
+		}
+
 		// 3. 결과에 따른 상태 전이
 		switch (request.result()) {
 			case COMPLETED ->
