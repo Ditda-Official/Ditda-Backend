@@ -1,0 +1,23 @@
+server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        http:
+          endpoint: 0.0.0.0:4318
+
+storage:
+  trace:
+    backend: s3
+    s3:
+      bucket: ${S3_TEMPO_BUCKET}
+      region: ${S3_REGION}
+      endpoint: ${S3_ENDPOINT}
+    wal:
+      path: /var/tempo/wal
+
+backend_worker:
+  compaction:
+    block_retention: 336h   # 트레이스 보존: 14일
