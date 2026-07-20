@@ -3,6 +3,7 @@ package ditda.backend.global.jwt.filter;
 import java.io.IOException;
 import java.util.List;
 
+import org.slf4j.MDC;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import ditda.backend.global.jwt.JwtTokenProvider;
 import ditda.backend.global.jwt.dto.AccessTokenPayload;
 import ditda.backend.global.jwt.exceptions.JwtErrorType;
+import ditda.backend.global.logging.MdcKey;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -39,26 +41,33 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
 		String token = resolveToken(request);
 
-		if (StringUtils.hasText(token)) {
-			try {
-				AccessTokenPayload payload = jwtTokenProvider.getAccessTokenPayload(token);
+		try {
+			if (StringUtils.hasText(token)) {
+				try {
+					AccessTokenPayload payload = jwtTokenProvider.getAccessTokenPayload(token);
 
-				Authentication authentication =
-					new UsernamePasswordAuthenticationToken(
-						payload.userId(),
-						null,
-						List.of(new SimpleGrantedAuthority("ROLE_" + payload.role().name()))
-					);
+					Authentication authentication =
+						new UsernamePasswordAuthenticationToken(
+							payload.userId(),
+							null,
+							List.of(new SimpleGrantedAuthority("ROLE_" + payload.role().name()))
+						);
 
-				SecurityContextHolder.getContext().setAuthentication(authentication);
-			} catch (ExpiredJwtException e) {
-				request.setAttribute("exception", JwtErrorType.TOKEN_EXPIRED);
-			} catch (JwtException | IllegalArgumentException e) {
-				request.setAttribute("exception", JwtErrorType.INVALID_TOKEN);
+					// MDC 로그 분석용 userId 주입
+					MDC.put(MdcKey.USER_ID, payload.userId().toString());
+
+					SecurityContextHolder.getContext().setAuthentication(authentication);
+				} catch (ExpiredJwtException e) {
+					request.setAttribute("exception", JwtErrorType.TOKEN_EXPIRED);
+				} catch (JwtException | IllegalArgumentException e) {
+					request.setAttribute("exception", JwtErrorType.INVALID_TOKEN);
+				}
 			}
-		}
 
-		filterChain.doFilter(request, response);
+			filterChain.doFilter(request, response);
+		} finally {
+			MDC.remove(MdcKey.USER_ID);
+		}
 	}
 
 	private String resolveToken(HttpServletRequest request) {
