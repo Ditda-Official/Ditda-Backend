@@ -1,0 +1,50 @@
+name: validate-monitoring-config
+
+on:
+  workflow_call:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd   # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Validate alloy configs
+        run: |
+          for f in monitoring/agent/alloy/config.alloy monitoring/agent/alloy/config.prod.alloy; do
+            echo "→ $f"
+            docker run --rm -v "${{ github.workspace }}/$f:/c.alloy:ro" \
+              --entrypoint alloy grafana/alloy:v1.17.1 validate /c.alloy
+          done
+
+      - name: Validate prometheus config
+        run: |
+          docker run --rm -v "${{ github.workspace }}/monitoring/server/prometheus:/p:ro" \
+            --entrypoint promtool prom/prometheus:v3.13.1 check config /p/prometheus.yaml
+
+      - name: Validate loki configs
+        run: |
+          for f in loki-config.yaml loki-config.prod.yaml; do
+            echo "→ $f"
+            docker run --rm -e S3_LOKI_BUCKET=dummy -e S3_REGION=ap-northeast-2 \
+              -v "${{ github.workspace }}/monitoring/server/loki/$f:/c.yaml:ro" \
+              grafana/loki:3.7.3 -config.file=/c.yaml -config.expand-env=true -verify-config
+          done
+
+      - name: Validate tempo configs
+        run: |
+          for f in tempo.yaml tempo.prod.yaml; do
+            echo "→ $f"
+            docker run --rm -e S3_TEMPO_BUCKET=dummy -e S3_REGION=ap-northeast-2 -e S3_ENDPOINT=dummy \
+              -v "${{ github.workspace }}/monitoring/server/tempo/$f:/c.yaml:ro" \
+              grafana/tempo:3.0.2 -config.file=/c.yaml -config.expand-env=true -config.verify=true
+          done
+
+      - name: Validate grafana provisioning JSON
+        run: |
+          for f in monitoring/server/grafana/provisioning/dashboards/*.json; do
+            python3 -m json.tool "$f" > /dev/null && echo "→ $f OK"
+          done
