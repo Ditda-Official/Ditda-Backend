@@ -12,6 +12,7 @@ services:
       GOMEMLIMIT: 230MiB
     volumes:
       - ./alloy/config.prod.alloy:/etc/alloy/config.alloy:ro
+      - ./certs/mon.crt:/etc/alloy/certs/mon.crt:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro      # 컨테이너 로그 수집
       - /proc:/host/proc:ro                               # 호스트 메트릭
       - /sys:/host/sys:ro

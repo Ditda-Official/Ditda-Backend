@@ -39,7 +39,7 @@ prometheus.remote_write "central" {
 		}
 
 		tls_config {
-			insecure_skip_verify = true
+			ca_file = "/etc/alloy/certs/mon.crt"
 		}
 	}
 }
@@ -82,7 +82,7 @@ loki.write "central" {
 		}
 
 		tls_config {
-			insecure_skip_verify = true
+			ca_file = "/etc/alloy/certs/mon.crt"
 		}
 	}
 }
@@ -114,7 +114,7 @@ otelcol.exporter.otlphttp "tempo" {
 		auth     = otelcol.auth.basic.mon.handler
 
 		tls {
-			insecure_skip_verify = true
+			ca_file = "/etc/alloy/certs/mon.crt"
 		}
 	}
 }
