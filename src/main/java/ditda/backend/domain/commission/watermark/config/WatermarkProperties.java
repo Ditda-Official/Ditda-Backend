@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.draft.processor;
+package ditda.backend.domain.commission.watermark.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

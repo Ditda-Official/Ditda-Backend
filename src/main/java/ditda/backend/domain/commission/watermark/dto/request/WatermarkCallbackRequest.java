@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.draft.dto.request;
+package ditda.backend.domain.commission.watermark.dto.request;
 
 public record WatermarkCallbackRequest(
 	Long draftFileId,

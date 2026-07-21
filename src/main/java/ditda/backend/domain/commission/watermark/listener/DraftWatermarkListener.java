@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.draft.listener;
+package ditda.backend.domain.commission.watermark.listener;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -6,7 +6,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import ditda.backend.domain.commission.draft.event.DraftFilesSubmittedEvent;
-import ditda.backend.domain.commission.draft.service.DraftWatermarkService;
+import ditda.backend.domain.commission.watermark.service.DraftWatermarkService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

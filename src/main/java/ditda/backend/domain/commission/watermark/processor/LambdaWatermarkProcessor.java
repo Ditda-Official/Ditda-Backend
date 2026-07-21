@@ -1,10 +1,11 @@
-package ditda.backend.domain.commission.draft.processor;
+package ditda.backend.domain.commission.watermark.processor;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-
-import ditda.backend.domain.commission.draft.service.DraftWatermarkTransitionService;
+import ditda.backend.domain.commission.watermark.config.WatermarkProperties;
+import ditda.backend.domain.commission.watermark.dto.WatermarkInvokePayload;
+import ditda.backend.domain.commission.watermark.service.DraftWatermarkTransitionService;
 import ditda.backend.global.s3.config.S3Properties;
 import ditda.backend.global.s3.enums.BucketType;
 import lombok.RequiredArgsConstructor;

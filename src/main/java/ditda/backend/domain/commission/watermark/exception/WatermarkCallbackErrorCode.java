@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.draft.exception;
+package ditda.backend.domain.commission.watermark.exception;
 
 import org.springframework.http.HttpStatus;
 

@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.draft.filter;
+package ditda.backend.domain.commission.watermark.filter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import ditda.backend.domain.commission.draft.processor.WatermarkCallbackVerifier;
+import ditda.backend.domain.commission.watermark.processor.WatermarkCallbackVerifier;
 import ditda.backend.global.apipayload.code.BaseErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.apipayload.response.ApiResponse;

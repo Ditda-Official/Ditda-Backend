@@ -1,9 +1,9 @@
-package ditda.backend.domain.commission.draft.service;
+package ditda.backend.domain.commission.watermark.service;
 
 import org.springframework.stereotype.Service;
 
-import ditda.backend.domain.commission.draft.dto.request.WatermarkCallbackRequest;
-import ditda.backend.domain.commission.draft.exception.WatermarkCallbackErrorCode;
+import ditda.backend.domain.commission.watermark.dto.request.WatermarkCallbackRequest;
+import ditda.backend.domain.commission.watermark.exception.WatermarkCallbackErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

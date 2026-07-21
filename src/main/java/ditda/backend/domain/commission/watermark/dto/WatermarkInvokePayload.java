@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.draft.processor;
+package ditda.backend.domain.commission.watermark.dto;
 
 public record WatermarkInvokePayload(
 	Long draftFileId,

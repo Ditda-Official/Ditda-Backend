@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.draft.filter;
+package ditda.backend.domain.commission.watermark.filter;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

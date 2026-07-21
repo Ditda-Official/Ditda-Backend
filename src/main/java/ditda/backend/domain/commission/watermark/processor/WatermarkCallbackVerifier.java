@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.draft.processor;
+package ditda.backend.domain.commission.watermark.processor;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -11,7 +11,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.stereotype.Component;
 
-import ditda.backend.domain.commission.draft.exception.WatermarkCallbackErrorCode;
+import ditda.backend.domain.commission.watermark.config.WatermarkProperties;
+import ditda.backend.domain.commission.watermark.exception.WatermarkCallbackErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
