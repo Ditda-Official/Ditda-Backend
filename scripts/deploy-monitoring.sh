@@ -32,7 +32,7 @@ done
 
 # === Parameter Store에서 환경변수 fetch ===
 echo "[3/5] 환경변수 로드"
-> .env
+: > .env
 chmod 600 .env
 
 aws ssm get-parameters-by-path \

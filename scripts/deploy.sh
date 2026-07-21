@@ -40,7 +40,7 @@ docker pull "${ECR_REGISTRY}:${IMAGE_TAG}"
 
 # === Parameter Store에서 환경변수 fetch ===
 echo "[3/7] 환경변수 로드"
-> .env
+: > .env
 chmod 600 .env
 
 cat >> .env << EOF
