@@ -37,10 +37,14 @@ public class WatermarkCallbackService {
 		switch (request.result()) {
 			case COMPLETED ->
 				draftWatermarkTransitionService.complete(request.draftFileId(), request.watermarkedKey());
-			case FAILED_PERMANENT ->
+			case FAILED_PERMANENT ->{
+				log.warn("워터마크 영구 실패. draftFileId={}, errorCode={}", request.draftFileId(), request.errorCode());
 				draftWatermarkTransitionService.failPermanently(request.draftFileId());
-			case FAILED_TRANSIENT ->
+			}
+			case FAILED_TRANSIENT ->{
+				log.warn("워터마크 실패 (재시도 대상). draftFileId={}, errorCode={}", request.draftFileId(), request.errorCode());
 				draftWatermarkTransitionService.fail(request.draftFileId());
+			}
 		}
 
 		log.info("워터마크 콜백 처리. draftFileId={}, result={}", request.draftFileId(), request.result());
