@@ -9,6 +9,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - ditda-net
     healthcheck:
@@ -27,6 +29,8 @@ services:
     env_file: .env
     depends_on:
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - ditda-net
@@ -57,6 +61,25 @@ services:
       timeout: 3s
       retries: 5
 
+  rabbitmq:
+    image: rabbitmq:4.3.2-management-alpine
+    container_name: ditda-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - ditda-net
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+
   nginx:
     image: nginx:1.27-alpine
     container_name: ditda-nginx
@@ -82,7 +105,9 @@ services:
 
 networks:
   ditda-net:
+    name: ditda-net
     driver: bridge
 
 volumes:
   redis-data:
+  rabbitmq-data:

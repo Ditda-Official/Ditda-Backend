@@ -59,7 +59,7 @@ public class ApplicationDeadlineClosedNotifier {
 				"instructorName", event.instructorName(),
 				"instructorEmail", event.instructorEmail(),
 				"refundAmount", event.refundAmount(),
-				"isCancelled", event.cancelled()
+				"reason", event.cancelled() ? "APPLICATION_CANCELLED" : "APPLICATION_SHORTFALL"
 			),
 			mailScheduledAt
 		));

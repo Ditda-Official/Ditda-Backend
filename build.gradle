@@ -42,16 +42,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:4.6.1'
 
+    // rabbitMQ
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
     // jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
-
-    // email
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
-
-    // thymeleaf
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
     // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
@@ -65,8 +62,12 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    // actuator
+    // monitoring
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // tracing
+    implementation 'org.springframework.boot:spring-boot-micrometer-tracing-opentelemetry'
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'

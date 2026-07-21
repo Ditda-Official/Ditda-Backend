@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.image.dto.WatermarkedImage;
+import ditda.backend.global.image.exception.ImageProcessingException;
 
 class WatermarkImageProcessorTest {
 
@@ -69,7 +69,7 @@ class WatermarkImageProcessorTest {
 		// when & then
 		assertThatThrownBy(() ->
 			watermarkImageProcessor.createWatermarkedPreview(new ByteArrayInputStream(fake)))
-			.isInstanceOf(GeneralException.class);
+			.isInstanceOf(ImageProcessingException.class);
 	}
 
 	@Disabled("로컬 확인 및 처리 시간 측정용 - 입력 폴더 경로를 맞추고 @Disabled를 지운 뒤 실행")

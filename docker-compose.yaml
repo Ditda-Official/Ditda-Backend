@@ -41,6 +41,24 @@ services:
     volumes:
       - redis-data:/data
 
+  rabbitmq:
+    image: rabbitmq:4.3.2-management-alpine
+    container_name: ditda-rabbitmq
+    ports:
+      - "127.0.0.1:5672:5672"       # AMQP
+      - "127.0.0.1:15672:15672"     # Admin UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
   minio:
     image: minio/minio@sha256:a1ea29fa28355559ef137d71fc570e508a214ec84ff8083e39bc5428980b015e  #RELEASE.2025-04-22T22-12-26Z
     container_name: ditda-minio
@@ -68,3 +86,4 @@ volumes:
   mysql-data:
   redis-data:
   minio-data:
+  rabbitmq-data:
