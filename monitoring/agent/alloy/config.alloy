@@ -49,6 +49,12 @@ discovery.relabel "containers" {
 		regex         = "(.+)"
 		target_label  = "app"
 	}
+
+	rule {
+		source_labels = ["__meta_docker_container_label_ditda_logs_service"]
+		regex         = "(.+)"
+		target_label  = "service"
+	}
 }
 
 loki.source.docker "default" {

@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     labels:
       ditda.logs.app: "ditda"
+      ditda.logs.service: "ditda-api"
     ports:
       - "127.0.0.1:8081:8080"
     env_file: .env
@@ -28,6 +29,7 @@ services:
     restart: unless-stopped
     labels:
       ditda.logs.app: "ditda"
+      ditda.logs.service: "ditda-api"
     ports:
       - "127.0.0.1:8082:8080"
     env_file: .env

@@ -946,7 +946,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by(level) (rate({app=\"ditda\"} | json | level != \"\" |= `$log_keyword` [1m]))",
+          "expr": "sum by(level) (rate({app=\"ditda\", service=~\"$log_service\"} | json | level != \"\" |= `$log_keyword` [1m]))",
           "legendFormat": "{{level}}",
           "queryType": "range",
           "refId": "A"
@@ -985,7 +985,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{app=\"ditda\"} |= `$log_keyword` | json | line_format \"{{.container}}\\t{{.level}}\\ttraceId={{.traceId}}\\t{{.message}}\"",
+          "expr": "{app=\"ditda\", service=~\"$log_service\"} |= `$log_keyword` | json | line_format \"{{.service}}\\t{{.level}}\\ttraceId={{.traceId}}\\t{{.message}}\"",
           "hide": false,
           "queryType": "range",
           "refId": "A"
@@ -1022,6 +1022,32 @@
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "loki",
+          "uid": "loki"
+        },
+        "definition": "label_values(service)",
+        "hide": 0,
+        "includeAll": true,
+        "allValue": ".+",
+        "label": "Log Service",
+        "multi": true,
+        "name": "log_service",
+        "options": [],
+        "query": {
+          "label": "service",
+          "stream": "",
+          "type": 1,
+          "refId": "LokiVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
         "type": "query"
       },
       {

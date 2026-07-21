@@ -38,4 +38,4 @@ datasources:
         spanStartTimeShift: "-5m"
         spanEndTimeShift: "5m"
         customQuery: true
-        query: '{app="ditda"} | json | traceId=`$${__span.traceId}`'
+        query: '{service=~".+"} | json | traceId=`$${__span.traceId}`'
