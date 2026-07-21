@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.draft.processor;
+package ditda.backend.domain.commission.watermark.processor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import ditda.backend.domain.commission.draft.service.DraftWatermarkTransitionService;
+import ditda.backend.domain.commission.watermark.service.DraftWatermarkTransitionService;
 import ditda.backend.global.image.WatermarkImageProcessor;
 import ditda.backend.global.image.dto.WatermarkedImage;
 import ditda.backend.global.image.exception.ImageProcessingException;

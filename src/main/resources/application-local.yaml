@@ -29,3 +29,5 @@ swagger:
 
 watermark:
   mode: local
+  callback:
+    secret: ${WATERMARK_CALLBACK_SECRET:local-dummy-secret}
