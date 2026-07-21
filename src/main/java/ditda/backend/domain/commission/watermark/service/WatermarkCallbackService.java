@@ -8,7 +8,7 @@ import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 // Lambda 워터마크 콜백 처리 (검증 → 파싱 → 상태 전이)
 @Slf4j
@@ -17,7 +17,7 @@ import tools.jackson.databind.ObjectMapper;
 public class WatermarkCallbackService {
 
 	private final DraftWatermarkTransitionService draftWatermarkTransitionService;
-	private final ObjectMapper objectMapper;
+	private final JsonMapper jsonMapper;
 
 	public void handleCallback(String rawBody) {
 
@@ -47,7 +47,7 @@ public class WatermarkCallbackService {
 
 	private WatermarkCallbackRequest parse(String rawBody) {
 		try {
-			return objectMapper.readValue(rawBody, WatermarkCallbackRequest.class);
+			return jsonMapper.readValue(rawBody, WatermarkCallbackRequest.class);
 		} catch (JacksonException e) {
 			throw new GeneralException(WatermarkCallbackErrorCode.INVALID_REQUEST);
 		}

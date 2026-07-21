@@ -14,7 +14,7 @@ import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.InvocationType;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @Slf4j
 @Component
@@ -27,7 +27,7 @@ public class LambdaWatermarkProcessor implements WatermarkProcessor {
 	private final DraftWatermarkTransitionService draftWatermarkTransitionService;
 	private final S3Properties s3Properties;
 	private final WatermarkProperties watermarkProperties;
-	private final ObjectMapper objectMapper;
+	private final JsonMapper jsonMapper;
 
 	@Override
 	public void process(Long draftFileId, String originalKey) {
@@ -46,7 +46,7 @@ public class LambdaWatermarkProcessor implements WatermarkProcessor {
 			InvokeRequest request = InvokeRequest.builder()
 				.functionName(watermarkProperties.lambda().functionName())
 				.invocationType(InvocationType.EVENT)
-				.payload(SdkBytes.fromUtf8String(objectMapper.writeValueAsString(payload)))
+				.payload(SdkBytes.fromUtf8String(jsonMapper.writeValueAsString(payload)))
 				.build();
 
 			lambdaClient.invoke(request);

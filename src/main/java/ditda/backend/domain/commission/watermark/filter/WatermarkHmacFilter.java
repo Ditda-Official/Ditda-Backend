@@ -17,7 +17,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class WatermarkHmacFilter extends OncePerRequestFilter {
 	private static final String CALLBACK_PATH = "/api/v1/internal/watermarks/callback";
 
 	private final WatermarkCallbackVerifier verifier;
-	private final ObjectMapper objectMapper;
+	private final JsonMapper jsonMapper;
 
 	@Override
 	protected void doFilterInternal(
@@ -56,7 +56,7 @@ public class WatermarkHmacFilter extends OncePerRequestFilter {
 		response.setStatus(code.getHttpStatus().value());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-		objectMapper.writeValue(response.getWriter(), ApiResponse.onFailure(code, code.getMessage()));
+		jsonMapper.writeValue(response.getWriter(), ApiResponse.onFailure(code, code.getMessage()));
 	}
 
 	// 콜백 POST 경로만 검증

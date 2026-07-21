@@ -12,13 +12,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
-	private final ObjectMapper objectMapper;
+	private final JsonMapper jsonMapper;
 
 	@Override
 	public void handle(
@@ -31,6 +31,6 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
 		response.setStatus(errorCode.getHttpStatus().value());
 		response.setContentType("application/json;charset=UTF-8");
-		response.getWriter().write(objectMapper.writeValueAsString(ApiResponse.onFailure(errorCode, null)));
+		response.getWriter().write(jsonMapper.writeValueAsString(ApiResponse.onFailure(errorCode, null)));
 	}
 }
