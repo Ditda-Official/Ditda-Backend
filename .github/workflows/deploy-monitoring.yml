@@ -89,16 +89,21 @@ jobs:
         if: success()
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          COMMIT_SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
         run: |
           curl -H "Content-Type: application/json" \
-            -d "{\"embeds\": [{\"title\": \"📊 DITDA 모니터링 서버 배포 성공\", \"color\": 3066993, \"fields\": [{\"name\": \"Commit\", \"value\": \"\`${{ github.sha }}\`\", \"inline\": true}, {\"name\": \"Author\", \"value\": \"${{ github.actor }}\", \"inline\": true}], \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"}]}" \
+            -d "{\"embeds\": [{\"title\": \"📊 DITDA 모니터링 서버 배포 성공\", \"color\": 3066993, \"fields\": [{\"name\": \"Commit\", \"value\": \"\`${COMMIT_SHA}\`\", \"inline\": true}, {\"name\": \"Author\", \"value\": \"${ACTOR}\", \"inline\": true}], \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"}]}" \
             $DISCORD_WEBHOOK || true
 
       - name: Send Discord notification on failure
         if: failure()
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          COMMIT_SHA: ${{ github.sha }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           curl -H "Content-Type: application/json" \
-            -d "{\"embeds\": [{\"title\": \"❌ DITDA 모니터링 서버 배포 실패\", \"color\": 15158332, \"fields\": [{\"name\": \"Commit\", \"value\": \"\`${{ github.sha }}\`\", \"inline\": true}, {\"name\": \"Run\", \"value\": \"[로그 보기](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"inline\": false}], \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"}]}" \
+            -d "{\"embeds\": [{\"title\": \"❌ DITDA 모니터링 서버 배포 실패\", \"color\": 15158332, \"fields\": [{\"name\": \"Commit\", \"value\": \"\`${COMMIT_SHA}\`\", \"inline\": true}, {\"name\": \"Run\", \"value\": \"[로그 보기](https://github.com/${REPOSITORY}/actions/runs/${RUN_ID})\", \"inline\": false}], \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"}]}" \
             $DISCORD_WEBHOOK || true

@@ -122,16 +122,24 @@ jobs:
         if: success()
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          REF_NAME: ${{ github.ref_name }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          ACTOR: ${{ github.actor }}
         run: |
           curl -H "Content-Type: application/json" \
-            -d "{\"embeds\": [{\"title\": \"🚀 DITDA 배포 성공\", \"description\": \"https://api.ditda.kr\", \"color\": 3066993, \"fields\": [{\"name\": \"Branch\", \"value\": \"${{ github.ref_name }}\", \"inline\": true}, {\"name\": \"Commit\", \"value\": \"\`${{ github.event.workflow_run.head_sha }}\`\", \"inline\": true}, {\"name\": \"Author\", \"value\": \"${{ github.actor }}\", \"inline\": true}], \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"}]}" \
+            -d "{\"embeds\": [{\"title\": \"🚀 DITDA 배포 성공\", \"description\": \"https://api.ditda.kr\", \"color\": 3066993, \"fields\": [{\"name\": \"Branch\", \"value\": \"${REF_NAME}\", \"inline\": true}, {\"name\": \"Commit\", \"value\": \"\`${HEAD_SHA}\`\", \"inline\": true}, {\"name\": \"Author\", \"value\": \"${ACTOR}}\", \"inline\": true}], \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"}]}" \
             $DISCORD_WEBHOOK || true
 
       - name: Send Discord notification on failure
         if: failure()
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          REF_NAME: ${{ github.ref_name }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          ACTOR: ${{ github.actor }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           curl -H "Content-Type: application/json" \
-            -d "{\"embeds\": [{\"title\": \"❌ DITDA 배포 실패\", \"description\": \"GitHub Actions 로그 확인 필요\", \"color\": 15158332, \"fields\": [{\"name\": \"Branch\", \"value\": \"${{ github.ref_name }}\", \"inline\": true}, {\"name\": \"Commit\", \"value\": \"\`${{ github.event.workflow_run.head_sha }}\`\", \"inline\": true}, {\"name\": \"Author\", \"value\": \"${{ github.actor }}\", \"inline\": true}, {\"name\": \"Run\", \"value\": \"[로그 보기](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"inline\": false}], \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"}]}" \
+            -d "{\"embeds\": [{\"title\": \"❌ DITDA 배포 실패\", \"description\": \"GitHub Actions 로그 확인 필요\", \"color\": 15158332, \"fields\": [{\"name\": \"Branch\", \"value\": \"${REF_NAME}\", \"inline\": true}, {\"name\": \"Commit\", \"value\": \"\`${HEAD_SHA}\`\", \"inline\": true}, {\"name\": \"Author\", \"value\": \"${ACTOR\", \"inline\": true}, {\"name\": \"Run\", \"value\": \"[로그 보기](https://github.com/${REPOSITORY}/actions/runs/${RUN_ID})\", \"inline\": false}], \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"}]}" \
             $DISCORD_WEBHOOK || true
