@@ -24,7 +24,7 @@ public class WatermarkCallbackService {
 		// 1. 검증된 body 파싱
 		WatermarkCallbackRequest request = parse(rawBody);
 
-		if (request.result() == null) {
+		if (request == null || request.result() == null || request.draftFileId() == null) {
 			throw new GeneralException(WatermarkCallbackErrorCode.INVALID_REQUEST);
 		}
 
