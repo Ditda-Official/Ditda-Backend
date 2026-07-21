@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 
 import ditda.backend.domain.commission.draft.dto.request.WatermarkCallbackRequest;
 import ditda.backend.domain.commission.draft.exception.WatermarkCallbackErrorCode;
-import ditda.backend.domain.commission.draft.processor.WatermarkCallbackVerifier;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,31 +16,27 @@ import tools.jackson.databind.ObjectMapper;
 @RequiredArgsConstructor
 public class WatermarkCallbackService {
 
-	private final WatermarkCallbackVerifier watermarkCallbackVerifier;
 	private final DraftWatermarkTransitionService draftWatermarkTransitionService;
 	private final ObjectMapper objectMapper;
 
-	public void handleCallback(String signature, String timestamp, String rawBody) {
+	public void handleCallback(String rawBody) {
 
-		// 1. HMAC 검증
-		watermarkCallbackVerifier.verify(signature, timestamp, rawBody);
-
-		// 2. 검증된 body 파싱
+		// 1. 검증된 body 파싱
 		WatermarkCallbackRequest request = parse(rawBody);
 
 		if (request.result() == null) {
 			throw new GeneralException(WatermarkCallbackErrorCode.INVALID_REQUEST);
 		}
 
-		// 3. 결과에 따른 상태 전이
+		// 2. 결과에 따른 상태 전이
 		switch (request.result()) {
 			case COMPLETED ->
 				draftWatermarkTransitionService.complete(request.draftFileId(), request.watermarkedKey());
-			case FAILED_PERMANENT ->{
+			case FAILED_PERMANENT -> {
 				log.warn("워터마크 영구 실패. draftFileId={}, errorCode={}", request.draftFileId(), request.errorCode());
 				draftWatermarkTransitionService.failPermanently(request.draftFileId());
 			}
-			case FAILED_TRANSIENT ->{
+			case FAILED_TRANSIENT -> {
 				log.warn("워터마크 실패 (재시도 대상). draftFileId={}, errorCode={}", request.draftFileId(), request.errorCode());
 				draftWatermarkTransitionService.fail(request.draftFileId());
 			}

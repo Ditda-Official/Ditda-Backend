@@ -2,7 +2,6 @@ package ditda.backend.domain.commission.draft.controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,11 +20,9 @@ public class WatermarkCallbackController {
 
 	@PostMapping("/callback")
 	public ApiResponse<Void> handleCallback(
-		@RequestHeader(value = "X-Signature", required = false) String signature,
-		@RequestHeader(value = "X-Timestamp", required = false) String timestamp,
 		@RequestBody String rawBody
 	) {
-		watermarkCallbackService.handleCallback(signature, timestamp, rawBody);
+		watermarkCallbackService.handleCallback(rawBody);
 		return ApiResponse.onSuccess("워터마크 콜백 처리 완료");
 	}
 }
