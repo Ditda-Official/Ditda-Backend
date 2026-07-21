@@ -10,10 +10,6 @@ on:
       - '.github/workflows/deploy-monitoring.yml'
   workflow_dispatch:
 
-permissions:
-  id-token: write
-  contents: read
-
 env:
   AWS_REGION: ap-northeast-2
 
@@ -28,6 +24,9 @@ jobs:
   deploy:
     needs: validate
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@acca2b1b2070338fb9fd1ca27ecee81d687e58e5    # v6.1.2
