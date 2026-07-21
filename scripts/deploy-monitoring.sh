@@ -15,10 +15,11 @@ echo "Commit: ${COMMIT_SHA}"
 
 # === 설정 파일 가져오기 (monitoring/server 하위만 추출) ===
 echo "[1/5] 설정 파일 가져오기"
-curl -fsSL "https://github.com/${GITHUB_REPO}/archive/${COMMIT_SHA}.tar.gz" -o /tmp/ditda-repo.tar.gz
-tar -xzf /tmp/ditda-repo.tar.gz --wildcards --strip-components=3 \
+TARBALL="$(mktemp)"
+trap 'rm -f "$TARBALL"' EXIT
+curl -fsSL "https://github.com/${GITHUB_REPO}/archive/${COMMIT_SHA}.tar.gz" -o "$TARBALL"
+tar -xzf "$TARBALL" --wildcards --strip-components=3 \
   -C "$MON_DIR" "*/monitoring/server/*"
-rm -f /tmp/ditda-repo.tar.gz
 
 # === 시크릿 확인  ===
 echo "[2/5] 시크릿 확인"
