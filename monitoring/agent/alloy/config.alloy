@@ -2,7 +2,17 @@ prometheus.scrape "app" {
 	targets         = [{__address__ = "host.docker.internal:8080", instance = "local"}]
 	metrics_path    = "/actuator/prometheus"
 	scrape_interval = "15s"
-	forward_to      = [prometheus.remote_write.central.receiver]
+	forward_to      = [prometheus.relabel.app_filter.receiver]
+}
+
+prometheus.relabel "app_filter" {
+	forward_to = [prometheus.remote_write.central.receiver]
+
+	rule {
+		source_labels = ["__name__", "uri"]
+		regex         = "http_server_requests_seconds.*;/actuator/.*"
+		action        = "drop"
+	}
 }
 
 prometheus.scrape "rabbitmq" {
