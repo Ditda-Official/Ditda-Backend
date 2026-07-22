@@ -13,7 +13,7 @@ prometheus.relabel "app_filter" {
 
 	rule {
 		source_labels = ["__name__", "uri"]
-		regex         = "http_server_requests_seconds.*;/actuator/.*"
+		regex         = "http_server_requests_seconds.*;(/actuator/.*|/swagger-ui.*|/v3/api-docs.*)"
 		action        = "drop"
 	}
 }
