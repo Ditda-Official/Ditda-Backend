@@ -34,3 +34,7 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
+
+
+  validate-monitoring-config:
+    uses: ./.github/workflows/validate-monitoring-config.yml

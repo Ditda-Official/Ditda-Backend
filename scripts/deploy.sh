@@ -11,33 +11,36 @@ COMMIT_SHA="${COMMIT_SHA:-main}"
 APP_DIR="/home/ubuntu/app"
 mkdir -p "$APP_DIR/nginx/conf.d"
 mkdir -p "$APP_DIR/nginx/certbot/conf" "$APP_DIR/nginx/certbot/www"
+mkdir -p "$APP_DIR/monitoring/agent/alloy"
 cd "$APP_DIR"
 
 echo "=== Ditda 배포 ==="
 echo "Image: ${ECR_REGISTRY}:${IMAGE_TAG}"
 
 # === 최신 설정 파일 fetch (GitHub raw) ===
-echo "[0/6] 설정 파일 가져오기"
+echo "[0/7] 설정 파일 가져오기"
 RAW_BASE="https://raw.githubusercontent.com/${GITHUB_REPO}/${COMMIT_SHA}"
 
 curl -fsSL "${RAW_BASE}/docker-compose.prod.yaml" -o docker-compose.prod.yaml
 curl -fsSL "${RAW_BASE}/nginx/nginx.conf" -o nginx/nginx.conf
 curl -fsSL "${RAW_BASE}/nginx/conf.d/nginx-blue.conf.template" -o nginx/conf.d/nginx-blue.conf.template
 curl -fsSL "${RAW_BASE}/nginx/conf.d/nginx-green.conf.template" -o nginx/conf.d/nginx-green.conf.template
+curl -fsSL "${RAW_BASE}/monitoring/agent/docker-compose.prod.yaml" -o monitoring/agent/docker-compose.prod.yaml
+curl -fsSL "${RAW_BASE}/monitoring/agent/alloy/config.prod.alloy" -o monitoring/agent/alloy/config.prod.alloy
 
 # === ECR 로그인 ===
-echo "[1/6] ECR 로그인"
+echo "[1/7] ECR 로그인"
 REGISTRY_HOST="${ECR_REGISTRY%%/*}"
 aws ecr get-login-password --region "${AWS_REGION}" \
   | docker login --username AWS --password-stdin "${REGISTRY_HOST}"
 
 # === 새 이미지 pull ===
-echo "[2/6] 이미지 pull"
+echo "[2/7] 이미지 pull"
 docker pull "${ECR_REGISTRY}:${IMAGE_TAG}"
 
 # === Parameter Store에서 환경변수 fetch ===
-echo "[3/6] 환경변수 로드"
-> .env
+echo "[3/7] 환경변수 로드"
+: > .env
 chmod 600 .env
 
 cat >> .env << EOF
@@ -91,6 +94,13 @@ REQUIRED_VARS=(
   "WATERMARK_CALLBACK_SECRET"
   # Admin
   "ADMIN_NOTIFICATION_EMAIL"
+  # Monitoring
+  "MONITORING_HOST"
+  "MON_USER"
+  "MON_PASS"
+  # Tracing
+  "OTLP_TRACING_ENABLED"
+  "OTLP_TRACING_ENDPOINT"
 )
 
 MISSING=()
@@ -110,13 +120,19 @@ fi
 
 echo "    필수 환경변수 ${#REQUIRED_VARS[@]}개 모두 존재 확인"
 
+# === 모니터링 에이전트 기동 ===
+echo "[4/7] 모니터링 에이전트(alloy) 기동"
+docker compose --env-file "${APP_DIR}/.env" \
+  -f monitoring/agent/docker-compose.prod.yaml up -d
+docker kill -s HUP ditda-alloy 2>/dev/null || true
+
 # === 초기 배포 분기 ===
 if [ ! -f nginx/conf.d/default.conf ]; then
-  echo "[4/6] 초기 배포 — blue로 시작"
+  echo "[5/7] 초기 배포 — blue로 시작"
   cp nginx/conf.d/nginx-blue.conf.template nginx/conf.d/default.conf
   docker compose -f docker-compose.prod.yaml up -d redis nginx blue
 
-  echo "[5/6] blue health check"
+  echo "[6/7] blue health check"
   for i in $(seq 1 60); do
     if curl -fs http://localhost:8081/actuator/health > /dev/null 2>&1; then
       echo "    [$i/60] health check 성공"
@@ -148,13 +164,13 @@ else
   PORT=8081
 fi
 
-echo "[4/6] 현재 active: $ACTIVE → 새 배포: $NEW"
+echo "[5/7] 현재 active: $ACTIVE → 새 배포: $NEW"
 
 # === 새 컨테이너 기동 ===
 docker compose -f docker-compose.prod.yaml up -d "$NEW"
 
 # === Health Check ===
-echo "[5/6]  Health Check"
+echo "[6/7]  Health Check"
 HEALTH_OK=false
 for i in $(seq 1 60); do
   if curl -fs "http://localhost:${PORT}/actuator/health" > /dev/null 2>&1; then
@@ -174,7 +190,7 @@ if [ "$HEALTH_OK" = false ]; then
 fi
 
 # === Nginx 템플릿 교체 ===
-echo "[6/6] 트래픽 전환 ($ACTIVE → $NEW)"
+echo "[7/7] 트래픽 전환 ($ACTIVE → $NEW)"
 cp "nginx/conf.d/nginx-${NEW}.conf.template" "nginx/conf.d/default.conf"
 
 if ! docker exec ditda-nginx nginx -t 2>/dev/null; then

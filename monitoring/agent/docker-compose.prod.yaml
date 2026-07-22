@@ -1,0 +1,36 @@
+services:
+  alloy:
+    image: grafana/alloy:v1.17.1
+    container_name: ditda-alloy
+    hostname: ditda-alloy
+    restart: unless-stopped
+    mem_limit: 256m
+    environment:
+      MONITORING_HOST: ${MONITORING_HOST}
+      MON_USER: ${MON_USER}
+      MON_PASS: ${MON_PASS}
+      GOMEMLIMIT: 230MiB
+    volumes:
+      - ./alloy/config.prod.alloy:/etc/alloy/config.alloy:ro
+      - ./certs/mon.crt:/etc/alloy/certs/mon.crt:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro      # 컨테이너 로그 수집
+      - /proc:/host/proc:ro                               # 호스트 메트릭
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - alloy-data:/var/lib/alloy/data
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    networks:
+      - ditda-net
+
+networks:
+  ditda-net:
+    name: ditda-net
+    driver: bridge
+
+volumes:
+  alloy-data:
+

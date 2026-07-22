@@ -35,6 +35,12 @@ app:
     private-bucket: test-private-bucket
     presigned-url-ttl-minutes: 10
 
+management:
+  tracing:
+    export:
+      otlp:
+        enabled: false
+
 admin:
   notification-email: admin-test@example.com
 

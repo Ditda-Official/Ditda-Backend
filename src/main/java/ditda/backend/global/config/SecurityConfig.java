@@ -63,7 +63,7 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.POST, "/api/v1/designers/auth/signup",
 					"/api/v1/designers/auth/signup/portfolio/presigned-url").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/v1/admin/auth/login").permitAll()
-				.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+				.requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/prometheus").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/v1/internal/watermarks/callback").permitAll()
 				.requestMatchers("/api/v1/instructors/**").hasRole("INSTRUCTOR")
 				.requestMatchers("/api/v1/designers/**").hasRole("DESIGNER")

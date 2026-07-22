@@ -1,3 +1,6 @@
+include:
+  - path: monitoring/agent/docker-compose.yaml
+
 services:
   mysql:
     image: mysql:8.4.9
@@ -47,6 +50,7 @@ services:
     ports:
       - "127.0.0.1:5672:5672"       # AMQP
       - "127.0.0.1:15672:15672"     # Admin UI
+      - "127.0.0.1:15692:15692"     # Prometheus metrics
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
