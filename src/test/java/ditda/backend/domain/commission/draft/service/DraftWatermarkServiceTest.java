@@ -13,8 +13,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.entity.enums.WatermarkStatus;
-import ditda.backend.domain.commission.draft.processor.WatermarkProcessor;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
+import ditda.backend.domain.commission.watermark.processor.WatermarkProcessor;
+import ditda.backend.domain.commission.watermark.service.DraftWatermarkService;
+import ditda.backend.domain.commission.watermark.service.DraftWatermarkTransitionService;
 
 @ExtendWith(MockitoExtension.class)
 class DraftWatermarkServiceTest {

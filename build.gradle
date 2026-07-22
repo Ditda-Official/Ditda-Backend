@@ -38,6 +38,9 @@ dependencies {
     implementation platform('io.awspring.cloud:spring-cloud-aws-dependencies:4.0.2')
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
+    // lambda
+    implementation 'software.amazon.awssdk:lambda'
+
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:4.6.1'
@@ -64,10 +67,13 @@ dependencies {
 
     // monitoring
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
     // tracing
     implementation 'org.springframework.boot:spring-boot-micrometer-tracing-opentelemetry'
+    implementation 'net.ttddyy.observation:datasource-micrometer-spring-boot:2.2.1'
     implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'

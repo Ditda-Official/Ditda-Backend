@@ -1,0 +1,136 @@
+prometheus.scrape "app" {
+	targets = [
+		{__address__ = "ditda-blue:8080", instance = "blue"},
+		{__address__ = "ditda-green:8080", instance = "green"},
+	]
+	metrics_path    = "/actuator/prometheus"
+	scrape_interval = "15s"
+	forward_to      = [prometheus.relabel.app_filter.receiver]
+}
+
+prometheus.relabel "app_filter" {
+	forward_to = [prometheus.remote_write.central.receiver]
+
+	rule {
+		source_labels = ["__name__", "uri"]
+		regex         = "http_server_requests_seconds.*;(/actuator/.*|/swagger-ui.*|/v3/api-docs.*)"
+		action        = "drop"
+	}
+}
+
+prometheus.scrape "rabbitmq" {
+	targets         = [{__address__ = "ditda-rabbitmq:15692", application = "rabbitmq"}]
+	scrape_interval = "15s"
+	forward_to      = [prometheus.remote_write.central.receiver]
+}
+
+// EC2 자체 메트릭
+prometheus.exporter.unix "host" {
+	procfs_path = "/host/proc"
+	sysfs_path  = "/host/sys"
+	rootfs_path = "/rootfs"
+}
+
+prometheus.scrape "host" {
+	targets         = prometheus.exporter.unix.host.targets
+	scrape_interval = "15s"
+	forward_to      = [prometheus.remote_write.central.receiver]
+}
+
+prometheus.remote_write "central" {
+	external_labels = {env = "prod"}
+
+	endpoint {
+		url = "https://" + sys.env("MONITORING_HOST") + ":9090/api/v1/write"
+
+		basic_auth {
+			username = sys.env("MON_USER")
+			password = sys.env("MON_PASS")
+		}
+
+		tls_config {
+			ca_file = "/etc/alloy/certs/mon.crt"
+		}
+	}
+}
+
+discovery.docker "containers" {
+	host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "containers" {
+	targets = discovery.docker.containers.targets
+
+	rule {
+		source_labels = ["__meta_docker_container_name"]
+		regex         = "/(.*)"
+		target_label  = "container"
+	}
+
+	rule {
+		source_labels = ["__meta_docker_container_label_ditda_logs_app"]
+		regex         = "(.+)"
+		target_label  = "app"
+	}
+
+	rule {
+		source_labels = ["__meta_docker_container_label_ditda_logs_service"]
+		regex         = "(.+)"
+		target_label  = "service"
+	}
+}
+
+loki.source.docker "default" {
+	host       = "unix:///var/run/docker.sock"
+	targets    = discovery.relabel.containers.output
+	forward_to = [loki.write.central.receiver]
+}
+
+loki.write "central" {
+	external_labels = {env = "prod"}
+
+	endpoint {
+		url = "https://" + sys.env("MONITORING_HOST") + ":3100/loki/api/v1/push"
+
+		basic_auth {
+			username = sys.env("MON_USER")
+			password = sys.env("MON_PASS")
+		}
+
+		tls_config {
+			ca_file = "/etc/alloy/certs/mon.crt"
+		}
+	}
+}
+
+otelcol.receiver.otlp "default" {
+	http {
+		endpoint = "0.0.0.0:4318"
+	}
+
+	output {
+		traces = [otelcol.processor.batch.default.input]
+	}
+}
+
+otelcol.processor.batch "default" {
+	output {
+		traces = [otelcol.exporter.otlphttp.tempo.input]
+	}
+}
+
+otelcol.auth.basic "mon" {
+	username = sys.env("MON_USER")
+	password = sys.env("MON_PASS")
+}
+
+otelcol.exporter.otlphttp "tempo" {
+	client {
+		endpoint = "https://" + sys.env("MONITORING_HOST") + ":4318"
+		auth     = otelcol.auth.basic.mon.handler
+
+		tls {
+			ca_file = "/etc/alloy/certs/mon.crt"
+		}
+	}
+}

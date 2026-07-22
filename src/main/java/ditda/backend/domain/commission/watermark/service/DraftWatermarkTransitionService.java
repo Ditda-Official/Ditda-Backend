@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.draft.service;
+package ditda.backend.domain.commission.watermark.service;
 
 import java.time.LocalDateTime;
 
