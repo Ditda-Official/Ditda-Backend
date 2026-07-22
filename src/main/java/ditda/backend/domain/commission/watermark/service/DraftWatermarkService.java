@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.draft.service;
+package ditda.backend.domain.commission.watermark.service;
 
 import java.util.List;
 
@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.entity.enums.WatermarkStatus;
-import ditda.backend.domain.commission.draft.processor.WatermarkProcessor;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
+import ditda.backend.domain.commission.watermark.processor.WatermarkProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

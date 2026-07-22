@@ -38,6 +38,9 @@ dependencies {
     implementation platform('io.awspring.cloud:spring-cloud-aws-dependencies:4.0.2')
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
+    // lambda
+    implementation 'software.amazon.awssdk:lambda'
+
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:4.6.1'

@@ -90,6 +90,8 @@ REQUIRED_VARS=(
   "S3_PRIVATE_BUCKET"
   # Encrypt
   "ENCRYPT_SECRET_KEY"
+  #Watermark
+  "WATERMARK_CALLBACK_SECRET"
   # Admin
   "ADMIN_NOTIFICATION_EMAIL"
   # Monitoring

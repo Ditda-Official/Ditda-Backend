@@ -1,4 +1,4 @@
-package ditda.backend.domain.commission.draft.processor;
+package ditda.backend.domain.commission.watermark.processor;
 
 /**
  * 워터마크 처리 주체 추상화.
