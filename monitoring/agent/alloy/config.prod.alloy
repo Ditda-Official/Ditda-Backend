@@ -8,6 +8,13 @@ prometheus.scrape "app" {
 	forward_to      = [prometheus.relabel.app_filter.receiver]
 }
 
+prometheus.scrape "worker" {
+	targets         = [{__address__ = "ditda-notification-worker:8080", instance = "worker"}]
+	metrics_path    = "/actuator/prometheus"
+	scrape_interval = "15s"
+	forward_to      = [prometheus.relabel.app_filter.receiver]
+}
+
 prometheus.relabel "app_filter" {
 	forward_to = [prometheus.remote_write.central.receiver]
 
@@ -18,8 +25,14 @@ prometheus.relabel "app_filter" {
 	}
 }
 
+prometheus.scrape "redis" {
+	targets         = [{__address__ = "ditda-redis-exporter:9121", instance = "redis"}]
+	scrape_interval = "15s"
+	forward_to      = [prometheus.remote_write.central.receiver]
+}
+
 prometheus.scrape "rabbitmq" {
-	targets         = [{__address__ = "ditda-rabbitmq:15692", application = "rabbitmq"}]
+	targets         = [{__address__ = "ditda-rabbitmq:15692", instance = "rabbitmq"}]
 	scrape_interval = "15s"
 	forward_to      = [prometheus.remote_write.central.receiver]
 }
