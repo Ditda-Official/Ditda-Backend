@@ -1,0 +1,816 @@
+apiVersion: 1
+
+groups:
+  # ========== 애플리케이션 ==========
+  - orgId: 1
+    name: ditda-application
+    folder: DITDA
+    interval: 1m
+    rules:
+      - uid: ditda-app-all-down
+        title: '[APP] 앱 전체 다운'
+        condition: C
+        for: 2m
+        noDataState: Alerting
+        execErrState: Alerting
+        labels:
+          severity: critical
+        annotations:
+          summary: '🚨 Ditda 앱 전체 다운'
+          description: 'blue/green 인스턴스가 모두 응답하지 않습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum by (env) (up{job="prometheus.scrape.app"})
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: lt, params: [ 1 ] }
+
+
+      - uid: ditda-high-5xx
+        title: '[APP] 5xx 응답 급증'
+        condition: C
+        for: 5m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ 5xx 응답 1% 초과'
+          description: '최근 5분 간 HTTP 5xx 응답 비율이 전체 요청의 1%를 초과했습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: |
+                (
+                  sum by (env) (rate(http_server_requests_seconds_count{application="ditda", status=~"5.."}[5m]))
+                  / sum by (env) (rate(http_server_requests_seconds_count{application="ditda"}[5m]))
+                ) * 100
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 1 ] }
+
+      - uid: ditda-high-latency-p99
+        title: '[APP] p99 응답 지연'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ p99 응답 지연 3초 초과'
+          description: '상위 1% 요청의 응답 시간이 임계값을 넘었습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: histogram_quantile(0.99, sum by (env, le) (rate(http_server_requests_seconds_bucket{application="ditda"}[5m])))
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 3 ] }
+
+      - uid: ditda-jvm-heap-high
+        title: '[APP] JVM 힙 사용률 높음'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ JVM 힙 사용률 90% 초과'
+          description: '힙 메모리 부족으로 OOM 위험이 있습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: |
+                sum by (env, instance) (jvm_memory_used_bytes{application="ditda",area="heap"})
+                / sum by (env, instance) (jvm_memory_max_bytes{application="ditda",area="heap"})
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0.9 ] }
+
+      - uid: ditda-gc-overhead-high
+        title: '[APP] GC 부하 과다'
+        condition: C
+        for: 15m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ GC 부하 20% 초과'
+          description: '15분 이상 실행 시간의 20%를 GC에 소모하고 있습니다. 힙 부족 또는 메모리 누수 가능성이 있어 조치가 필요합니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: max by (env, instance) (jvm_gc_overhead{application="ditda"})
+          - refId: C
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0.2 ] }
+
+      - uid: ditda-tomcat-threads-saturated
+        title: '[APP] Tomcat 스레드풀 포화'
+        condition: C
+        for: 5m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ Tomcat 스레드풀 85% 포화'
+          description: '요청 처리 스레드가 부족해 대기가 발생할 수 있습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: |
+                max by (env, instance)(tomcat_threads_busy_threads{application="ditda"})
+                / max by (env, instance) (tomcat_threads_config_max_threads{application="ditda"})
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0.85 ] }
+
+      - uid: ditda-error-log-spike
+        title: '[APP] ERROR 로그 급증'
+        condition: C
+        for: 5m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ ERROR 로그 급증'
+          description: '최근 5분간 ERROR 로그가 10건을 초과했습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: loki
+            model:
+              refId: A
+              queryType: instant
+              expr: sum by (env, service) (count_over_time({app="ditda"} | json | level="ERROR" [5m]))
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 10 ] }
+
+  # ========== Redis ==========
+  - orgId: 1
+    name: ditda-redis
+    folder: DITDA
+    interval: 1m
+    rules:
+      - uid: ditda-redis-down
+        title: '[REDIS] Redis 다운'
+        condition: C
+        for: 2m
+        noDataState: Alerting
+        execErrState: Alerting
+        labels:
+          severity: critical
+        annotations:
+          summary: '🚨 Redis 다운'
+          description: 'Redis가 응답하지 않습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum by (env, instance) (redis_up)
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: lt, params: [ 1 ] }
+
+      - uid: ditda-redis-memory-high
+        title: '[REDIS] Redis 메모리 사용률 높음'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ Redis 메모리 사용률 80% 초과'
+          description: 'Redis 메모리가 80%를 넘었습니다. OOM 방지를 위해 키 만료(TTL) 및 캐시 정책을 확인하세요.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: max by (env, instance) (redis_memory_used_bytes) / max by (env, instance) (redis_memory_max_bytes)
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0.8 ] }
+
+      - uid: ditda-redis-rejected-connections
+        title: '[REDIS] Redis 연결 거부 발생'
+        condition: C
+        for: 5m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ Redis 연결 거부 발생'
+          description: 'maxclients 한도 초과로 연결이 거부되고 있습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum by (env, instance) (increase(redis_rejected_connections_total[5m]))
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0 ] }
+
+  # ========== RabbitMQ ==========
+  - orgId: 1
+    name: ditda-rabbitmq
+    folder: DITDA
+    interval: 1m
+    rules:
+      - uid: ditda-rabbitmq-down
+        title: '[RABBITMQ] RabbitMQ 다운'
+        condition: C
+        for: 2m
+        noDataState: Alerting
+        execErrState: Alerting
+        labels:
+          severity: critical
+        annotations:
+          summary: '🚨 RabbitMQ 다운'
+          description: '브로커 중단으로 메일 알림이 발송되지 않습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum by (env, instance) (up{job="prometheus.scrape.rabbitmq"})
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: lt, params: [ 1 ] }
+
+      - uid: ditda-rabbitmq-backlog
+        title: '[RABBITMQ] 큐 적체'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ RabbitMQ 큐 적체'
+          description: '처리 대기 메시지가 1000건을 초과했습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum by (env, instance) (rabbitmq_queue_messages_ready)
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 1000 ] }
+
+      - uid: ditda-rabbitmq-unacked
+        title: '[RABBITMQ] 처리 정지 의심'
+        condition: C
+        for: 15m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ RabbitMQ 미확인 메시지 적체'
+          description: '컨슈머가 메시지를 가져간 뒤 처리하지 못하고 있습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum by (env, instance) (rabbitmq_queue_messages_unacked)
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 100 ] }
+
+  # ========== Notification Worker ==========
+  - orgId: 1
+    name: ditda-notification-worker
+    folder: DITDA
+    interval: 1m
+    rules:
+      - uid: ditda-worker-down
+        title: '[WORKER] 알림 워커 다운'
+        condition: C
+        for: 2m
+        noDataState: Alerting
+        execErrState: Alerting
+        labels:
+          severity: critical
+        annotations:
+          summary: '🚨 알림 워커 다운'
+          description: '워커가 응답하지 않아 메일/알림 발송이 중단됩니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum by (env, instance) (up{job="prometheus.scrape.worker"})
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: lt, params: [ 1 ] }
+
+      - uid: ditda-worker-jvm-heap-high
+        title: '[WORKER] 알림 워커 JVM 힙 사용률 높음'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ 알림 워커 JVM 힙 90% 초과'
+          description: '알림 워커 힙 부족으로 OOM 위험이 있습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: |
+                sum by (env, instance)(jvm_memory_used_bytes{application="ditda-notification-worker",area="heap"})
+                / sum by (env, instance) (jvm_memory_max_bytes{application="ditda-notification-worker",area="heap"})
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0.9 ] }
+
+      - uid: ditda-worker-gc-overhead-high
+        title: '[WORKER] 알림 워커 GC 부하 높음'
+        condition: C
+        for: 15m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ 알림 워커 GC 부하 20% 초과'
+          description: '15분 이상 알림 워커 실행 시간의 20%를 GC에 소모하고 있습니다. 힙 부족 또는 메모리 누수 가능성이 있어 조치가 필요합니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: max by (env, instance) (jvm_gc_overhead{application="ditda-notification-worker"})
+          - refId: C
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0.2 ] }
+
+      - uid: ditda-worker-msg-failure-rate
+        title: '[WORKER] 알림 워커 메시지 처리 실패율 높음'
+        condition: C
+        for: 5m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ 알림 워커 메시지 처리 실패율 20% 초과'
+          description: '최근 5분간 리스너 처리 중 예외 비율이 임계값을 넘었습니다. 알림이 정상 발송되지 않습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: |
+                sum by (env, instance) (rate(spring_rabbit_listener_seconds_count{application="ditda-notification-worker",error!="none"}[5m]))
+                / sum by (env, instance) (rate(spring_rabbit_listener_seconds_count{application="ditda-notification-worker"}[5m]))
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0.2 ] }
+
+      - uid: ditda-worker-msg-latency
+        title: '[WORKER] 알림 워커 메시지 처리 지연'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ 알림 워커 메시지 처리 시간 증가'
+          description: '메시지 평균 처리 시간이 5초를 초과했습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: |
+                sum by (env, instance) (rate(spring_rabbit_listener_seconds_sum{application="ditda-notification-worker"}[5m]))
+                / sum by (env, instance) (rate(spring_rabbit_listener_seconds_count{application="ditda-notification-worker"}[5m]))
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 5 ] }
+
+  # ========== DB ==========
+  - orgId: 1
+    name: ditda-db
+    folder: DITDA
+    interval: 1m
+    rules:
+      - uid: ditda-db-pool-pending
+        title: '[DB] 커넥션 풀 대기'
+        condition: C
+        for: 5m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ DB 커넥션 풀 대기 발생'
+          description: '커넥션을 기다리는 스레드가 있습니다. 풀 크기 또는 슬로우 쿼리를 확인하세요.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: max by (env, instance) (hikaricp_connections_pending{application="ditda"})
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0 ] }
+
+
+
+  # ========== 인프라 ==========
+  - orgId: 1
+    name: ditda-infra
+    folder: DITDA
+    interval: 5m
+    rules:
+      - uid: ditda-disk-low
+        title: '[INFRA] 디스크 여유 공간 부족'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ 디스크 여유 공간 15% 미만'
+          description: '호스트 파일시스템 여유 공간이 부족합니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: min by (env, instance, mountpoint) (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs|erofs"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay|squashfs|erofs"})
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: lt, params: [ 0.15 ] }
+
+      - uid: ditda-memory-low
+        title: '[INFRA] 메모리 부족'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ 사용 가능 메모리 10% 미만'
+          description: '사용 가능한 메모리가 10% 미만입니다. OOM Killer로 인한 컨테이너 강제 종료 및 서버 다운 위험이 있습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: min by (env, instance) (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: lt, params: [ 0.1 ] }
+
+      - uid: ditda-swap-high
+        title: '[INFRA] 스왑 사용률 높음'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ 스왑 사용률 50% 초과'
+          description: '물리 메모리가 부족해 스왑 의존도가 높습니다. 여유가 소진되면 OOM이 발생합니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: max by (env, instance) ((node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes) / node_memory_SwapTotal_bytes)
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0.5 ] }
+
+      - uid: ditda-swap-thrashing
+        title: '[INFRA] 스와핑 과다 발생'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ 스와핑 과다 발생'
+          description: '디스크에서 메모리를 되읽는 빈도가 높아 전반적인 응답 성능이 저하됩니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: max by (env, instance) (rate(node_vmstat_pswpin[5m]))
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 50 ] }
+
+      - uid: ditda-oom-kill
+        title: '[INFRA] OOM Kill 발생'
+        condition: C
+        for: 0m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: critical
+        annotations:
+          summary: '🚨 OOM Kill 발생'
+          description: '메모리 부족으로 커널이 프로세스를 강제 종료했습니다. 컨테이너가 재시작되었을 수 있습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: max by (env, instance) (increase(node_vmstat_oom_kill[10m]))
+          - refId: C
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0 ] }
+
+      - uid: ditda-cpu-high
+        title: '[INFRA] CPU 사용률 지속 높음'
+        condition: C
+        for: 15m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ CPU 사용률 90% 지속'
+          description: '호스트 CPU가 15분 이상 포화 상태입니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: 1 - avg by (env, instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0.9 ] }
+
+
+  # ========== 모니터링 ==========
+  - orgId: 1
+    name: ditda-monitoring
+    folder: DITDA
+    interval: 5m
+    rules:
+      - uid: ditda-metrics-stale
+        title: '[MONITORING] 메트릭 수신 끊김'
+        condition: C
+        for: 5m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+        annotations:
+          summary: '⚠️ 메트릭 수신 끊김'
+          description: 'Alloy에서 메트릭이 도착하지 않습니다. 알림이 동작하지 않을 수 있습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: absent(up{job=~"prometheus.scrape.*"})
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0 ] }
