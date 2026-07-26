@@ -57,6 +57,10 @@ services:
       - ${REDIS_PASSWORD}
       - --appendonly
       - "yes"
+      - --maxmemory
+      - "256mb"
+      - --maxmemory-policy
+      - "allkeys-lru"
     volumes:
       - redis-data:/data
     networks:
@@ -66,6 +70,19 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.88.0-alpine
+    container_name: ditda-redis-exporter
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: redis://ditda-redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    networks:
+      - ditda-net
+    depends_on:
+      redis:
+        condition: service_healthy
 
   rabbitmq:
     image: rabbitmq:4.3.2-management-alpine
