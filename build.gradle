@@ -1,4 +1,7 @@
 buildscript {
+    repositories {
+        mavenCentral()
+    }
     dependencies {
         classpath 'com.google.cloud.tools:jib-spring-boot-extension-gradle:0.1.0'
     }
