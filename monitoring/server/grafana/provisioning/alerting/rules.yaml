@@ -603,6 +603,52 @@ groups:
     folder: DITDA
     interval: 5m
     rules:
+      - uid: ditda-rds-down
+        title: '[RDS] RDS 응답 없음'
+        condition: C
+        for: 10m
+        noDataState: Alerting
+        execErrState: Alerting
+        labels:
+          severity: critical
+          env: prod
+        annotations:
+          summary: '🚨 RDS 응답 없음'
+          description: 'RDS({{ $labels.DBInstanceIdentifier }}) 지표가 10분 이상 수신되지 않습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: cloudwatch
+            model:
+              refId: A
+              namespace: AWS/RDS
+              metricName: CPUUtilization
+              dimensions: { DBInstanceIdentifier: ditda-mysql }
+              statistic: Average
+              period: '300'
+              region: ap-northeast-2
+              matchExact: true
+              metricQueryType: 0
+              metricEditorMode: 0
+              queryMode: Metrics
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: lt, params: [ 0 ] }
+
       - uid: ditda-rds-cpu-high
         title: '[RDS] CPU 사용률 높음'
         condition: C
