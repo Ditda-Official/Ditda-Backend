@@ -396,7 +396,7 @@
               }
             ]
           },
-          "unit": "bits"
+          "unit": "bytes"
         },
         "overrides": [
           {
