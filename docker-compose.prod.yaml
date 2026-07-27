@@ -2,6 +2,7 @@ services:
   blue:
     image: ${ECR_REGISTRY}:${IMAGE_TAG:-latest}
     container_name: ditda-blue
+    profiles: [ "blue" ]
     restart: unless-stopped
     labels:
       ditda.logs.app: "ditda"
@@ -26,6 +27,7 @@ services:
   green:
     image: ${ECR_REGISTRY}:${IMAGE_TAG:-latest}
     container_name: ditda-green
+    profiles: [ "green" ]
     restart: unless-stopped
     labels:
       ditda.logs.app: "ditda"
