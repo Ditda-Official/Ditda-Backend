@@ -130,13 +130,12 @@ docker kill -s HUP ditda-alloy 2>/dev/null || true
 if [ ! -f nginx/conf.d/default.conf ]; then
   echo "[5/7] 초기 배포 — blue로 시작"
   cp nginx/conf.d/nginx-blue.conf.template nginx/conf.d/default.conf
-  docker compose -f docker-compose.prod.yaml up -d redis nginx blue
+  docker compose -f docker-compose.prod.yaml --profile blue up -d
 
   echo "[6/7] blue health check"
   for i in $(seq 1 60); do
     if curl -fs http://localhost:8081/actuator/health > /dev/null 2>&1; then
       echo "    [$i/60] health check 성공"
-      docker compose -f docker-compose.prod.yaml up -d certbot
       echo "✅ 첫 배포 완료"
       exit 0
     fi
@@ -167,10 +166,10 @@ fi
 echo "[5/7] 현재 active: $ACTIVE → 새 배포: $NEW"
 
 # === 새 컨테이너 기동 ===
-docker compose -f docker-compose.prod.yaml up -d "$NEW"
+docker compose -f docker-compose.prod.yaml --profile "$NEW" up -d
 
 # === Health Check ===
-echo "[6/7]  Health Check"
+echo "[6/7] Health Check"
 HEALTH_OK=false
 for i in $(seq 1 60); do
   if curl -fs "http://localhost:${PORT}/actuator/health" > /dev/null 2>&1; then
@@ -212,6 +211,6 @@ fi
 sleep 5
 docker compose -f docker-compose.prod.yaml stop "$ACTIVE"
 
-docker system prune -f > /dev/null
+docker image prune -f > /dev/null
 
 echo "✅ 배포 완료 ($ACTIVE → $NEW)"
