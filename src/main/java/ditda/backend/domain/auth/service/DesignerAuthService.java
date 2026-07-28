@@ -65,8 +65,9 @@ public class DesignerAuthService {
 			request.bankAccount().accountNumber(),
 			request.bankAccount().accountHolder()
 		);
-		// 왜인지 모르겠지만 save로 했을때는 user만 저장. Designer는 저장 X
-		designerRepository.saveAndFlush(designer);
+
+		// 디자이너 저장
+		designerRepository.save(designer);
 
 		// 포트폴리오 S3 key를 DB에 일괄 저장
 		portfolioService.savePortfolios(designer, portfolioKeys);

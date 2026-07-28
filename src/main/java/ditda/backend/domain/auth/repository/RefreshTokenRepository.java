@@ -16,11 +16,11 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Stri
 
 	void deleteBySessionId(String sessionId);
 
-	@Modifying(clearAutomatically = true)
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("DELETE FROM RefreshToken rt WHERE rt.user.id = :userId AND rt.expiresAt < :now")
 	void deleteExpiredByUserId(@Param("userId") Long userId, @Param("now") LocalDateTime expiresAtBefore);
 
-	@Modifying(clearAutomatically = true)
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("DELETE FROM RefreshToken rt WHERE rt.expiresAt < :now")
 	int deleteExpired(@Param("now") LocalDateTime now);
 }
