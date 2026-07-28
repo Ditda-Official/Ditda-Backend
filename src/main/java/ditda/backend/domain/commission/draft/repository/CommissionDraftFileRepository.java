@@ -45,7 +45,7 @@ public interface CommissionDraftFileRepository extends JpaRepository<CommissionD
 		Pageable pageable
 	);
 
-	@Modifying(clearAutomatically = true)
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("UPDATE CommissionDraftFile f "
 		+ "SET f.watermarkStatus = :processing, "
 		+ "    f.watermarkRetryCount = f.watermarkRetryCount + 1, "
@@ -63,7 +63,7 @@ public interface CommissionDraftFileRepository extends JpaRepository<CommissionD
 		@Param("now") LocalDateTime now
 	);
 
-	@Modifying(clearAutomatically = true)
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("UPDATE CommissionDraftFile f "
 		+ "SET f.watermarkStatus = :failed, "
 		+ "    f.updatedAt = :now "
