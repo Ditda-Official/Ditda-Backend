@@ -39,3 +39,11 @@ datasources:
         spanEndTimeShift: "5m"
         customQuery: true
         query: '{service=~".+"} | json | traceId=`$${__span.traceId}`'
+
+  - name: CloudWatch
+    type: cloudwatch
+    uid: cloudwatch
+    editable: false
+    jsonData:
+      authType: default
+      defaultRegion: ap-northeast-2

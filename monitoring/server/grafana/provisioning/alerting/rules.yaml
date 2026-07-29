@@ -597,7 +597,339 @@ groups:
               conditions:
                 - evaluator: { type: gt, params: [ 0 ] }
 
+  # ========== RDS (CloudWatch) ==========
+  - orgId: 1
+    name: ditda-rds
+    folder: DITDA
+    interval: 5m
+    rules:
+      - uid: ditda-rds-down
+        title: '[RDS] RDS 응답 없음'
+        condition: C
+        for: 10m
+        noDataState: Alerting
+        execErrState: Alerting
+        labels:
+          severity: critical
+          env: prod
+        annotations:
+          summary: '🚨 RDS 응답 없음'
+          description: 'RDS({{ $labels.DBInstanceIdentifier }}) 지표가 10분 이상 수신되지 않습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: cloudwatch
+            model:
+              refId: A
+              namespace: AWS/RDS
+              metricName: CPUUtilization
+              dimensions: { DBInstanceIdentifier: ditda-mysql }
+              statistic: Average
+              period: '300'
+              region: ap-northeast-2
+              matchExact: true
+              metricQueryType: 0
+              metricEditorMode: 0
+              queryMode: Metrics
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: lt, params: [ 0 ] }
 
+      - uid: ditda-rds-cpu-high
+        title: '[RDS] CPU 사용률 높음'
+        condition: C
+        for: 15m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+          env: prod
+        annotations:
+          summary: '⚠️ RDS CPU 사용률 80% 초과'
+          description: 'RDS({{ $labels.DBInstanceIdentifier }}) CPU가 15분 이상 80%를 넘었습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: cloudwatch
+            model:
+              refId: A
+              namespace: AWS/RDS
+              metricName: CPUUtilization
+              dimensions: { DBInstanceIdentifier: ditda-mysql }
+              statistic: Average
+              period: '300'
+              region: ap-northeast-2
+              matchExact: true
+              metricQueryType: 0
+              metricEditorMode: 0
+              queryMode: Metrics
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [ 80 ] }
+
+      - uid: ditda-rds-storage-low
+        title: '[RDS] 여유 스토리지 부족'
+        condition: C
+        for: 15m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: critical
+          env: prod
+        annotations:
+          summary: '🚨 RDS 여유 스토리지 2GiB 미만'
+          description: 'RDS({{ $labels.DBInstanceIdentifier }}) 여유 스토리지가 2GiB 미만입니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: cloudwatch
+            model:
+              refId: A
+              namespace: AWS/RDS
+              metricName: FreeStorageSpace
+              dimensions: { DBInstanceIdentifier: ditda-mysql }
+              statistic: Minimum
+              period: '300'
+              region: ap-northeast-2
+              matchExact: true
+              metricQueryType: 0
+              metricEditorMode: 0
+              queryMode: Metrics
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: lt, params: [ 2147483648 ] }   # 2 GiB
+
+      - uid: ditda-rds-memory-low
+        title: '[RDS] 여유 메모리 낮음'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+          env: prod
+        annotations:
+          summary: '⚠️ RDS 여유 메모리 100MiB 미만'
+          description: 'RDS({{ $labels.DBInstanceIdentifier }}) 여유 메모리가 낮습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: cloudwatch
+            model:
+              refId: A
+              namespace: AWS/RDS
+              metricName: FreeableMemory
+              dimensions: { DBInstanceIdentifier: ditda-mysql }
+              statistic: Minimum
+              period: '300'
+              region: ap-northeast-2
+              matchExact: true
+              metricQueryType: 0
+              metricEditorMode: 0
+              queryMode: Metrics
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: lt, params: [ 104857600 ] }   # 100 MiB
+
+      - uid: ditda-rds-connections-high
+        title: '[RDS] 커넥션 수 급증'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+          env: prod
+        annotations:
+          summary: '⚠️ RDS 커넥션 수 120개 초과 (80% 도달)'
+          description: 'RDS({{ $labels.DBInstanceIdentifier }}) 활성 커넥션이 120개를 넘었습니다. (최대 150개) '
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: cloudwatch
+            model:
+              refId: A
+              namespace: AWS/RDS
+              metricName: DatabaseConnections
+              dimensions: { DBInstanceIdentifier: ditda-mysql }
+              statistic: Maximum
+              period: '300'
+              region: ap-northeast-2
+              matchExact: true
+              metricQueryType: 0
+              metricEditorMode: 0
+              queryMode: Metrics
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [ 120 ] }
+
+  # ========== Lambda (CloudWatch) ==========
+  - orgId: 1
+    name: ditda-lambda
+    folder: DITDA
+    interval: 5m
+    rules:
+      - uid: ditda-lambda-throttles
+        title: '[LAMBDA] 스로틀 발생'
+        condition: C
+        for: 5m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+          env: prod
+        annotations:
+          summary: '⚠️ Lambda 스로틀 발생'
+          description: '{{ $labels.FunctionName }} 함수가 동시성 한도로 스로틀되고 있습니다.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: cloudwatch
+            model:
+              refId: A
+              namespace: AWS/Lambda
+              metricName: Throttles
+              dimensions: { FunctionName: ditda-watermark }
+              statistic: Sum
+              period: '300'
+              region: ap-northeast-2
+              matchExact: true
+              metricQueryType: 0
+              metricEditorMode: 0
+              queryMode: Metrics
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: sum
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [ 0 ] }
+
+      - uid: ditda-lambda-duration-high
+        title: '[LAMBDA] 실행 시간 타임아웃 임박'
+        condition: C
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+          env: prod
+        annotations:
+          summary: '⚠️ Lambda p99 실행 시간 48초 초과 (80% 도달)'
+          description: '{{ $labels.FunctionName }} 함수 p99 실행 시간이 48초를 넘었습니다. (타임아웃: 60초)'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: cloudwatch
+            model:
+              refId: A
+              namespace: AWS/Lambda
+              metricName: Duration
+              dimensions: { FunctionName: ditda-watermark }
+              statistic: p99
+              period: '300'
+              region: ap-northeast-2
+              matchExact: true
+              metricQueryType: 0
+              metricEditorMode: 0
+              queryMode: Metrics
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [ 48000 ] }   # 48초 (ms)
 
   # ========== 인프라 ==========
   - orgId: 1
