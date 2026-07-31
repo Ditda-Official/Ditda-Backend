@@ -1,7 +1,5 @@
 package ditda.backend.domain.designer.entity;
 
-import org.springframework.data.domain.Persistable;
-
 import ditda.backend.domain.designer.entity.enums.BankName;
 import ditda.backend.domain.designer.entity.enums.DesignerLevel;
 import ditda.backend.domain.designer.entity.enums.ExpReward;
@@ -31,7 +29,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Designer extends BaseEntity implements Persistable<Long> {
+public class Designer extends BaseEntity {
 
 	@Id
 	@Column(name = "designer_id")
@@ -69,11 +67,6 @@ public class Designer extends BaseEntity implements Persistable<Long> {
 			.accountNumber(accountNumber)
 			.accountHolder(accountHolder)
 			.build();
-	}
-
-	@Override
-	public boolean isNew() {
-		return getCreatedAt() == null;
 	}
 
 	public void gainPortfolioReward() {
