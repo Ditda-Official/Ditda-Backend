@@ -23,7 +23,7 @@ public class DraftWatermarkListener {
 		try {
 			draftWatermarkService.watermarkDraftFiles(event.draftId());
 		} catch (Exception exception) {
-			log.error("워터마크 파이프라인 실패. draftId={}", event.draftId(), exception);
+			log.error("Watermark pipeline failed. draftId={}", event.draftId(), exception);
 		}
 	}
 }

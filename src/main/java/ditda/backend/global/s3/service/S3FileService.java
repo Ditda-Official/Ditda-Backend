@@ -12,7 +12,9 @@ import ditda.backend.global.s3.enums.UploadTarget;
 import ditda.backend.global.s3.exception.S3ErrorCode;
 import ditda.backend.global.s3.manager.S3UploadManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class S3FileService {
@@ -42,11 +44,13 @@ public class S3FileService {
 
 		// 빈 키 여부 검증
 		if (keys == null) {
+			log.warn("Upload keys were null. target={}", target);
 			throw new GeneralException(S3ErrorCode.INVALID_FILE);
 		}
 
 		// 중복 키 검증
 		if (keys.size() != keys.stream().distinct().count()) {
+			log.warn("Duplicate upload keys. target={}, count={}", target, keys.size());
 			throw new GeneralException(S3ErrorCode.INVALID_FILE);
 		}
 
@@ -54,12 +58,14 @@ public class S3FileService {
 		for (String key : keys) {
 			// temp key 형식 검증
 			if (!s3UploadManager.isTempKey(key, target.getDir())) {
+				log.warn("Rejected key outside temp directory. target={}, key={}", target, key);
 				throw new GeneralException(S3ErrorCode.INVALID_FILE);
 			}
 
 			// 파일 크기 검증
 			Long size = s3UploadManager.getObjectSize(target.getBucketType(), key);
 			if (size == null) {
+				log.warn("Uploaded object not found. target={}, key={}", target, key);
 				throw new GeneralException(S3ErrorCode.INVALID_FILE);
 			}
 			if (size > maxBytes) {

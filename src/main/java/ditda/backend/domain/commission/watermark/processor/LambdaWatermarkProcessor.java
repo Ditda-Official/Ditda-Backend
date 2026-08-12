@@ -50,9 +50,9 @@ public class LambdaWatermarkProcessor implements WatermarkProcessor {
 				.build();
 
 			lambdaClient.invoke(request);
-			log.info("워터마크 Lambda 호출. draftFileId={}, outputKey={}", draftFileId, outputKey);
+			log.info("Watermark Lambda invoked. draftFileId={}, outputKey={}", draftFileId, outputKey);
 		} catch (Exception exception) {
-			log.error("워터마크 Lambda 호출 실패. draftFileId={}", draftFileId, exception);
+			log.warn("Failed to invoke watermark Lambda. draftFileId={}, key={}", draftFileId, originalKey, exception);
 			draftWatermarkTransitionService.fail(draftFileId);
 		}
 	}

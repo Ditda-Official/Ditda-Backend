@@ -41,7 +41,8 @@ public class FirstDraftDeadlineProcessor {
 
 		// 락 획득 대기 중 마지막 제출자가 이미 DRAFT_SELECTING으로 전이시켰다면 조기 종료
 		if (!commission.isDraftSubmitting()) {
-			log.info("이미 처리된 외주로 마감 처리 스킵. commissionId={}, status={}", commission.getId(), commission.getStatus());
+			log.info("First draft deadline processing skipped. Already processed. commissionId={}, status={}",
+				commission.getId(), commission.getStatus());
 			return;
 		}
 
@@ -65,8 +66,9 @@ public class FirstDraftDeadlineProcessor {
 
 		publishEvent(commission, submitted, missed, refundAmount, mailScheduledAt);
 
-		log.info("외주 1차 시안 마감 처리 완료. commissionId={}, cancelled={}, 환불금액={}",
-			commission.getId(), commission.isCancelled(), refundAmount);
+		log.info(
+			"First draft deadline processed. commissionId={}, submitted={}, missed={}, cancelled={}, refundedAmount={}",
+			commission.getId(), submitted.size(), missed.size(), commission.isCancelled(), refundAmount);
 	}
 
 	private int applyFirstDraftDeadline(

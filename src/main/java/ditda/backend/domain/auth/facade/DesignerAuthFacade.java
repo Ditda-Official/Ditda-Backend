@@ -14,7 +14,9 @@ import ditda.backend.domain.designer.service.PortfolioService;
 import ditda.backend.domain.user.service.UserService;
 import ditda.backend.global.s3.dto.PresignedUpload;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DesignerAuthFacade {
@@ -59,6 +61,8 @@ public class DesignerAuthFacade {
 				portfolioService.deleteFiles(portfolioKeys);
 			} catch (Exception cleanupEx) {
 				original.addSuppressed(cleanupEx);
+				log.warn("Failed to clean up portfolio files after signup failure. "
+					+ "Possible orphaned S3 objects. keys={}", portfolioKeys, cleanupEx);
 			}
 			throw original;
 		}

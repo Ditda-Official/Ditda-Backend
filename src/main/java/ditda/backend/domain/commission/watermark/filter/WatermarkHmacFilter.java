@@ -17,8 +17,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.json.JsonMapper;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class WatermarkHmacFilter extends OncePerRequestFilter {
@@ -44,6 +46,8 @@ public class WatermarkHmacFilter extends OncePerRequestFilter {
 				cachedRequest.getBody()
 			);
 		} catch (GeneralException exception) {
+			log.error("Watermark callback signature verification failed. errorCode={}",
+				exception.getErrorCode().getCode());
 			writeError(response, exception.getErrorCode());
 			return;
 		}

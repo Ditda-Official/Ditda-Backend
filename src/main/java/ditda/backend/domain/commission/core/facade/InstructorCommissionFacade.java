@@ -17,7 +17,9 @@ import ditda.backend.domain.commission.core.validator.CommissionCreateValidator;
 import ditda.backend.domain.payment.dto.response.DepositNotifyResponse;
 import ditda.backend.domain.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class InstructorCommissionFacade {
@@ -65,6 +67,8 @@ public class InstructorCommissionFacade {
 				commissionCreateFileService.deleteFiles(promotedKeys);
 			} catch (Exception cleanupEx) {
 				original.addSuppressed(cleanupEx);
+				log.warn("Failed to clean up commission files after creation failure. "
+					+ "Possible orphaned S3 objects. keys={}", promotedKeys, cleanupEx);
 			}
 			throw original;
 		}

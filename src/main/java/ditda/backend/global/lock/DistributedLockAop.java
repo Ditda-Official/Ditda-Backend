@@ -35,34 +35,44 @@ public class DistributedLockAop {
 
 		RLock rlock = redissonClient.getLock(key);
 		boolean acquired = false;
+		long acquiredAt = 0L;
 
 		try {
 			acquired = rlock.tryLock(distributedLock.waitTime(), distributedLock.leaseTime(),
 				distributedLock.timeUnit());
 
 			if (!acquired) {
-				log.warn("분산 락 획득 실패. key={}, waitTime={} {}",
-					key, distributedLock.waitTime(), distributedLock.timeUnit());
+				log.warn("Failed to acquire distributed lock. key={}, waitTimeMs={}",
+					key, distributedLock.timeUnit().toMillis(distributedLock.waitTime()));
 				throw new GeneralException(GeneralErrorCode.LOCK_ACQUISITION_FAILED);
 			}
 
-			log.debug("분산 락 획득. key={}", key);
+			acquiredAt = System.nanoTime();
+
 			return aopForTransaction.proceed(joinPoint);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			log.warn("분산 락 대기 중 interrupt 발생. key={}", key, e);
+			log.warn("Interrupted while waiting for distributed lock. key={}", key, e);
 
 			throw new GeneralException(GeneralErrorCode.LOCK_ACQUISITION_FAILED);
 		} finally {
 			if (acquired) {
-				if (rlock.isHeldByCurrentThread()) {
-					rlock.unlock();
-					log.debug("분산 락 해제. key={}", key);
-				} else {
-					log.warn("분산 락 leaseTime 초과로 이미 해제됨. key={}, waitTime={}, leaseTime={}",
-						key, distributedLock.waitTime(), distributedLock.leaseTime());
+				try {
+					if (rlock.isHeldByCurrentThread()) {
+						rlock.unlock();
+					} else {
+						log.warn("Distributed lock lease expired before release. key={}, leaseTimeMs={}, elapsedMs={}",
+							key, distributedLock.timeUnit().toMillis(distributedLock.leaseTime()),
+							elapsedMs(acquiredAt));
+					}
+				} catch (Exception exception) {
+					log.warn("Failed to release distributed lock. key={}", key, exception);
 				}
 			}
 		}
+	}
+
+	private long elapsedMs(long acquiredAt) {
+		return (System.nanoTime() - acquiredAt) / 1_000_000;
 	}
 }

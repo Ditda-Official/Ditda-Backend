@@ -24,7 +24,7 @@ public class MapToJsonConverter implements AttributeConverter<Map<String, Object
 		try {
 			return jsonMapper.writeValueAsString(attribute);
 		} catch (JacksonException e) {
-			throw new IllegalArgumentException("Failed to serialize template variables", e);
+			throw new IllegalArgumentException("Failed to serialize template variables.", e);
 		}
 
 	}
@@ -38,7 +38,7 @@ public class MapToJsonConverter implements AttributeConverter<Map<String, Object
 		try {
 			return jsonMapper.readValue(dbData, MAP_TYPE);
 		} catch (JacksonException e) {
-			throw new IllegalArgumentException("Failed to deserialize template variables", e);
+			throw new IllegalArgumentException("Failed to deserialize template variables.", e);
 		}
 	}
 

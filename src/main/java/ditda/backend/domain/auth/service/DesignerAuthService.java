@@ -3,6 +3,7 @@ package ditda.backend.domain.auth.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.slf4j.MDC;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,11 @@ import ditda.backend.domain.term.service.TermService;
 import ditda.backend.domain.user.entity.User;
 import ditda.backend.domain.user.entity.enums.UserRole;
 import ditda.backend.domain.user.service.UserService;
+import ditda.backend.global.logging.MdcKey;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DesignerAuthService {
@@ -54,6 +58,7 @@ public class DesignerAuthService {
 			UserRole.DESIGNER,
 			LocalDateTime.now()
 		);
+		MDC.put(MdcKey.USER_ID, String.valueOf(user.getId()));
 
 		// 약관 동의 여부 DB 저장
 		termService.saveDesignerTerms(user, toAgreements(request.terms()));
@@ -82,6 +87,8 @@ public class DesignerAuthService {
 			!portfolioKeys.isEmpty(),
 			LocalDateTime.now()
 		));
+
+		log.info("Designer signed up. hasPortfolio={}", !portfolioKeys.isEmpty());
 
 		return new AuthResult(
 			user.getId(),
