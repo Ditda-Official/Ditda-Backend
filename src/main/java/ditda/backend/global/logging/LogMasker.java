@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LogMasker {
 
+	private static final int MAX_VALUE_LENGTH = 100;
+
 	public static String maskEmail(String email) {
 		if (!StringUtils.hasText(email) || !email.contains("@")) {
 			return "***";
@@ -22,5 +24,17 @@ public final class LogMasker {
 		}
 
 		return local.substring(0, 2) + "****" + domain;
+	}
+
+	public static String sanitize(String value) {
+		if (value == null) {
+			return null;
+		}
+
+		String cleaned = value.replaceAll("\\p{Cntrl}", "");
+
+		return cleaned.length() <= MAX_VALUE_LENGTH
+			? cleaned
+			: cleaned.substring(0, MAX_VALUE_LENGTH) + "...(truncated from " + cleaned.length() + ")";
 	}
 }

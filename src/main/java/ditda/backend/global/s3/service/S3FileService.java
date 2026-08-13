@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import ditda.backend.global.apipayload.exception.GeneralException;
+import ditda.backend.global.logging.LogMasker;
 import ditda.backend.global.s3.config.S3Properties;
 import ditda.backend.global.s3.dto.PresignedUpload;
 import ditda.backend.global.s3.enums.S3ContentType;
@@ -58,14 +59,14 @@ public class S3FileService {
 		for (String key : keys) {
 			// temp key 형식 검증
 			if (!s3UploadManager.isTempKey(key, target.getDir())) {
-				log.warn("Rejected key outside temp directory. target={}, key={}", target, key);
+				log.warn("Rejected key outside temp directory. target={}, key={}", target, LogMasker.sanitize(key));
 				throw new GeneralException(S3ErrorCode.INVALID_FILE);
 			}
 
 			// 파일 크기 검증
 			Long size = s3UploadManager.getObjectSize(target.getBucketType(), key);
 			if (size == null) {
-				log.warn("Uploaded object not found. target={}, key={}", target, key);
+				log.warn("Uploaded object not found. target={}, key={}", target, LogMasker.sanitize(key));
 				throw new GeneralException(S3ErrorCode.INVALID_FILE);
 			}
 			if (size > maxBytes) {
