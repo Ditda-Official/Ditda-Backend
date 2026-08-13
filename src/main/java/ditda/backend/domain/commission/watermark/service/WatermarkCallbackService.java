@@ -40,7 +40,7 @@ public class WatermarkCallbackService {
 				draftWatermarkTransitionService.failPermanently(request.draftFileId());
 			}
 			case FAILED_TRANSIENT -> {
-				log.warn("Watermark failed. Retry pending. draftFileId={}, errorCode={}",
+				log.warn("Watermark failed. draftFileId={}, errorCode={}",
 					request.draftFileId(), request.errorCode());
 				draftWatermarkTransitionService.fail(request.draftFileId());
 			}
