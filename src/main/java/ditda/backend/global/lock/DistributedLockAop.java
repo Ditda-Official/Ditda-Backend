@@ -34,41 +34,39 @@ public class DistributedLockAop {
 			signature.getParameterNames(), joinPoint.getArgs(), distributedLock.key());
 
 		RLock rlock = redissonClient.getLock(key);
-		boolean acquired = false;
-		long acquiredAt = 0L;
+
+		if (!tryAcquire(rlock, distributedLock, key)) {
+			log.warn("Failed to acquire distributed lock. key={}, waitTimeMs={}",
+				key, distributedLock.timeUnit().toMillis(distributedLock.waitTime()));
+			throw new GeneralException(GeneralErrorCode.LOCK_ACQUISITION_FAILED);
+		}
+
+		long acquiredAt = System.nanoTime();
 
 		try {
-			acquired = rlock.tryLock(distributedLock.waitTime(), distributedLock.leaseTime(),
-				distributedLock.timeUnit());
-
-			if (!acquired) {
-				log.warn("Failed to acquire distributed lock. key={}, waitTimeMs={}",
-					key, distributedLock.timeUnit().toMillis(distributedLock.waitTime()));
-				throw new GeneralException(GeneralErrorCode.LOCK_ACQUISITION_FAILED);
-			}
-
-			acquiredAt = System.nanoTime();
-
 			return aopForTransaction.proceed(joinPoint);
+		} finally {
+			try {
+				if (rlock.isHeldByCurrentThread()) {
+					rlock.unlock();
+				} else {
+					log.warn("Distributed lock lease expired before release. key={}, leaseTimeMs={}, elapsedMs={}",
+						key, distributedLock.timeUnit().toMillis(distributedLock.leaseTime()), elapsedMs(acquiredAt));
+				}
+			} catch (Exception exception) {
+				log.warn("Failed to release distributed lock. key={}", key, exception);
+			}
+		}
+	}
+
+	private boolean tryAcquire(RLock rlock, DistributedLock distributedLock, String key) {
+		try {
+			return rlock.tryLock(distributedLock.waitTime(), distributedLock.leaseTime(), distributedLock.timeUnit());
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			log.warn("Interrupted while waiting for distributed lock. key={}", key, e);
 
 			throw new GeneralException(GeneralErrorCode.LOCK_ACQUISITION_FAILED);
-		} finally {
-			if (acquired) {
-				try {
-					if (rlock.isHeldByCurrentThread()) {
-						rlock.unlock();
-					} else {
-						log.warn("Distributed lock lease expired before release. key={}, leaseTimeMs={}, elapsedMs={}",
-							key, distributedLock.timeUnit().toMillis(distributedLock.leaseTime()),
-							elapsedMs(acquiredAt));
-					}
-				} catch (Exception exception) {
-					log.warn("Failed to release distributed lock. key={}", key, exception);
-				}
-			}
 		}
 	}
 
