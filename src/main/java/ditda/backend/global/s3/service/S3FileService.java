@@ -50,8 +50,9 @@ public class S3FileService {
 		}
 
 		// 중복 키 검증
-		if (keys.size() != keys.stream().distinct().count()) {
-			log.warn("Duplicate upload keys. target={}, count={}", target, keys.size());
+		long distinctCount = keys.stream().distinct().count();
+		if (keys.size() != distinctCount) {
+			log.warn("Duplicate upload keys. target={}, total={}, distinct={}", target, keys.size(), distinctCount);
 			throw new GeneralException(S3ErrorCode.INVALID_FILE);
 		}
 
