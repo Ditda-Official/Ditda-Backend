@@ -41,10 +41,6 @@ public class CommissionDeadlineService {
 			today
 		);
 
-		if (commissions.isEmpty()) {
-			return;
-		}
-
 		int failed = 0;
 		for (Commission commission : commissions) {
 			try {
@@ -73,10 +69,6 @@ public class CommissionDeadlineService {
 			today
 		);
 
-		if (commissions.isEmpty()) {
-			return;
-		}
-
 		int failed = 0;
 		for (Commission commission : commissions) {
 			try {
@@ -104,10 +96,6 @@ public class CommissionDeadlineService {
 			Set.of(CommissionStatus.DRAFT_SELECTING, CommissionStatus.EDITING),
 			today
 		);
-
-		if (commissions.isEmpty()) {
-			return;
-		}
 
 		int failed = 0;
 		for (Commission commission : commissions) {
