@@ -71,7 +71,7 @@ public class DesignerDraftFacade {
 				designerDraftFileService.deleteFiles(permanentKeys);
 			} catch (Exception cleanupEx) {
 				original.addSuppressed(cleanupEx);
-				log.warn("Failed to clean up draft files after submission failure. "
+				log.error("Failed to clean up draft files after submission failure. "
 					+ "Possible orphaned S3 objects. keys={}", permanentKeys, cleanupEx);
 			}
 			throw original;

@@ -61,7 +61,7 @@ public class DesignerAuthFacade {
 				portfolioService.deleteFiles(portfolioKeys);
 			} catch (Exception cleanupEx) {
 				original.addSuppressed(cleanupEx);
-				log.warn("Failed to clean up portfolio files after signup failure. "
+				log.error("Failed to clean up portfolio files after signup failure. "
 					+ "Possible orphaned S3 objects. keys={}", portfolioKeys, cleanupEx);
 			}
 			throw original;

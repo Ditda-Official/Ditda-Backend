@@ -67,7 +67,7 @@ public class InstructorCommissionFacade {
 				commissionCreateFileService.deleteFiles(promotedKeys);
 			} catch (Exception cleanupEx) {
 				original.addSuppressed(cleanupEx);
-				log.warn("Failed to clean up commission files after creation failure. "
+				log.error("Failed to clean up commission files after creation failure. "
 					+ "Possible orphaned S3 objects. keys={}", promotedKeys, cleanupEx);
 			}
 			throw original;
