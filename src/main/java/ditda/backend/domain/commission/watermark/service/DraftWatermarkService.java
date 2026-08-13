@@ -43,7 +43,7 @@ public class DraftWatermarkService {
 		try {
 			watermarkProcessor.process(draftFileId, originalKey);
 		} catch (Exception e) {
-			log.error("워터마크 처리 위임 실패. draftFileId={}", draftFileId, e);
+			log.warn("Watermark delegation failed. draftFileId={}", draftFileId, e);
 			draftWatermarkTransitionService.fail(draftFileId);
 		}
 	}

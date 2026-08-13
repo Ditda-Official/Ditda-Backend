@@ -31,7 +31,7 @@ public class ExceptionAdvice {
 	public ResponseEntity<ApiResponse<Object>> handleCustomException(GeneralException exception) {
 		BaseErrorCode code = exception.getErrorCode();
 
-		log.warn("CustomException: {}", exception.getErrorCode().getMessage());
+		log.warn("GeneralException. errorCode={}, message={}", code.getCode(), exception.getMessage());
 
 		return ResponseEntity
 			.status(code.getHttpStatus())
@@ -48,7 +48,7 @@ public class ExceptionAdvice {
 			.map(fld -> String.format("[%s] %s", fld.getField(), fld.getDefaultMessage()))
 			.toList();
 
-		log.warn("MethodArgumentNotValidException: {}", errors);
+		log.warn("MethodArgumentNotValidException. errors={}", errors);
 
 		BaseErrorCode code = GeneralErrorCode.INVALID_PARAMETER;
 
@@ -65,7 +65,7 @@ public class ExceptionAdvice {
 		MethodArgumentTypeMismatchException exception) {
 		String message = String.format("%s 필드의 타입이 잘못되었습니다.", exception.getName());
 
-		log.warn("TypeMismatchException: {}", exception.getMessage());
+		log.warn("TypeMismatchException. message={}", exception.getMessage());
 
 		BaseErrorCode code = GeneralErrorCode.INVALID_PARAMETER;
 
@@ -86,7 +86,7 @@ public class ExceptionAdvice {
 
 		BaseErrorCode code = GeneralErrorCode.INVALID_PARAMETER;
 
-		log.warn("ConstraintViolationException: {}", exception.getMessage());
+		log.warn("ConstraintViolationException. errors={}", errors);
 
 		return ResponseEntity
 			.status(code.getHttpStatus())
@@ -101,7 +101,7 @@ public class ExceptionAdvice {
 		HttpMessageNotReadableException exception) {
 		BaseErrorCode code = GeneralErrorCode.INVALID_BODY_TYPE;
 
-		log.warn("HttpMessageNotReadableException: {}", exception.getMessage());
+		log.warn("HttpMessageNotReadableException. message={}", exception.getMessage());
 
 		return ResponseEntity
 			.status(code.getHttpStatus())
@@ -115,7 +115,7 @@ public class ExceptionAdvice {
 	public ResponseEntity<ApiResponse<Object>> handleNoResourceFoundException(NoResourceFoundException exception) {
 		BaseErrorCode code = GeneralErrorCode.API_NOT_FOUND;
 
-		log.warn("NoResourceFoundException: {}", exception.getMessage());
+		log.warn("NoResourceFoundException. message={}", exception.getMessage());
 
 		return ResponseEntity
 			.status(code.getHttpStatus())
@@ -130,7 +130,7 @@ public class ExceptionAdvice {
 		HttpRequestMethodNotSupportedException exception) {
 		BaseErrorCode code = GeneralErrorCode.METHOD_NOT_ALLOWED;
 
-		log.warn("HttpRequestMethodNotSupportedException: {}", exception.getMessage());
+		log.warn("HttpRequestMethodNotSupportedException. message={}", exception.getMessage());
 
 		return ResponseEntity
 			.status(code.getHttpStatus())
@@ -145,7 +145,7 @@ public class ExceptionAdvice {
 		HttpMediaTypeNotSupportedException exception) {
 		BaseErrorCode code = GeneralErrorCode.UNSUPPORTED_CONTENT_TYPE;
 
-		log.warn("HttpMediaTypeNotSupportedException: {}", exception.getMessage());
+		log.warn("HttpMediaTypeNotSupportedException. message={}", exception.getMessage());
 
 		return ResponseEntity.status(code.getHttpStatus())
 			.body(ApiResponse.onFailure(code, code.getMessage()));
@@ -158,7 +158,7 @@ public class ExceptionAdvice {
 	public ResponseEntity<ApiResponse<Object>> handleMaxUploadSize(MaxUploadSizeExceededException exception) {
 		BaseErrorCode code = GeneralErrorCode.FILE_SIZE_EXCEEDED;
 
-		log.warn("MaxUploadSizeExceededException: {}", exception.getMessage());
+		log.warn("MaxUploadSizeExceededException. message={}", exception.getMessage());
 
 		return ResponseEntity.status(code.getHttpStatus())
 			.body(ApiResponse.onFailure(code, code.getMessage()));
@@ -171,7 +171,7 @@ public class ExceptionAdvice {
 	public ResponseEntity<ApiResponse<Object>> handlePropertyReferenceException(PropertyReferenceException exception) {
 		BaseErrorCode code = GeneralErrorCode.INVALID_PARAMETER;
 
-		log.warn("PropertyReferenceException: {}", exception.getMessage());
+		log.warn("PropertyReferenceException. message={}", exception.getMessage());
 
 		return ResponseEntity
 			.status(code.getHttpStatus())
@@ -186,7 +186,7 @@ public class ExceptionAdvice {
 		DataIntegrityViolationException exception) {
 		BaseErrorCode code = GeneralErrorCode.DUPLICATE_RESOURCE;
 
-		log.warn("DataIntegrityViolationException: {}", exception.getMessage());
+		log.warn("DataIntegrityViolationException. message={}", exception.getMessage());
 
 		return ResponseEntity
 			.status(code.getHttpStatus())
@@ -200,7 +200,7 @@ public class ExceptionAdvice {
 	public ResponseEntity<ApiResponse<Object>> handleException(Exception exception) {
 		BaseErrorCode code = GeneralErrorCode.INTERNAL_SERVER_ERROR;
 
-		log.error("Unhandled Exception", exception);
+		log.error("Unhandled exception.", exception);
 
 		return ResponseEntity
 			.status(code.getHttpStatus())

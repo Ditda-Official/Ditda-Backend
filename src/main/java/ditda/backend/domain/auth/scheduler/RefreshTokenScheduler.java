@@ -20,6 +20,6 @@ public class RefreshTokenScheduler {
 
 		int deletedCount = authService.deleteExpiredRefreshTokens();
 
-		log.info("만료된 Refresh 토큰 삭제 완료. count={}", deletedCount);
+		log.info("Expired refresh tokens deleted. count={}", deletedCount);
 	}
 }

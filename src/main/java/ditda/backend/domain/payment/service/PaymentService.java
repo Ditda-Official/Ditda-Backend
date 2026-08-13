@@ -21,7 +21,9 @@ import ditda.backend.domain.payment.repository.projection.CommissionPaidAmount;
 import ditda.backend.domain.term.service.TermService;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -46,6 +48,9 @@ public class PaymentService {
 		paymentRepository.save(payment);
 
 		termService.savePaymentTerm(payment, termVersion, isTermAgreed);
+
+		log.info("Payment created. commissionId={}, paymentId={}, amount={}",
+			commission.getId(), payment.getId(), payment.getAmount());
 	}
 
 	@Transactional
@@ -79,6 +84,9 @@ public class PaymentService {
 			payment.getDepositNotifiedAt(),
 			LocalDateTime.now()
 		));
+
+		log.info("Deposit notified. commissionId={}, paymentId={}, amount={}",
+			commission.getId(), payment.getId(), payment.getAmount());
 
 		return DepositNotifyResponse.of(
 			commission.getId(),
@@ -120,6 +128,9 @@ public class PaymentService {
 		// 전액 환불
 		payment.markFullRefundRequested();
 
+		log.info("Full refund requested. commissionId={}, paymentId={}, refundedAmount={}",
+			commissionId, payment.getId(), payment.getAmount());
+
 		return payment.getAmount();
 	}
 
@@ -133,5 +144,8 @@ public class PaymentService {
 
 		// 부분 환불
 		payment.markPartialRefundRequested(refundAmount);
+
+		log.info("Partial refund requested. commissionId={}, paymentId={}, refundedAmount={}, remainingAmount={}",
+			commissionId, payment.getId(), refundAmount, payment.getAmount());
 	}
 }

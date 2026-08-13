@@ -37,7 +37,7 @@ public class RefreshTokenHasher {
 				.withoutPadding()
 				.encodeToString(digest);
 		} catch (NoSuchAlgorithmException | InvalidKeyException exception) {
-			throw new IllegalStateException("Refresh token hash 생성 실패", exception);
+			throw new IllegalStateException("Failed to generate refresh token hash.", exception);
 		}
 	}
 }

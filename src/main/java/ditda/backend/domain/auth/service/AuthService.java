@@ -3,6 +3,7 @@ package ditda.backend.domain.auth.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.slf4j.MDC;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,9 +21,12 @@ import ditda.backend.global.hash.RefreshTokenHasher;
 import ditda.backend.global.jwt.JwtTokenProvider;
 import ditda.backend.global.jwt.dto.RefreshTokenPayload;
 import ditda.backend.global.jwt.enums.AuthRole;
+import ditda.backend.global.logging.MdcKey;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -67,8 +71,12 @@ public class AuthService {
 			throw new GeneralException(GeneralErrorCode.INVALID_LOGIN);
 		}
 
+		MDC.put(MdcKey.USER_ID, String.valueOf(user.getId()));
+
 		// 3. Access / Refresh 토큰 발급
 		TokenResult tokens = issueTokens(user);
+
+		log.info("User logged in. role={}", user.getRole());
 
 		return new AuthResult(
 			user.getId(),

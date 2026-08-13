@@ -1,5 +1,6 @@
 package ditda.backend.domain.admin.auth.service;
 
+import org.slf4j.MDC;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,8 +13,11 @@ import ditda.backend.global.apipayload.code.GeneralErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import ditda.backend.global.jwt.JwtTokenProvider;
 import ditda.backend.global.jwt.enums.AuthRole;
+import ditda.backend.global.logging.MdcKey;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -34,8 +38,12 @@ public class AdminAuthService {
 			throw new GeneralException(GeneralErrorCode.INVALID_LOGIN);
 		}
 
+		MDC.put(MdcKey.USER_ID, String.valueOf(admin.getId()));
+
 		// Access Token 발급
 		String accessToken = jwtTokenProvider.generateAccessToken(admin.getId(), AuthRole.ADMIN);
+
+		log.info("Admin logged in.");
 
 		return AdminLoginResponse.of(admin, accessToken);
 	}

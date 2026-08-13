@@ -16,11 +16,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
@@ -115,7 +112,7 @@ public class JwtTokenProvider {
 		String sessionId = claims.get(SESSION_ID_CLAIM, String.class);
 
 		if (sessionId == null || sessionId.isBlank()) {
-			throw new JwtException("Refresh Token에 세션 정보가 없습니다.");
+			throw invalidToken("MISSING_SESSION_ID");
 		}
 
 		return sessionId;
@@ -125,7 +122,7 @@ public class JwtTokenProvider {
 
 		Claims claims = validateToken(token);
 		if (!ACCESS_TOKEN_TYPE.equals(claims.get(TOKEN_TYPE_CLAIM, String.class))) {
-			throw new JwtException("Access Token이 아닙니다.");
+			throw invalidToken("NOT_ACCESS_TOKEN");
 		}
 
 		return claims;
@@ -135,7 +132,7 @@ public class JwtTokenProvider {
 
 		Claims claims = validateToken(token);
 		if (!REFRESH_TOKEN_TYPE.equals(claims.get(TOKEN_TYPE_CLAIM, String.class))) {
-			throw new JwtException("Refresh Token이 아닙니다.");
+			throw invalidToken("NOT_REFRESH_TOKEN");
 		}
 
 		return claims;
@@ -155,7 +152,7 @@ public class JwtTokenProvider {
 		String role = claims.get(ROLE_CLAIM, String.class);
 
 		if (role == null || role.isBlank()) {
-			throw new JwtException("Access Token에 role 정보가 없습니다.");
+			throw invalidToken("MISSING_ROLE");
 		}
 
 		return AuthRole.valueOf(role);
@@ -166,20 +163,16 @@ public class JwtTokenProvider {
 		try {
 			return getClaims(token);
 		} catch (ExpiredJwtException e) {
-			log.warn("만료된 JWT 토큰: {}", e.getMessage());
+			// access token 만료는 정상 흐름
 			throw e;
-		} catch (UnsupportedJwtException e) {
-			log.warn("지원되지 않는 JWT 토큰: {}", e.getMessage());
-			throw e;
-		} catch (MalformedJwtException e) {
-			log.warn("잘못된 형식의 JWT 토큰: {}", e.getMessage());
-			throw e;
-		} catch (SignatureException e) {
-			log.warn("JWT 서명 검증 실패: {}", e.getMessage());
-			throw e;
-		} catch (IllegalArgumentException e) {
-			log.warn("JWT 토큰이 비어있음: {}", e.getMessage());
+		} catch (JwtException | IllegalArgumentException e) {
+			log.warn("JWT validation failed. reason={}", e.getClass().getSimpleName());
 			throw e;
 		}
+	}
+
+	private JwtException invalidToken(String reason) {
+		log.warn("JWT validation failed. reason={}", reason);
+		return new JwtException(reason);
 	}
 }

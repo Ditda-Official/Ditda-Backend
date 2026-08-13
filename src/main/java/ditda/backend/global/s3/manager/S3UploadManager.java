@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 import ditda.backend.global.s3.dto.PresignedUpload;
 import ditda.backend.global.s3.enums.BucketType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class S3UploadManager {
@@ -49,6 +51,9 @@ public class S3UploadManager {
 				permanentKeys.add(permanentKey);
 			}
 		} catch (Exception e) {
+			log.warn("Failed to promote temp objects. promoted={}, total={}",
+				permanentKeys.size(), tempKeys.size());
+
 			s3FileManager.deleteAll(bucketType, permanentKeys);   // 승격된 객체 되돌림
 			throw e;
 		}

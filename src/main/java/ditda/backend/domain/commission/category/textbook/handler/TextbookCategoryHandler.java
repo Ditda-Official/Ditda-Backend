@@ -74,7 +74,7 @@ public class TextbookCategoryHandler implements CommissionCategoryHandler {
 	public CategoryDetail loadDetail(Long commissionId) {
 
 		Textbook textbook = textbookRepository.findById(commissionId)
-			.orElseThrow(() -> new IllegalStateException("Textbook not found for commissionId=" + commissionId));
+			.orElseThrow(() -> new IllegalStateException("Textbook not found for commissionId: " + commissionId));
 
 		List<TextbookPage> pages = textbookPageRepository.findByCommissionId(commissionId);
 

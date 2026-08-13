@@ -30,19 +30,21 @@ public class WatermarkCallbackService {
 
 		// 2. 결과에 따른 상태 전이
 		switch (request.result()) {
-			case COMPLETED ->
+			case COMPLETED -> {
 				draftWatermarkTransitionService.complete(request.draftFileId(), request.watermarkedKey());
+				log.info("Watermark callback processed. draftFileId={}", request.draftFileId());
+			}
 			case FAILED_PERMANENT -> {
-				log.warn("워터마크 영구 실패. draftFileId={}, errorCode={}", request.draftFileId(), request.errorCode());
+				log.warn("Watermark rejected by Lambda. draftFileId={}, errorCode={}",
+					request.draftFileId(), request.errorCode());
 				draftWatermarkTransitionService.failPermanently(request.draftFileId());
 			}
 			case FAILED_TRANSIENT -> {
-				log.warn("워터마크 실패 (재시도 대상). draftFileId={}, errorCode={}", request.draftFileId(), request.errorCode());
+				log.warn("Watermark failed. draftFileId={}, errorCode={}",
+					request.draftFileId(), request.errorCode());
 				draftWatermarkTransitionService.fail(request.draftFileId());
 			}
 		}
-
-		log.info("워터마크 콜백 처리. draftFileId={}, result={}", request.draftFileId(), request.result());
 	}
 
 	private WatermarkCallbackRequest parse(String rawBody) {

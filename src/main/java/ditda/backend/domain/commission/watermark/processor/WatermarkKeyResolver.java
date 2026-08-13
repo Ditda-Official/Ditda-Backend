@@ -12,7 +12,7 @@ public class WatermarkKeyResolver {
 		// 워터마크 출력 키 생성
 		int lastSlash = originalKey.lastIndexOf('/');
 		if (lastSlash < 0) {
-			throw new IllegalArgumentException("유효하지 않은 S3 키: " + originalKey);
+			throw new IllegalArgumentException("Invalid S3 key: " + originalKey);
 		}
 		String dir = originalKey.substring(0, lastSlash);
 		String filename = originalKey.substring(lastSlash + 1);

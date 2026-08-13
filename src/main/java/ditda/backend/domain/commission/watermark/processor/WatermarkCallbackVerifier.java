@@ -61,7 +61,7 @@ public class WatermarkCallbackVerifier {
 			));
 			return HexFormat.of().formatHex(mac.doFinal(data.getBytes(StandardCharsets.UTF_8)));
 		} catch (NoSuchAlgorithmException | InvalidKeyException exception) {
-			throw new IllegalStateException("HMAC 계산 실패", exception);
+			throw new IllegalStateException("Failed to compute HMAC.", exception);
 		}
 	}
 

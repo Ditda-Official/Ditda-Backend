@@ -37,7 +37,7 @@ public enum AnnouncementResult {
 	public static AnnouncementResult from(ApplicationStatus status) {
 		AnnouncementResult result = MAPPING.get(status);
 		if (result == null) {
-			throw new IllegalStateException("발표 대기란에 올 수 없는 지원 상태: " + status);
+			throw new IllegalStateException("Unexpected application status for announcement: " + status);
 		}
 
 		return result;

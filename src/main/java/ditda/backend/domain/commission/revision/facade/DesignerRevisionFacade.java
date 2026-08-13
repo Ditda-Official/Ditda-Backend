@@ -32,10 +32,10 @@ import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Slf4j
 public class DesignerRevisionFacade {
 
 	private final DesignerCommissionService designerCommissionService;
@@ -135,8 +135,9 @@ public class DesignerRevisionFacade {
 			try {
 				designerDraftFileService.deleteFiles(permanentKeys);
 			} catch (Exception cleanupEx) {
-				log.warn("수정본 저장 실패 후 S3 파일 정리 실패, keys={}", permanentKeys, cleanupEx);
 				original.addSuppressed(cleanupEx);
+				log.error("Failed to clean up revision files after submission failure. "
+					+ "Possible orphaned S3 objects. keys={}", permanentKeys, cleanupEx);
 			}
 			throw original;
 		}
@@ -145,6 +146,9 @@ public class DesignerRevisionFacade {
 
 		// 강사에게 수정본 제출 이메일 발송
 		publishRevisionSubmittedEvent(commission, currentRevisionCount);
+
+		log.info("Revision submitted. commissionId={}, draftId={}, revisionCount={}, fileCount={}",
+			commissionId, newDraft.getId(), currentRevisionCount, permanentKeys.size());
 
 		return revisionMapper.toRevisionSubmitResponse(
 			newDraft,

@@ -39,12 +39,13 @@ public class LocalWatermarkProcessor implements WatermarkProcessor {
 		try {
 			String watermarkedKey = createWatermarked(originalKey);
 			draftWatermarkTransitionService.complete(draftFileId, watermarkedKey);
-			log.info("워터마크 완료. draftFileId={}, elapsedMs={}", draftFileId, elapsedMs(start));
+			log.info("Watermark completed. draftFileId={}, elapsedMs={}", draftFileId, elapsedMs(start));
 		} catch (ImageProcessingException exception) {
-			log.error("워터마크 영구 실패(이미지 문제). draftFileId={}", draftFileId, exception);
+			log.warn("Watermark image processing failed. draftFileId={}, key={}", draftFileId, originalKey, exception);
 			draftWatermarkTransitionService.failPermanently(draftFileId);
 		} catch (Exception e) {
-			log.error("워터마크 실패. draftFileId={}, elapsedMs={}", draftFileId, elapsedMs(start), e);
+			log.warn("Watermark attempt failed. draftFileId={}, key={}, elapsedMs={}",
+				draftFileId, originalKey, elapsedMs(start), e);
 			draftWatermarkTransitionService.fail(draftFileId);
 		}
 	}
