@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.entity.enums.WatermarkStatus;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
+import ditda.backend.global.monitoring.PermanentFailureMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DraftWatermarkTransitionService {
 
 	private final CommissionDraftFileRepository commissionDraftFileRepository;
+	private final PermanentFailureMetrics permanentFailureMetrics;
 
 	// 워터마크 완료 전이
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -91,9 +93,8 @@ public class DraftWatermarkTransitionService {
 			.orElseThrow(() -> new IllegalStateException("Watermark retry target not found: " + draftFileId));
 	}
 
-	// TODO: 디스코드 웹훅 - 영구 실패 알림 (draftFileId + 사유)
 	private void notifyPermanentFailure(Long draftFileId) {
-
 		log.error("Watermark permanently failed. draftFileId={}", draftFileId);
+		permanentFailureMetrics.watermarkFailed();
 	}
 }

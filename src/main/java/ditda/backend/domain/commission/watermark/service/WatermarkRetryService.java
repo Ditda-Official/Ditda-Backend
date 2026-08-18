@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import ditda.backend.domain.commission.draft.entity.CommissionDraftFile;
 import ditda.backend.domain.commission.draft.entity.enums.WatermarkStatus;
 import ditda.backend.domain.commission.draft.repository.CommissionDraftFileRepository;
+import ditda.backend.global.monitoring.PermanentFailureMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,6 +25,7 @@ public class WatermarkRetryService {
 	private final CommissionDraftFileRepository commissionDraftFileRepository;
 	private final DraftWatermarkService draftWatermarkService;
 	private final DraftWatermarkTransitionService draftWatermarkTransitionService;
+	private final PermanentFailureMetrics permanentFailureMetrics;
 
 	// 미완료 워터마크 파일 조회 후 워터마크 큐에 투입
 	public void retryIncompleteFiles() {
@@ -34,8 +36,8 @@ public class WatermarkRetryService {
 		// 1. 재시도 상한을 넘겨 PROCESSING에 정체된 파일은 FAILED로 전이
 		int exhausted = draftWatermarkTransitionService.failExhaustedStuckFiles(stuckBefore, now);
 		if (exhausted > 0) {
-			// TODO: 디스코드 웹훅
 			log.error("Stuck watermark files permanently failed. count={}", exhausted);
+			permanentFailureMetrics.watermarkFailed(exhausted);
 		}
 
 		// 2. 재처리 대상 조회
