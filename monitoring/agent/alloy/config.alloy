@@ -37,7 +37,8 @@ prometheus.remote_write "central" {
 	external_labels = {env = "local"}
 
 	endpoint {
-		url = "http://host.docker.internal:9090/api/v1/write"
+		url            = "http://host.docker.internal:9090/api/v1/write"
+		send_exemplars = true
 	}
 }
 

@@ -10,6 +10,10 @@ datasources:
     jsonData:
       httpMethod: POST
       timeInterval: 15s
+      exemplarTraceIdDestinations:
+        - name: trace_id
+          datasourceUid: tempo
+          urlDisplayLabel: "View Trace"
     editable: false
 
   - name: Loki

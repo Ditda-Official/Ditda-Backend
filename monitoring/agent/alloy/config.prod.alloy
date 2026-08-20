@@ -54,7 +54,8 @@ prometheus.remote_write "central" {
 	external_labels = {env = "prod"}
 
 	endpoint {
-		url = "https://" + sys.env("MONITORING_HOST") + ":9090/api/v1/write"
+		url            = "https://" + sys.env("MONITORING_HOST") + ":9090/api/v1/write"
+		send_exemplars = true
 
 		basic_auth {
 			username = sys.env("MON_USER")
