@@ -71,12 +71,14 @@ public class DesignerDraftFacade {
 				designerDraftFileService.deleteFiles(permanentKeys);
 			} catch (Exception cleanupEx) {
 				original.addSuppressed(cleanupEx);
+				log.error("Failed to clean up draft files after submission failure. "
+					+ "Possible orphaned S3 objects. keys={}", permanentKeys, cleanupEx);
 			}
 			throw original;
 		}
 
-		log.info("디자이너 1차 시안 제출 완료. commissionId={}, designerId={}, draftId={}, fileCount={}",
-			commission.getId(), designerId, draft.getId(), permanentKeys.size());
+		log.info("First draft submitted. commissionId={}, draftId={}, fileCount={}",
+			commission.getId(), draft.getId(), permanentKeys.size());
 
 		return new DraftSubmitResponse(commission.getId(), draft.getId(), draft.getCreatedAt());
 	}
@@ -115,7 +117,7 @@ public class DesignerDraftFacade {
 			LocalDateTime.now()
 		));
 
-		log.info("모든 1차 시안 제출 완료. commissionId={}, submittedCount={}",
+		log.info("All first drafts submitted. commissionId={}, submitted={}",
 			commissionId, submittedCount);
 	}
 }

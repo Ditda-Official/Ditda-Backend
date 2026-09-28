@@ -57,17 +57,22 @@ public class S3PresignedUrlGenerator {
 	}
 
 	public String generatePutUrl(BucketType bucketType, String key, String contentType, Duration ttl) {
-		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-			.bucket(s3Properties.getBucket(bucketType))
-			.key(key)
-			.contentType(contentType)
-			.build();
+		try {
+			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+				.bucket(s3Properties.getBucket(bucketType))
+				.key(key)
+				.contentType(contentType)
+				.build();
 
-		PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-			.signatureDuration(ttl)
-			.putObjectRequest(putObjectRequest)
-			.build();
+			PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+				.signatureDuration(ttl)
+				.putObjectRequest(putObjectRequest)
+				.build();
 
-		return s3Presigner.presignPutObject(presignRequest).url().toString();
+			return s3Presigner.presignPutObject(presignRequest).url().toString();
+		} catch (SdkException exception) {
+			log.error("Failed to generate upload presigned url. key={}", key, exception);
+			throw new GeneralException(S3ErrorCode.FILE_URL_GENERATION_FAILED);
+		}
 	}
 }

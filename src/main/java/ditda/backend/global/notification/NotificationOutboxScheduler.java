@@ -36,7 +36,9 @@ public class NotificationOutboxScheduler {
 			return;
 		}
 
-		log.info("아웃박스 알림 발행 시작. 대상 수={}", pendingAlerts.size());
+		int sent = 0;
+		int failed = 0;
+
 		for (NotificationOutbox outbox : pendingAlerts) {
 			try {
 				MailMessage message = new MailMessage(
@@ -51,23 +53,38 @@ public class NotificationOutboxScheduler {
 				CorrelationData.Confirm confirm = correlationData.getFuture().get(5, TimeUnit.SECONDS);
 				if (confirm.ack() && correlationData.getReturned() == null) {
 					outbox.markSent();
+					sent++;
 				} else {
 					String errorMessage = !confirm.ack() ? "Broker Not Confirmed" : "Message Returned (Unroutable)";
 					outbox.recordRetry(errorMessage);
+					failed++;
+
+					log.warn("Notification was not delivered. outboxId={}, type={}, retryCount={}, reason={}",
+						outbox.getId(), outbox.getType(), outbox.getRetryCount(), errorMessage);
 				}
 
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
-				log.warn("아웃박스 알림 발행 인터럽트. outboxId={}", outbox.getId(), e);
+				log.warn("Interrupted while publishing notifications. outboxId={}", outbox.getId(), e);
 				break;
 			} catch (Exception e) {
-				log.error("아웃박스 알림 발행 실패. outboxId={}", outbox.getId(), e);
-				outbox.recordRetry(e.getMessage());
+				outbox.recordRetry(e.getClass().getSimpleName());
+				failed++;
+
+				log.warn("Notification publish failed. outboxId={}, type={}, retryCount={}",
+					outbox.getId(), outbox.getType(), outbox.getRetryCount(), e);
 			}
 
 			outboxRepository.save(outbox);
 
-			// TODO: outbox.getStatus() == FAILED시 디스코드 웹훅
+			if (outbox.getStatus() == OutboxStatus.FAILED) {
+				log.error("Notification permanently failed. outboxId={}, type={}, retryCount={}",
+					outbox.getId(), outbox.getType(), outbox.getRetryCount());
+				// TODO: outbox.getStatus() == FAILED시 디스코드 웹훅
+			}
 		}
+
+		log.info("Notification outbox batch finished. total={}, sent={}, failed={}",
+			pendingAlerts.size(), sent, failed);
 	}
 }

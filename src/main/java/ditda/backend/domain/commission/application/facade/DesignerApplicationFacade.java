@@ -52,7 +52,10 @@ public class DesignerApplicationFacade {
 		}
 
 		// 지원 저장
-		applicationService.saveApplication(CommissionApplication.create(commission, designer));
+		CommissionApplication application = CommissionApplication.create(commission, designer);
+		applicationService.saveApplication(application);
+
+		log.info("Application submitted. commissionId={}, applicationId={}", commissionId, application.getId());
 
 		// 조기 매칭 확정 판정
 		tryEarlyMatching(commission);
@@ -74,6 +77,8 @@ public class DesignerApplicationFacade {
 
 		// 지원 취소
 		application.cancel();
+
+		log.info("Application cancelled. commissionId={}, applicationId={}", commissionId, application.getId());
 	}
 
 	// 레벨별 1명 + 잉여 슬롯까지 모두 차면 즉시 매칭 확정
@@ -106,7 +111,7 @@ public class DesignerApplicationFacade {
 		// 매칭 완료 알림
 		publishMatchedEvent(matchedCommission, result.selected());
 
-		log.info("조기 매칭 확정. commissionId={}, selected={}, rejected={}",
+		log.info("Early matching completed. commissionId={}, selected={}, rejected={}",
 			matchedCommission.getId(), result.selected().size(), result.rejected().size());
 	}
 

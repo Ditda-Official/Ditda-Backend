@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ditda.backend.domain.auth.exception.AuthErrorCode;
 import ditda.backend.global.apipayload.exception.GeneralException;
+import ditda.backend.global.logging.LogMasker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +41,7 @@ public class EmailVerificationService {
 		redisTemplate.opsForValue().set(codeKey(email), code, CODE_TTL);
 		redisTemplate.opsForValue().set(lockKey, "1", RESEND_LOCK_TTL);
 
-		log.info("Email verification code issued. email={}", email);
+		log.info("Email verification code issued. email={}", LogMasker.maskEmail(email));
 
 		return code;
 	}

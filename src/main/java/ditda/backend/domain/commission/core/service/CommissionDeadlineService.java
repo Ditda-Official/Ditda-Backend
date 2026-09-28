@@ -41,15 +41,19 @@ public class CommissionDeadlineService {
 			today
 		);
 
+		int failed = 0;
 		for (Commission commission : commissions) {
 			try {
 				applicationDeadlineProcessor.process(commission.getId(), mailScheduledAt);
 			} catch (Exception e) {
-				log.error("외주 지원 마감 처리 중 오류 발생. commissionId={}", commission.getId(), e);
+				failed++;
+				log.error("Failed to process application deadline. commissionId={}", commission.getId(), e);
 
 				// TODO: 디스코드 웹훅
 			}
 		}
+
+		log.info("Application deadline batch finished. total={}, failed={}", commissions.size(), failed);
 	}
 
 	public void processFirstDraftDeadlines() {
@@ -65,15 +69,19 @@ public class CommissionDeadlineService {
 			today
 		);
 
+		int failed = 0;
 		for (Commission commission : commissions) {
 			try {
 				firstDraftDeadlineProcessor.process(commission.getId(), mailScheduledAt);
 			} catch (Exception e) {
-				log.error("외주 1차 시안 마감 처리 중 오류 발생. commissionId={}", commission.getId(), e);
+				failed++;
+				log.error("Failed to process first draft deadline. commissionId={}", commission.getId(), e);
 
 				// TODO: 디스코드 웹훅
 			}
 		}
+
+		log.info("First draft deadline batch finished. total={}, failed={}", commissions.size(), failed);
 	}
 
 	public void processFinalDeadlines() {
@@ -89,14 +97,18 @@ public class CommissionDeadlineService {
 			today
 		);
 
+		int failed = 0;
 		for (Commission commission : commissions) {
 			try {
 				finalDeadlineProcessor.process(commission.getId(), mailScheduledAt);
 			} catch (Exception e) {
-				log.error("외주 최종 마감 처리 중 오류 발생. commissionId={}", commission.getId(), e);
+				failed++;
+				log.error("Failed to process final deadline. commissionId={}", commission.getId(), e);
 
 				// TODO: 디스코드 웹훅
 			}
 		}
+
+		log.info("Final deadline batch finished. total={}, failed={}", commissions.size(), failed);
 	}
 }

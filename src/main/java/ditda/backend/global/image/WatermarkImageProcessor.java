@@ -21,7 +21,6 @@ import javax.imageio.stream.ImageInputStream;
 import org.springframework.stereotype.Component;
 
 import ditda.backend.global.image.dto.WatermarkedImage;
-import ditda.backend.global.image.exception.ImageErrorCode;
 import ditda.backend.global.image.exception.ImageProcessingException;
 import ditda.backend.global.s3.enums.S3ContentType;
 
@@ -50,7 +49,7 @@ public class WatermarkImageProcessor {
 		// 3. PNG로 재압축
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		if (!ImageIO.write(preview, "png", out)) {
-			throw new IOException("PNG 인코딩에 실패했습니다.");
+			throw new IOException("Failed to encode image as PNG.");
 		}
 
 		// 4. S3 업로드용 바이트
@@ -62,12 +61,12 @@ public class WatermarkImageProcessor {
 
 		try (InputStream fontStream = getClass().getResourceAsStream(FONT_PATH)) {
 			if (fontStream == null) {
-				throw new IllegalStateException("워터마크 폰트 리소스가 없습니다: " + FONT_PATH);
+				throw new IllegalStateException("Watermark font resource not found: " + FONT_PATH);
 			}
 
 			return Font.createFont(Font.TRUETYPE_FONT, fontStream);
 		} catch (IOException | FontFormatException exception) {
-			throw new IllegalStateException("워터마크 폰트 로드 실패: " + FONT_PATH, exception);
+			throw new IllegalStateException("Failed to load watermark font: " + FONT_PATH, exception);
 		}
 	}
 
@@ -79,7 +78,7 @@ public class WatermarkImageProcessor {
 
 			// 이미지가 아니거나 심하게 손상될 경우
 			if (!readers.hasNext()) {
-				throw new ImageProcessingException(ImageErrorCode.IMAGE_NOT_READABLE);
+				throw new ImageProcessingException("Image file could not be read.");
 			}
 
 			ImageReader reader = readers.next();
@@ -91,7 +90,7 @@ public class WatermarkImageProcessor {
 
 				// 픽셀 수 계산
 				if ((long)width * height > MAX_PIXELS) {
-					throw new ImageProcessingException(ImageErrorCode.IMAGE_RESOLUTION_EXCEEDED);
+					throw new ImageProcessingException("Image resolution exceeds the limit: " + width + "x" + height);
 				}
 
 				// 샘플링 간격

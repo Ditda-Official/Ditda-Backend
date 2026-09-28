@@ -25,7 +25,9 @@ import ditda.backend.domain.commission.draft.service.InstructorDraftService;
 import ditda.backend.domain.designer.entity.Designer;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class InstructorDraftFacade {
@@ -71,6 +73,9 @@ public class InstructorDraftFacade {
 		LocalDateTime mailScheduledAt = LocalDateTime.now();
 		publishRejectedPayoutEvent(commission, rejected, mailScheduledAt);
 		publishDraftSelectedEvent(commission, selected, rejected, mailScheduledAt);
+
+		log.info("Draft selected. commissionId={}, draftId={}, rejected={}",
+			commissionId, draftId, rejected.size());
 
 		return new DraftSelectResponse(
 			commissionId,
@@ -195,6 +200,7 @@ public class InstructorDraftFacade {
 		publishPayoutRequestedEvent(commission, assigned, mailScheduledAt);
 		publishCommissionCompletedEvent(commission, assigned, mailScheduledAt);
 
+		log.info("Commission finalized by instructor. commissionId={}, draftId={}", commissionId, draftId);
 	}
 
 	// 어드민: 확정된 디자이너 정산 요청

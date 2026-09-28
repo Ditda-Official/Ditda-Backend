@@ -35,7 +35,7 @@ public class WatermarkRetryService {
 		int exhausted = draftWatermarkTransitionService.failExhaustedStuckFiles(stuckBefore, now);
 		if (exhausted > 0) {
 			// TODO: 디스코드 웹훅
-			log.warn("재시도 상한 초과 정체 파일 FAILED 전환 {}건", exhausted);
+			log.error("Stuck watermark files permanently failed. count={}", exhausted);
 		}
 
 		// 2. 재처리 대상 조회
@@ -58,6 +58,6 @@ public class WatermarkRetryService {
 
 		claimedIds.forEach(draftWatermarkService::reprocessFile);
 
-		log.info("워터마크 재처리 대상 {}건 / 큐잉 {}건", targetIds.size(), claimedIds.size());
+		log.info("Watermark retry batch finished. total={}, claimed={}", targetIds.size(), claimedIds.size());
 	}
 }

@@ -21,7 +21,9 @@ import ditda.backend.domain.commission.revision.service.RevisionQueryService;
 import ditda.backend.domain.user.entity.User;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -99,6 +101,8 @@ public class InstructorRevisionFacade {
 
 		// 디자이너에게 수정 요청 도착 메일 발송
 		publishRevisionRequestedEvent(commission, currentRevisionCount);
+
+		log.info("Revision requested. commissionId={}, revisionCount={}", commissionId, currentRevisionCount);
 	}
 
 	// 카테고리 중복 검증

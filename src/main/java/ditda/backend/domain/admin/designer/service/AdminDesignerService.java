@@ -25,18 +25,18 @@ public class AdminDesignerService {
 	private final AdminDesignerMapper adminDesignerMapper;
 
 	// 디자이너 계좌 정보 조회
-	public DesignerAccountResponse getDesignerAccount(Long adminId, Long designerId) {
+	public DesignerAccountResponse getDesignerAccount(Long designerId) {
 
 		// 디자이너 조회
 		Designer designer = designerService.getById(designerId);
 
-		log.info("[Admin Audit] adminId={} accessed designerId={} account info", adminId, designerId);
+		log.info("Admin accessed designer bank account. designerId={}", designerId);
 
 		return DesignerAccountResponse.from(designer);
 	}
 
 	// 디자이너 포트폴리오 조회
-	public DesignerPortfolioResponse getDesignerPortfolios(Long adminId, Long designerId) {
+	public DesignerPortfolioResponse getDesignerPortfolios(Long designerId) {
 
 		// 디자이너 존재 검증
 		designerService.validateExists(designerId);
@@ -44,8 +44,7 @@ public class AdminDesignerService {
 		// 포트폴리오 key 조회
 		List<String> portfolioKeys = portfolioService.getPortfolioKeys(designerId);
 
-		log.info("[Admin Audit] adminId={} accessed designerId={} portfolios (count={})",
-			adminId, designerId, portfolioKeys.size());
+		log.info("Admin accessed designer portfolios. designerId={}, count={}", designerId, portfolioKeys.size());
 
 		return adminDesignerMapper.toPortfolioResponse(designerId, portfolioKeys);
 	}

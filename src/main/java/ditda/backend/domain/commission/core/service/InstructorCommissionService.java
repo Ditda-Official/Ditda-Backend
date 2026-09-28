@@ -29,7 +29,9 @@ import ditda.backend.domain.instructor.service.InstructorService;
 import ditda.backend.domain.payment.service.PaymentService;
 import ditda.backend.global.apipayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InstructorCommissionService {
@@ -94,6 +96,8 @@ public class InstructorCommissionService {
 			term.version(),
 			term.isAgreed()
 		);
+
+		log.info("Commission created. commissionId={}", commission.getId());
 
 		return CommissionCreateResponse.from(commission);
 	}

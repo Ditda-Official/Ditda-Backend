@@ -15,7 +15,9 @@ import ditda.backend.domain.settlement.entity.Settlement;
 import ditda.backend.domain.settlement.entity.enums.SettlementType;
 import ditda.backend.domain.settlement.service.SettlementService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class PayoutSettlementListener {
@@ -42,6 +44,9 @@ public class PayoutSettlementListener {
 			.toList();
 
 		settlementService.createAll(settlements);
+
+		log.info("Payout requested. commissionId={}, reason={}, count={}",
+			event.commissionId(), event.reason(), settlements.size());
 	}
 
 	private SettlementType toSettlementType(PayoutRequestedEvent.PayoutReason reason) {

@@ -40,7 +40,7 @@ public class AesEncryptor {
 			this.secretKeySpec = new SecretKeySpec(keyBytes, "AES");
 
 		} catch (Exception e) {
-			throw new IllegalStateException("Failed to initialize AES encryption", e);
+			throw new IllegalStateException("Failed to initialize AES encryption.", e);
 		}
 	}
 
@@ -68,7 +68,7 @@ public class AesEncryptor {
 			// Base64 인코딩
 			return Base64.getEncoder().encodeToString(combined);
 		} catch (Exception e) {
-			log.error("Failed to encrypt data", e);
+			log.error("Failed to encrypt data.", e);
 			throw new GeneralException(GeneralErrorCode.ENCRYPTION_FAILED);
 		}
 	}
@@ -97,7 +97,7 @@ public class AesEncryptor {
 
 			return new String(cipher.doFinal(encrypted), StandardCharsets.UTF_8);
 		} catch (Exception e) {
-			log.error("Failed to decrypt data", e);
+			log.error("Failed to decrypt data.", e);
 			throw new GeneralException(GeneralErrorCode.DECRYPTION_FAILED);
 		}
 	}

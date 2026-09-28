@@ -3,6 +3,7 @@ package ditda.backend.domain.auth.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.slf4j.MDC;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +18,11 @@ import ditda.backend.domain.term.service.TermService;
 import ditda.backend.domain.user.entity.User;
 import ditda.backend.domain.user.entity.enums.UserRole;
 import ditda.backend.domain.user.service.UserService;
+import ditda.backend.global.logging.MdcKey;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InstructorAuthService {
@@ -47,6 +51,7 @@ public class InstructorAuthService {
 			UserRole.INSTRUCTOR,
 			LocalDateTime.now()
 		);
+		MDC.put(MdcKey.USER_ID, String.valueOf(user.getId()));
 
 		termService.saveInstructorTerms(user, toAgreements(request.terms()));
 
@@ -54,6 +59,8 @@ public class InstructorAuthService {
 		instructorRepository.save(Instructor.createInstructor(user));
 
 		TokenResult tokens = authService.issueTokens(user);
+
+		log.info("Instructor signed up.");
 
 		return new AuthResult(
 			user.getId(),

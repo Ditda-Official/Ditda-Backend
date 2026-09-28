@@ -43,7 +43,8 @@ public class ApplicationDeadlineProcessor {
 			.orElseThrow(() -> new GeneralException(CommissionErrorCode.COMMISSION_NOT_FOUND));
 
 		if (commission.getStatus() != CommissionStatus.RECRUITING) {
-			log.info("이미 모집 상태가 아니므로 마감 처리 스킵. commissionId={}, status={}", commission.getId(), commission.getStatus());
+			log.info("Application deadline processing skipped. Not in recruiting status. commissionId={}, status={}",
+				commission.getId(), commission.getStatus());
 			return;
 		}
 
@@ -53,8 +54,8 @@ public class ApplicationDeadlineProcessor {
 
 		applyApplicationDeadline(commission, applications, mailScheduledAt);
 
-		log.info("외주 지원 마감 처리 완료. commissionId={}, cancelled={}",
-			commission.getId(), commission.isCancelled());
+		log.info("Application deadline processed. commissionId={}, applicants={}, required={}, cancelled={}",
+			commission.getId(), applications.size(), commission.getDesignerCount(), commission.isCancelled());
 	}
 
 	private void applyApplicationDeadline(

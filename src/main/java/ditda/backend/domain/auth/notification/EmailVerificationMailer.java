@@ -25,7 +25,7 @@ public class EmailVerificationMailer {
 		try {
 			mailPublisher.publish(new MailMessage(type.name(), to, Map.of("code", code)));
 		} catch (AmqpException e) {
-			log.error("인증 메일 발행 실패.", e);
+			log.error("Failed to publish email verification message. type={}", type, e);
 			throw new GeneralException(AuthErrorCode.EMAIL_VERIFICATION_SEND_FAILED);
 		}
 	}

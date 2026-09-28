@@ -45,7 +45,7 @@ public class FinalDeadlineProcessor {
 
 		applyFinalDeadline(commission, applications, mailScheduledAt);
 
-		log.info("외주 최종 마감 처리 완료. commissionId={}, cancelled={}",
+		log.info("Final deadline processed. commissionId={}, cancelled={}",
 			commission.getId(), commission.isCancelled());
 
 	}
