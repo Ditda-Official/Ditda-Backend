@@ -9,6 +9,7 @@ import org.springframework.data.domain.Limit;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import ditda.backend.global.monitoring.PermanentFailureMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,6 +22,7 @@ public class NotificationOutboxScheduler {
 
 	private final NotificationOutboxRepository outboxRepository;
 	private final MailPublisher mailPublisher;
+	private final PermanentFailureMetrics permanentFailureMetrics;
 
 	@Scheduled(cron = "0 */10 * * * *", zone = "Asia/Seoul")
 	public void dispatchPendingNotifications() {
@@ -80,7 +82,7 @@ public class NotificationOutboxScheduler {
 			if (outbox.getStatus() == OutboxStatus.FAILED) {
 				log.error("Notification permanently failed. outboxId={}, type={}, retryCount={}",
 					outbox.getId(), outbox.getType(), outbox.getRetryCount());
-				// TODO: outbox.getStatus() == FAILED시 디스코드 웹훅
+				permanentFailureMetrics.notificationFailed();
 			}
 		}
 

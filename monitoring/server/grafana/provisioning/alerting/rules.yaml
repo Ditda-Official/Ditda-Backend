@@ -219,6 +219,100 @@ groups:
               conditions:
                 - evaluator: { type: gt, params: [ 10 ] }
 
+
+  # ========== 비즈니스 영구 실패 ==========
+  - orgId: 1
+    name: ditda-business-failure
+    folder: DITDA
+    interval: 1m
+    rules:
+      - uid: ditda-watermark-permanent-failure
+        title: '[APP] 워터마크 영구 실패'
+        condition: C
+        for: 0s
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: critical
+        annotations:
+          summary: '🚨 워터마크 영구 실패'
+          description: '재시도 횟수를 소진해 워터마크 처리가 되지 않은 시안 파일이 있습니다. Loki에서 "permanently failed" 검색으로 draftFileId를 확인하세요.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum by (env) (increase(ditda_permanent_failure_total{kind="watermark"}[10m]))
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0 ] }
+
+      - uid: ditda-notification-permanent-failure
+        title: '[APP] 알림 메일 영구 실패'
+        condition: C
+        for: 0s
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: critical
+        annotations:
+          summary: '🚨 알림 메일 영구 실패'
+          description: '재시도 횟수를 소진해 발송되지 않은 메일이 있습니다. Loki에서 "Notification permanently failed"로 outboxId와 type을 확인하세요.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum by (env) (increase(ditda_permanent_failure_total{kind="notification"}[10m]))
+          - refId: C
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [ 0 ] }
+
+      - uid: ditda-deadline-batch-missing
+        title: '[APP] 마감 배치 미실행'
+        condition: C
+        for: 0s
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: critical
+        annotations:
+          summary: '🚨 마감 배치가 실행되지 않음'
+          description: '25시간 동안 마감 스케줄러 실행 기록이 없습니다. 스케줄러 스레드 정체 여부를 확인하세요.'
+        data:
+          - refId: A
+            relativeTimeRange: { from: 93600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum by (code_function) (increase(tasks_scheduled_execution_seconds_count{code_function=~"process.*Deadlines"}[25h]))
+          - refId: C
+            relativeTimeRange: { from: 93600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: lt, params: [ 1 ] }
+
   # ========== Redis ==========
   - orgId: 1
     name: ditda-redis

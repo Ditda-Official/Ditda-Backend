@@ -48,8 +48,6 @@ public class CommissionDeadlineService {
 			} catch (Exception e) {
 				failed++;
 				log.error("Failed to process application deadline. commissionId={}", commission.getId(), e);
-
-				// TODO: 디스코드 웹훅
 			}
 		}
 
@@ -76,8 +74,6 @@ public class CommissionDeadlineService {
 			} catch (Exception e) {
 				failed++;
 				log.error("Failed to process first draft deadline. commissionId={}", commission.getId(), e);
-
-				// TODO: 디스코드 웹훅
 			}
 		}
 
@@ -104,8 +100,6 @@ public class CommissionDeadlineService {
 			} catch (Exception e) {
 				failed++;
 				log.error("Failed to process final deadline. commissionId={}", commission.getId(), e);
-
-				// TODO: 디스코드 웹훅
 			}
 		}
 
