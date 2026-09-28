@@ -18,7 +18,7 @@ services:
       - --storage.tsdb.retention.time=15d     # 보존기간: 15일
       - --web.enable-lifecycle                # /-/reload로 설정 무중단 갱신
       - --web.enable-remote-write-receiver
-
+      - --enable-feature=exemplar-storage     # exemplar 저장
 
   loki:
     image: grafana/loki:3.7.3
